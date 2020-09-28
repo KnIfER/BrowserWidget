@@ -214,7 +214,7 @@ class AccessibilityTestHandler : public TestHandler,
 
 #if defined(OS_WIN)
     windowInfo.SetAsWindowless(GetDesktopWindow());
-#elif defined(OS_MAC)
+#elif defined(OS_MACOSX)
     windowInfo.SetAsWindowless(kNullWindowHandle);
 #elif defined(OS_LINUX)
     windowInfo.SetAsWindowless(kNullWindowHandle);

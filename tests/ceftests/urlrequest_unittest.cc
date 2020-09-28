@@ -2362,11 +2362,6 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
   // Send a request. |complete_callback| will be executed on request completion.
   void SendRequest(const test_request::RequestDoneCallback& done_callback) {
-    if (!is_browser_process_) {
-      // Render process requests must use CefFrame::CreateURLRequest.
-      EXPECT_TRUE(use_frame_method_);
-    }
-
     test_request::SendConfig config;
 
     if (settings_.redirect_request)
@@ -3215,8 +3210,9 @@ bool IsTestSupported(RequestTestMode test_mode,
                      bool test_in_browser,
                      bool test_server_backend,
                      bool test_frame_method) {
-  if (!test_in_browser && !test_frame_method) {
-    // Render process requests must use CefFrame::CreateURLRequest.
+  if (!test_in_browser && !test_server_backend && !test_frame_method) {
+    // Requests from the render process can only reach non-server backends when
+    // using the CefFrame::CreateURLRequest method.
     return false;
   }
 

@@ -6,7 +6,7 @@
 
 #if defined(OS_WIN)
 #include <gl/gl.h>
-#elif defined(OS_MAC)
+#elif defined(OS_MACOSX)
 #include <OpenGL/gl.h>
 #elif defined(OS_LINUX)
 #include <GL/gl.h>
