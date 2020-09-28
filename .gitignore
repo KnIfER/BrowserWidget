@@ -1,7 +1,8 @@
 Resources
-build
 Debug
 Release
+GPUCache
+*.log
 *.gypcmd
 *.mk
 *.ncb
@@ -10,15 +11,12 @@ Release
 *.pyc
 *.rules
 *.sdf
-*.sln
 *.sublime-project
 *.sublime-workspace
 *.suo
 *.targets
 *.user
-*.vcproj
-*.vcxproj
-*.vcxproj.filters
+*.vcxproj.filters.user
 *.vpj
 *.vpw
 *.vpwhistu

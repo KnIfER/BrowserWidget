@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="$(ROOTPA)\tests\gtest\src\gtest-all.cc">
+      <Filter>cef_gtest</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="cef_gtest">
+      <UniqueIdentifier>{C2D3E396-ACE5-3A82-AA18-81E8FD6637B6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
