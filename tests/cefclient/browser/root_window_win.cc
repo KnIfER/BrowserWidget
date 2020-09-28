@@ -331,12 +331,11 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings,
   const HBRUSH background_brush = CreateSolidBrush(
       RGB(CefColorGetR(background_color), CefColorGetG(background_color),
           CefColorGetB(background_color)));
-
-  //::MessageBox(NULL, window_class.data(), TEXT(""), MB_OK);
-  //TCHAR bufferx[100]={0};
-  //wsprintf(bufferx,TEXT("position=%d=%d=%d=%s"), g_hInstance, GetModuleHandle(NULL), window_class.data());
-  //::MessageBox(NULL, bufferx, TEXT(""), MB_OK);
-
+#if 0
+  TCHAR bufferx[100]={0};
+  wsprintf(bufferx,TEXT("position=%d=%d=%d=%s"), g_hInstance, GetModuleHandle(NULL), window_class.data());
+  ::MessageBox(NULL, bufferx, TEXT(""), MB_OK);
+#endif
 
   // Register the window class.
   int ret = RegisterRootClass(g_hInstance, window_class, background_brush);
@@ -376,10 +375,6 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings,
   // Create the main window initially hidden.
   auto hwnd = CreateWindowEx(dwExStyle, window_class.c_str(), window_title.c_str(), dwStyle,
                  x, y, width, height, NULL, NULL, hInstance, this);
-
-  TCHAR buffer[100]={0};
-  wsprintf(buffer,TEXT("position=%d"), ret);
-  ::MessageBox(NULL, buffer, TEXT(""), MB_OK);
 
   CHECK(hwnd_);
 

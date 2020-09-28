@@ -1,6 +1,7 @@
 Resources
 Debug
 Release
+Release_
 GPUCache
 *.log
 *.gypcmd

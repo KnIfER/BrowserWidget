@@ -61,37 +61,39 @@ int RunMain(HINSTANCE hInstance, int nCmdShow) {
   // Create a ClientApp of the correct type.
   CefRefPtr<ClientApp> app = new ClientAppBrowser();
 
-
- // ::MessageBox(NULL, GetCommandLineW(), TEXT(""), MB_OK);
+  auto cmd = GetCommandLine();
+  auto idx=wcsstr(cmd, L"\" --");
+  if(idx)
+  {
+	  idx=idx+1;
+  }
+  else
+  {
+	  // todo boundary check
+	  idx = cmd+lstrlen(cmd);
+  }
+  if(idx)
+  {
+	  lstrcpy(idx, TEXT(" -single-process -no-proxy-server -disable-logging"));
+  }
 
   // Execute the secondary process, if any.
   int exit_code = CefExecuteProcess(main_args, app, sandbox_info);
   if (exit_code >= 0)
     return exit_code;
 
-
   // Create the main context object.
   scoped_ptr<MainContextImpl> context(new MainContextImpl(command_line, true));
 
   CefSettings settings;
-
-  //CefString(&settings.application_client_id_for_file_scanning).FromString("9A8DE24D-B822-4C6C-8259-5A848FEA1E68");
-
-  // Populate the settings based on command line arguments.
- context->PopulateSettings(&settings);
-
+  settings.Set({}, 0);
+  CefString(&settings.application_client_id_for_file_scanning).FromString("9A8DE24D-B822-4C6C-8259-5A848FEA1E68");
+  context->PopulateSettings(&settings);
   settings.command_line_args_disabled=0;
   settings.no_sandbox = true;
-  //settings.command_line_args_disabled=false;
-  //settings.log_file={L"C:\\tmp\\123.log", 14};
-  //settings.log_severity=LOGSEVERITY_DISABLE;
-  
-  //"-no-proxy-server --single-process"
-
+  settings.log_severity=LOGSEVERITY_DISABLE;
 
   settings.multi_threaded_message_loop=1;
-
-  // Create the main message loop object.
   scoped_ptr<MainMessageLoopMultithreadedWin> lopper;
   lopper.reset(new MainMessageLoopMultithreadedWin);
 
@@ -107,13 +109,10 @@ int RunMain(HINSTANCE hInstance, int nCmdShow) {
   auto Browser = context->GetRootWindowManager()->CreateRootWindow(window_config);
   //Browser->GetBrowser()->
 
-
   lopper->agent=true;
   int result = lopper->Run();
-
-  //::MessageBox(NULL, GetCommandLineW(), TEXT(""), MB_OK);
-
-  context->Shutdown();
+  Browser->Close(true);
+  //context->Shutdown();
   lopper.reset();
   context.reset();
   return result;

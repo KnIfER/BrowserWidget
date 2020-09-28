@@ -37,13 +37,15 @@ MainMessageLoopMultithreadedWin::~MainMessageLoopMultithreadedWin() {
 
 
 int MainMessageLoopMultithreadedWin::Run() {
-  //DCHECK(RunsTasksOnCurrentThread());
-
-  HINSTANCE hInstance = g_hInstance;//::GetModuleHandle(NULL);
+  DCHECK(RunsTasksOnCurrentThread());
+  HINSTANCE hInstance = g_hInstance;
 
  // if(0)
   {
-    //base::AutoLock lock_scope(lock_);
+	if(agent)
+	{
+		base::AutoLock lock_scope(lock_);
+	}
 
     // Create the hidden window for message processing.
     message_hwnd_ = CreateMessageWindow(hInstance);
@@ -61,23 +63,24 @@ int MainMessageLoopMultithreadedWin::Run() {
 
   if(agent)
   {
-	  //HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CEFCLIENT));
+	  HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CEFCLIENT));
 	  MSG msg;
 	  // Run the application message loop.
 	  while (GetMessage(&msg, NULL, 0, 0)) {
 		  // Allow processing of dialog messages.
-		  //if (dialog_hwnd_ && IsDialogMessage(dialog_hwnd_, &msg))
-		//	  continue;
+		  if (dialog_hwnd_ && IsDialogMessage(dialog_hwnd_, &msg))
+			  continue;
 
-		 // if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg)) {
+		  if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg)) {
 			  TranslateMessage(&msg);
 			  DispatchMessage(&msg);
-		  //}
+		  }
 	  }
-	  // base::AutoLock lock_scope(lock_);
+	  base::AutoLock lock_scope(lock_);
 	  // Destroy the message window.
 	  DestroyWindow(message_hwnd_);
 	  message_hwnd_ = NULL;
+	  return static_cast<int>(msg.wParam);
   }
 
   return 0;
