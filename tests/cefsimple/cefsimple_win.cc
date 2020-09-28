@@ -54,19 +54,24 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 
   // Parse command-line arguments for use in this method.
   CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
-  command_line->InitFromString(::GetCommandLineW());
+  //command_line->InitFromString(::GetCommandLineW());
+  command_line->AppendSwitch("no-proxy-server");
 
   // Specify CEF global settings here.
   CefSettings settings;
 
   if (command_line->HasSwitch("enable-chrome-runtime")) {
     // Enable experimental Chrome runtime. See issue #2969 for details.
-    settings.chrome_runtime = true;
+    //settings.chrome_runtime = true;
   }
 
-#if !defined(CEF_USE_SANDBOX)
   settings.no_sandbox = true;
-#endif
+
+  settings.no_sandbox = true;
+  settings.command_line_args_disabled=false;
+  settings.log_file={L"C:\\tmp\\123.log", 14};
+
+
 
   // SimpleApp implements application-level callbacks for the browser process.
   // It will create the first browser instance in OnContextInitialized() after

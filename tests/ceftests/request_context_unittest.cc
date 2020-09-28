@@ -749,7 +749,7 @@ POPUP_TEST_GROUP(DestroyParentAfterCreationForce,
 
 namespace {
 
-const char kResolveOrigin[] = "http://www.google.com";
+const char kResolveOrigin[] = "http://www.baidu.com";
 
 class MethodTestHandler : public TestHandler {
  public:

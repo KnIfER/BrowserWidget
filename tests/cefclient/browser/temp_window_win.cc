@@ -8,6 +8,7 @@
 
 #include "include/base/cef_logging.h"
 
+extern  HINSTANCE g_hInstance;
 namespace client {
 
 namespace {
@@ -16,7 +17,7 @@ const wchar_t kWndClass[] = L"Client_TempWindow";
 
 // Create the temp window.
 HWND CreateTempWindow() {
-  HINSTANCE hInstance = ::GetModuleHandle(NULL);
+  HINSTANCE hInstance = g_hInstance;
 
   WNDCLASSEX wc = {0};
   wc.cbSize = sizeof(wc);

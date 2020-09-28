@@ -6,6 +6,8 @@
 
 #include "include/base/cef_logging.h"
 
+extern  HINSTANCE g_hInstance;
+
 namespace client {
 
 namespace {
@@ -44,7 +46,7 @@ WNDPROC SetWndProcPtr(HWND hWnd, WNDPROC wndProc) {
 std::wstring GetResourceString(UINT id) {
 #define MAX_LOADSTRING 100
   TCHAR buff[MAX_LOADSTRING] = {0};
-  LoadString(::GetModuleHandle(NULL), id, buff, MAX_LOADSTRING);
+  LoadString(g_hInstance, id, buff, MAX_LOADSTRING);
   return buff;
 }
 

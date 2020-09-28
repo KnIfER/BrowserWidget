@@ -1,4 +1,7 @@
 Resources
+build
+Debug
+Release
 *.gypcmd
 *.mk
 *.ncb

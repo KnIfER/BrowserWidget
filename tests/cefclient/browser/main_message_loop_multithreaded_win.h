@@ -31,7 +31,8 @@ class MainMessageLoopMultithreadedWin : public MainMessageLoop {
   bool RunsTasksOnCurrentThread() const OVERRIDE;
   void SetCurrentModelessDialog(HWND hWndDialog) OVERRIDE;
 
- private:
+  bool agent=false;
+ //private:
   // Create the message window.
   static HWND CreateMessageWindow(HINSTANCE hInstance);
 

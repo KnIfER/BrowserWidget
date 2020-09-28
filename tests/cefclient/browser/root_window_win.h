@@ -55,7 +55,7 @@ class RootWindowWin : public RootWindow, public BrowserWindow::Delegate {
                         bool initially_hidden);
 
   // Register the root window class.
-  static void RegisterRootClass(HINSTANCE hInstance,
+  static int RegisterRootClass(HINSTANCE hInstance,
                                 const std::wstring& window_class,
                                 HBRUSH background_brush);
 

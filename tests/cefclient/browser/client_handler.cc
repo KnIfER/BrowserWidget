@@ -424,6 +424,7 @@ bool ClientHandler::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
                                      int line) {
   CEF_REQUIRE_UI_THREAD();
 
+#if 0
   FILE* file = fopen(console_log_file_.c_str(), "a");
   if (file) {
     std::stringstream ss;
@@ -457,6 +458,7 @@ bool ClientHandler::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
       first_console_message_ = false;
     }
   }
+#endif
 
   return false;
 }

@@ -9,12 +9,14 @@
 #include "include/wrapper/cef_byte_read_handler.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
 
+extern  HINSTANCE g_hInstance;
+
 namespace client {
 
 namespace {
 
 bool LoadBinaryResource(int binaryId, DWORD& dwSize, LPBYTE& pBytes) {
-  HINSTANCE hInst = GetModuleHandle(NULL);
+  HINSTANCE hInst = g_hInstance;
   HRSRC hRes =
       FindResource(hInst, MAKEINTRESOURCE(binaryId), MAKEINTRESOURCE(256));
   if (hRes) {

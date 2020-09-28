@@ -9,6 +9,8 @@
 #include "include/cef_app.h"
 #include "tests/shared/browser/util_win.h"
 
+extern  HINSTANCE g_hInstance;
+
 namespace client {
 
 namespace {
@@ -50,7 +52,7 @@ class MainMessageLoopExternalPumpWin : public MainMessageLoopExternalPump {
 
 MainMessageLoopExternalPumpWin::MainMessageLoopExternalPumpWin()
     : timer_pending_(false), main_thread_target_(NULL) {
-  HINSTANCE hInstance = GetModuleHandle(NULL);
+  HINSTANCE hInstance = g_hInstance;
   const wchar_t* const kClassName = L"CEFMainTargetHWND";
 
   WNDCLASSEX wcex = {};

@@ -10,6 +10,10 @@
 #include "tests/cefclient/browser/resource.h"
 #include "tests/shared/browser/util_win.h"
 
+extern HACCEL hAccelTable;
+extern HINSTANCE g_hInstance;
+
+
 namespace client {
 
 namespace {
@@ -31,17 +35,19 @@ MainMessageLoopMultithreadedWin::~MainMessageLoopMultithreadedWin() {
   DCHECK(queued_tasks_.empty());
 }
 
+
 int MainMessageLoopMultithreadedWin::Run() {
-  DCHECK(RunsTasksOnCurrentThread());
+  //DCHECK(RunsTasksOnCurrentThread());
 
-  HINSTANCE hInstance = ::GetModuleHandle(NULL);
+  HINSTANCE hInstance = g_hInstance;//::GetModuleHandle(NULL);
 
+ // if(0)
   {
-    base::AutoLock lock_scope(lock_);
+    //base::AutoLock lock_scope(lock_);
 
     // Create the hidden window for message processing.
     message_hwnd_ = CreateMessageWindow(hInstance);
-    CHECK(message_hwnd_);
+    //CHECK(message_hwnd_);
 
     // Store a pointer to |this| in the window's user data.
     SetUserDataPtr(message_hwnd_, this);
@@ -53,33 +59,31 @@ int MainMessageLoopMultithreadedWin::Run() {
     }
   }
 
-  HACCEL hAccelTable =
-      LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CEFCLIENT));
-
-  MSG msg;
-
-  // Run the application message loop.
-  while (GetMessage(&msg, NULL, 0, 0)) {
-    // Allow processing of dialog messages.
-    if (dialog_hwnd_ && IsDialogMessage(dialog_hwnd_, &msg))
-      continue;
-
-    if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg)) {
-      TranslateMessage(&msg);
-      DispatchMessage(&msg);
-    }
-  }
-
+  if(agent)
   {
-    base::AutoLock lock_scope(lock_);
+	  //HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CEFCLIENT));
+	  MSG msg;
+	  // Run the application message loop.
+	  while (GetMessage(&msg, NULL, 0, 0)) {
+		  // Allow processing of dialog messages.
+		  //if (dialog_hwnd_ && IsDialogMessage(dialog_hwnd_, &msg))
+		//	  continue;
 
-    // Destroy the message window.
-    DestroyWindow(message_hwnd_);
-    message_hwnd_ = NULL;
+		 // if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg)) {
+			  TranslateMessage(&msg);
+			  DispatchMessage(&msg);
+		  //}
+	  }
+	  // base::AutoLock lock_scope(lock_);
+	  // Destroy the message window.
+	  DestroyWindow(message_hwnd_);
+	  message_hwnd_ = NULL;
   }
 
-  return static_cast<int>(msg.wParam);
+  return 0;
 }
+
+
 
 void MainMessageLoopMultithreadedWin::Quit() {
   // Execute PostQuitMessage(0) on the main thread.

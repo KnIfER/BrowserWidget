@@ -24,6 +24,8 @@
 #define BUTTON_WIDTH 72
 #define URLBAR_HEIGHT 24
 
+extern  HINSTANCE g_hInstance;
+
 namespace client {
 
 namespace {
@@ -319,7 +321,7 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings,
   REQUIRE_MAIN_THREAD();
   DCHECK(!hwnd_);
 
-  HINSTANCE hInstance = GetModuleHandle(NULL);
+  HINSTANCE hInstance = g_hInstance;
 
   // Load strings from the resource file.
   const std::wstring& window_title = GetResourceString(IDS_APP_TITLE);
@@ -330,8 +332,14 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings,
       RGB(CefColorGetR(background_color), CefColorGetG(background_color),
           CefColorGetB(background_color)));
 
+  //::MessageBox(NULL, window_class.data(), TEXT(""), MB_OK);
+  //TCHAR bufferx[100]={0};
+  //wsprintf(bufferx,TEXT("position=%d=%d=%d=%s"), g_hInstance, GetModuleHandle(NULL), window_class.data());
+  //::MessageBox(NULL, bufferx, TEXT(""), MB_OK);
+
+
   // Register the window class.
-  RegisterRootClass(hInstance, window_class, background_brush);
+  int ret = RegisterRootClass(g_hInstance, window_class, background_brush);
 
   // Register the message used with the find dialog.
   find_message_id_ = RegisterWindowMessage(FINDMSGSTRING);
@@ -366,8 +374,13 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings,
   browser_settings_ = settings;
 
   // Create the main window initially hidden.
-  CreateWindowEx(dwExStyle, window_class.c_str(), window_title.c_str(), dwStyle,
+  auto hwnd = CreateWindowEx(dwExStyle, window_class.c_str(), window_title.c_str(), dwStyle,
                  x, y, width, height, NULL, NULL, hInstance, this);
+
+  TCHAR buffer[100]={0};
+  wsprintf(buffer,TEXT("position=%d"), ret);
+  ::MessageBox(NULL, buffer, TEXT(""), MB_OK);
+
   CHECK(hwnd_);
 
   if (!called_enable_non_client_dpi_scaling_ && IsProcessPerMonitorDpiAware()) {
@@ -389,13 +402,13 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings,
 }
 
 // static
-void RootWindowWin::RegisterRootClass(HINSTANCE hInstance,
+int RootWindowWin::RegisterRootClass(HINSTANCE hInstance,
                                       const std::wstring& window_class,
                                       HBRUSH background_brush) {
   // Only register the class one time.
   static bool class_registered = false;
   if (class_registered)
-    return;
+    return 2;
   class_registered = true;
 
   WNDCLASSEX wcex;
@@ -414,7 +427,7 @@ void RootWindowWin::RegisterRootClass(HINSTANCE hInstance,
   wcex.lpszClassName = window_class.c_str();
   wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
-  RegisterClassEx(&wcex);
+  return RegisterClassEx(&wcex);
 }
 
 // static
@@ -849,7 +862,7 @@ void RootWindowWin::OnFindEvent() {
 
 void RootWindowWin::OnAbout() {
   // Show the about box.
-  DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_ABOUTBOX), hwnd_,
+  DialogBox(g_hInstance, MAKEINTRESOURCE(IDD_ABOUTBOX), hwnd_,
             AboutWndProc);
 }
 
