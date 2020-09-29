@@ -56,6 +56,15 @@ void LoadStringResourcePage(CefRefPtr<CefBrowser> browser,
   browser->GetMainFrame()->LoadURL(kTestOrigin + page);
 }
 
+void LoadStrResourcePage(CefRefPtr<CefBrowser> browser,
+                            const std::string& page,
+                            const CHAR* data) {
+  CefRefPtr<CefClient> client = browser->GetHost()->GetClient();
+  ClientHandler* client_handler = static_cast<ClientHandler*>(client.get());
+  client_handler->SetStrResource(page, data);
+  browser->GetMainFrame()->LoadURL(kTestOrigin + page);
+}
+
 // Replace all instances of |from| with |to| in |str|.
 std::string StringReplace(const std::string& str,
                           const std::string& from,
@@ -84,6 +93,12 @@ void RunGetSourceTest(CefRefPtr<CefBrowser> browser) {
       std::stringstream ss;
       ss << "<html><body bgcolor=\"white\">Source:<pre>" << source
          << "</pre></body></html>";
+#if 0
+	  CHAR* ZB = new CHAR[1024];
+	  //CHAR ZB[1024];
+	  strcpy(ZB, "HAPPY");
+	  LoadStrResourcePage(browser_, "HAPPY.html", ZB);
+#endif
       LoadStringResourcePage(browser_, kTestGetSourcePage, ss.str());
     }
 
@@ -491,9 +506,11 @@ class RequestDumpResourceProvider : public CefResourceManager::Provider {
 // with LoadStringResourcePage().
 class StringResourceProvider : public CefResourceManager::Provider {
  public:
-  StringResourceProvider(const std::set<std::string>& pages, StringResourceMap* string_resource_map)
-      : pages_(pages), string_resource_map_(string_resource_map) {
-    DCHECK(!pages.empty());
+  StringResourceProvider(StringResourceMap* string_resource_map, StrResourceMap* str_resource_map)
+      : //pages_(pages), 
+	  str_resource_map_(str_resource_map), 
+	  string_resource_map_(string_resource_map) {
+    //DCHECK(!pages.empty());
   }
 
   bool OnRequest(scoped_refptr<CefResourceManager::Request> request) OVERRIDE {
@@ -506,32 +523,39 @@ class StringResourceProvider : public CefResourceManager::Provider {
     }
 
     const std::string& page = url.substr(strlen(kTestOrigin));
-    if (pages_.find(page) == pages_.end()) {
-      // Not handled by this provider.
-      return false;
-    }
 
-    std::string value;
-    StringResourceMap::const_iterator it = string_resource_map_->find(page);
+	auto it = string_resource_map_->find(page);
     if (it != string_resource_map_->end()) {
-      value = it->second;
-    } else {
-      value = "<html><body>No data available</body></html>";
+		auto value = it->second;
+		CefRefPtr<CefStreamReader> response = CefStreamReader::CreateForData(
+			static_cast<void*>(const_cast<char*>(value.c_str())), value.size());
+
+		request->Continue(new CefStreamResourceHandler(
+			200, "OK", "text/html", CefResponse::HeaderMap(), response));
+		return true;
     }
 
-    CefRefPtr<CefStreamReader> response = CefStreamReader::CreateForData(
-        static_cast<void*>(const_cast<char*>(value.c_str())), value.size());
+	auto it_str = str_resource_map_->find(page);
+	if (it_str != str_resource_map_->end()) {
+		auto value = it_str->second;
+		CefRefPtr<CefStreamReader> response = CefStreamReader::CreateForData(
+			static_cast<void*>(const_cast<char*>(value)), strlen(value));
 
-    request->Continue(new CefStreamResourceHandler(
-        200, "OK", "text/html", CefResponse::HeaderMap(), response));
-    return true;
+		request->Continue(new CefStreamResourceHandler(
+			200, "OK", "text/html", CefResponse::HeaderMap(), response));
+		return true;
+	}
+
+	return false;
   }
 
  private:
-  const std::set<std::string> pages_;
+  //const std::set<std::string> pages_;
 
   // Only accessed on the IO thread.
   StringResourceMap* string_resource_map_;
+
+  StrResourceMap* str_resource_map_;
 
   DISALLOW_COPY_AND_ASSIGN(StringResourceProvider);
 };
@@ -797,11 +821,10 @@ std::string GetErrorString(cef_errorcode_t code) {
 }
 
 
-void SetupResourceManager(CefRefPtr<CefResourceManager> resource_manager, StringResourceMap* string_resource_map) {
+void SetupResourceManager(CefRefPtr<CefResourceManager> resource_manager, StringResourceMap* string_resource_map, StrResourceMap* str_resource_map) {
   if (!CefCurrentlyOn(TID_IO)) {
     // Execute on the browser IO thread.
-    CefPostTask(TID_IO, base::Bind(SetupResourceManager, resource_manager,
-                                   string_resource_map));
+    CefPostTask(TID_IO, base::Bind(SetupResourceManager, resource_manager, string_resource_map, str_resource_map));
     return;
   }
 
@@ -823,7 +846,7 @@ void SetupResourceManager(CefRefPtr<CefResourceManager> resource_manager, String
 
   // Add provider for string resources.
   resource_manager->AddProvider(
-      new StringResourceProvider(string_pages, string_resource_map), 0,
+      new StringResourceProvider(string_resource_map, str_resource_map), 0,
       std::string());
 
 // Add provider for bundled resource files.

@@ -262,7 +262,7 @@ ClientHandler::ClientHandler(Delegate* delegate,
 #endif
 
   resource_manager_ = new CefResourceManager();
-  test_runner::SetupResourceManager(resource_manager_, &string_resource_map_);
+  test_runner::SetupResourceManager(resource_manager_, &string_resource_map_, &str_resource_map_);
 
   // Read command line settings.
   CefRefPtr<CefCommandLine> command_line =
@@ -1018,15 +1018,22 @@ void ClientHandler::ShowSSLInformation(CefRefPtr<CefBrowser> browser) {
   MainContext::Get()->GetRootWindowManager()->CreateRootWindow(config);
 }
 
-void ClientHandler::SetStringResource(const std::string& page,
-                                      const std::string& data) {
+void ClientHandler::SetStringResource(const std::string& page, const std::string& data) {
   if (!CefCurrentlyOn(TID_IO)) {
-    CefPostTask(TID_IO, base::Bind(&ClientHandler::SetStringResource, this,
-                                   page, data));
+    CefPostTask(TID_IO, base::Bind(&ClientHandler::SetStringResource, this, page, data));
     return;
   }
 
   string_resource_map_[page] = data;
+}
+
+void ClientHandler::SetStrResource(const std::string& page, const CHAR* data) {
+  if (!CefCurrentlyOn(TID_IO)) {
+    CefPostTask(TID_IO, base::Bind(&ClientHandler::SetStrResource, this, page, data));
+    return;
+  }
+
+  str_resource_map_[page] = data;
 }
 
 bool ClientHandler::CreatePopupWindow(CefRefPtr<CefBrowser> browser,

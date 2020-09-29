@@ -37,8 +37,10 @@ std::string GetErrorString(cef_errorcode_t code);
 
 typedef std::map<std::string, std::string> StringResourceMap;
 
+typedef std::map<std::string, const CHAR*> StrResourceMap;
+
 // Set up the resource manager for tests.
-void SetupResourceManager(CefRefPtr<CefResourceManager> resource_manager, StringResourceMap* string_resource_map);
+void SetupResourceManager(CefRefPtr<CefResourceManager> resource_manager, StringResourceMap* string_resource_map, StrResourceMap* str_resource_map);
 
 // Show a JS alert message.
 void Alert(CefRefPtr<CefBrowser> browser, const std::string& message);

@@ -310,6 +310,8 @@ class ClientHandler : public CefClient,
   void ShowSSLInformation(CefRefPtr<CefBrowser> browser);
 
   // Set a string resource for loading via StringResourceProvider.
+  void SetStrResource(const std::string& page, const CHAR* data);
+
   void SetStringResource(const std::string& page, const std::string& data);
 
   // Returns the Delegate.
@@ -394,6 +396,8 @@ class ClientHandler : public CefClient,
   // Used to manage string resources in combination with StringResourceProvider.
   // Only accessed on the IO thread.
   test_runner::StringResourceMap string_resource_map_;
+
+  test_runner::StrResourceMap str_resource_map_;
 
   // MAIN THREAD MEMBERS
   // The following members will only be accessed on the main thread. This will

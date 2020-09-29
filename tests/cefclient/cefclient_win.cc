@@ -63,11 +63,13 @@ void decorateCommandLine(TCHAR* backUp, bool restore)
 	auto cmd = GetCommandLine();
 	if(restore)
 	{
-		lstrcpy(cmd, backUp);
+		if(backUp)
+			lstrcpy(cmd, backUp);
 	}
 	else
 	{
-		lstrcpy(backUp, cmd);
+		if(backUp)
+			lstrcpy(backUp, cmd);
 		auto idx=wcsstr(cmd, L"\" --");
 		if(idx)
 		{
@@ -135,6 +137,7 @@ LRESULT WINAPI testWindowProc(
 	case WM_CONTEXTMENU:
 	{
 
+		//::MessageBox(NULL, TEXT("WM_CONTEXTMENU"), TEXT(""), MB_OK);
 		break;
 	}
 	case WM_MOUSEWHEEL:
@@ -166,10 +169,33 @@ LRESULT WINAPI testWindowProc(
 	return wWindowProc(hWnd, msg, wParam, lParam);
 }
 
-extern "C" __declspec(dllexport) HWND bwGetHWNDForBrowser(void* pBrowser)
+extern "C" __declspec(dllexport) HWND bwGetHWNDForBrowser(LONG_PTR pBrowser)
 {
 	CefBrowser* browser = (CefBrowser*)pBrowser;
 	return browser?browser->GetHost()->GetWindowHandle():0;
+}
+
+extern "C" __declspec(dllexport) int bwLoadUrl(LONG_PTR pBrowser, CHAR* URL)
+{
+	CefBrowser* browser = (CefBrowser*)pBrowser;
+	if(browser)
+	{
+		browser->GetMainFrame()->LoadURL(URL);
+		return 1;
+	}
+	return 0;
+}
+
+extern "C" __declspec(dllexport) int bwLoadString(LONG_PTR pBrowser, CHAR* URL)
+{
+	CefBrowser* browser = (CefBrowser*)pBrowser;
+	if(browser)
+	{
+		CefRefPtr<CefRequest> request(CefRequest::Create());
+
+		//browser->GetMainFrame()->LoadURL(request);
+	}
+	return 0;
 }
 
 namespace client {
@@ -189,21 +215,7 @@ int RunMain(HINSTANCE hInstance, int nCmdShow) {
   // Create a ClientApp of the correct type.
   CefRefPtr<ClientApp> app = new ClientAppBrowser();
 
-  auto cmd = GetCommandLine();
-  auto idx=wcsstr(cmd, L"\" --");
-  if(idx)
-  {
-	  idx=idx+1;
-  }
-  else
-  {
-	  // todo boundary check
-	  idx = cmd+lstrlen(cmd);
-  }
-  if(idx)
-  {
-	 lstrcpy(idx, TEXT(" -single-process -no-proxy-server -disable-logging"));
-  }
+  decorateCommandLine(nullptr, false);
 
   // Execute the secondary process, if any.
   int exit_code = CefExecuteProcess(main_args, app, sandbox_info);
@@ -238,10 +250,12 @@ int RunMain(HINSTANCE hInstance, int nCmdShow) {
   looper->agent=true;
   looper->Run();
 
+  //::MessageBoxA(NULL, ("111"), (""), MB_OK);
   Browser->Close(true);
-  context->Shutdown();
+  //context->Shutdown();
   context.reset();
   delete looper;
+  //exit(0);
   return 0;
 }
 
@@ -269,7 +283,7 @@ BOOL regWndClass(LPCTSTR lpcsClassName, DWORD dwStyle)
 
 void browsercallback(CefBrowser* browser)
 {
-	HWND hwnd = bwGetHWNDForBrowser(browser);
+	HWND hwnd = bwGetHWNDForBrowser((LONG_PTR)browser);
 	if(hwnd)
 	{
 		MoveWindow(hwnd, 0, 0, 500, 500, 1);
@@ -278,7 +292,7 @@ void browsercallback(CefBrowser* browser)
 
 void browsercallback1(CefBrowser* browser)
 {
-	HWND hwnd = bwGetHWNDForBrowser(browser);
+	HWND hwnd = bwGetHWNDForBrowser((LONG_PTR)browser);
 	if(hwnd)
 	{
 		MoveWindow(hwnd, 0, 500, 500, 500, 1);
@@ -315,7 +329,7 @@ extern "C" __declspec(dllexport) int bwCreateBrowser(HWND hParent, CHAR* URL, Br
 			// Execute the secondary process, if any.
 			int exit_code = CefExecuteProcess(main_args, app, sandbox_info);
 			if (exit_code >= 0)
-				return exit_code;
+				return 0;
 			
 			pMainContextImpl = new MainContextImpl(command_line, true); // Create the main context object.
 
@@ -329,24 +343,32 @@ extern "C" __declspec(dllexport) int bwCreateBrowser(HWND hParent, CHAR* URL, Br
 			settings.multi_threaded_message_loop=1;
 
 			// Initialize CEF.
-			pMainContextImpl->Initialize(main_args, settings, app, sandbox_info);
+			bool succ = pMainContextImpl->Initialize(main_args, settings, app, sandbox_info);
 			// Initialize CEF.
 
-			looper = new MainMessageLoopMultithreadedWin();
-			looper->Run();
+			if(succ)
+			{
+				looper = new MainMessageLoopMultithreadedWin();
+				looper->Run();
+			}
 		}
 
-		CefRefPtr<ClientHandler>  g_handler = new ClientHandlerStd(0, URL);
-		CefBrowserSettings browser_settings;
-		CefWindowInfo window_info;
-		RECT rc;
-		GetWindowRect(hParent, &rc);
-		window_info.SetAsChild(hParent, rc);
-		CefRefPtr<CefDictionaryValue> extra_info;
-		CefRefPtr<CefRequestContext> request_context;
-		g_handler->bwCallback = bwCallback;
-		CefBrowserHost::CreateBrowser(window_info, g_handler, URL, browser_settings, extra_info, request_context);
+		if(looper)
+		{
+			CefRefPtr<ClientHandler>  g_handler = new ClientHandlerStd(0, URL);
+			CefBrowserSettings browser_settings;
+			CefWindowInfo window_info;
+			RECT rc;
+			GetWindowRect(hParent, &rc);
+			window_info.SetAsChild(hParent, rc);
+			CefRefPtr<CefDictionaryValue> extra_info;
+			CefRefPtr<CefRequestContext> request_context;
+
+			g_handler->bwCallback = bwCallback;
+			return CefBrowserHost::CreateBrowser(window_info, g_handler, URL, browser_settings, extra_info, request_context);
+		}
 	}
+	return 0;
 }
 
 
@@ -391,7 +413,7 @@ int MainRun(HINSTANCE hInstance, int nCmdShow) {
 		ShowWindow(hwnd, true);
 	}
 
-	if(0)
+	if(1)
 	{
 		// Enable High-DPI support on Windows 7 or newer.
 		//CefEnableHighDPISupport();
@@ -524,7 +546,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 //	  return 0;
 
   //return client::MainRun1(hInstance, nCmdShow);
-  return client::MainRun(hInstance, nCmdShow);
+  return client::RunMain(hInstance, nCmdShow);
 }
 #else
 BOOL APIENTRY DllMain( HANDLE hModule, 

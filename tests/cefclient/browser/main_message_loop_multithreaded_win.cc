@@ -68,8 +68,8 @@ int MainMessageLoopMultithreadedWin::Run() {
 	  // Run the application message loop.
 	  while (GetMessage(&msg, NULL, 0, 0)) {
 		  // Allow processing of dialog messages.
-		  if (dialog_hwnd_ && IsDialogMessage(dialog_hwnd_, &msg))
-			  continue;
+		  //if (dialog_hwnd_ && IsDialogMessage(dialog_hwnd_, &msg))
+			//  continue;
 
 		  if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg)) {
 			  TranslateMessage(&msg);
@@ -90,7 +90,10 @@ int MainMessageLoopMultithreadedWin::Run() {
 
 void MainMessageLoopMultithreadedWin::Quit() {
   // Execute PostQuitMessage(0) on the main thread.
-  //PostClosure(base::Bind(::PostQuitMessage, 0));
+	if(agent)
+	{
+		PostClosure(base::Bind(::PostQuitMessage, 0));
+	}
 }
 
 void MainMessageLoopMultithreadedWin::PostTask(CefRefPtr<CefTask> task) {
