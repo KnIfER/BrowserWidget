@@ -38,89 +38,54 @@ extern  HINSTANCE g_hInstance;
 #pragma comment(lib, "cef_sandbox.lib")
 #endif
 
-HACCEL hAccelTable;
-
 HINSTANCE g_hInstance;
 
-namespace client {
-namespace {
+HWND hwnd;
 
-int RunMain(HINSTANCE hInstance, int nCmdShow) {
-  // Enable High-DPI support on Windows 7 or newer.
-  CefEnableHighDPISupport();
+client::MainContextImpl * pMainContextImpl;
 
-  g_hInstance=hInstance;
+client::MainMessageLoopMultithreadedWin* looper;
 
-  CefMainArgs main_args(hInstance);
 
-  void* sandbox_info = nullptr;
-  // Parse command-line arguments.
-  CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
-  command_line->AppendSwitch("no-proxy-server");
-
-  // Create a ClientApp of the correct type.
-  CefRefPtr<ClientApp> app = new ClientAppBrowser();
-
-  auto cmd = GetCommandLine();
-  auto idx=wcsstr(cmd, L"\" --");
-  if(idx)
-  {
-	  idx=idx+1;
-  }
-  else
-  {
-	  // todo boundary check
-	  idx = cmd+lstrlen(cmd);
-  }
-  if(idx)
-  {
-	  lstrcpy(idx, TEXT(" -single-process -no-proxy-server -disable-logging"));
-  }
-
-  // Execute the secondary process, if any.
-  int exit_code = CefExecuteProcess(main_args, app, sandbox_info);
-  if (exit_code >= 0)
-    return exit_code;
-
-  // Create the main context object.
-  scoped_ptr<MainContextImpl> context(new MainContextImpl(command_line, true));
-
-  CefSettings settings;
-  settings.Set({}, 0);
-  CefString(&settings.application_client_id_for_file_scanning).FromString("9A8DE24D-B822-4C6C-8259-5A848FEA1E68");
-  context->PopulateSettings(&settings);
-  settings.command_line_args_disabled=0;
-  settings.no_sandbox = true;
-  settings.log_severity=LOGSEVERITY_DISABLE;
-
-  settings.multi_threaded_message_loop=1;
-  scoped_ptr<MainMessageLoopMultithreadedWin> lopper;
-  lopper.reset(new MainMessageLoopMultithreadedWin);
-
-  // Initialize CEF.
-  context->Initialize(main_args, settings, app, sandbox_info);
-  
-  RootWindowConfig window_config;
-  window_config.always_on_top = false;
-  window_config.with_controls = true;
-  window_config.with_osr = false; 
-
-  // Create the first window.
-  auto Browser = context->GetRootWindowManager()->CreateRootWindow(window_config);
-  //Browser->GetBrowser()->
-
-  lopper->agent=true;
-  int result = lopper->Run();
-  Browser->Close(true);
-  //context->Shutdown();
-  lopper.reset();
-  context.reset();
-  return result;
+//internal
+LRESULT WINAPI wWindowProc(
+	__in HWND hWnd,
+	__in UINT msg,
+	__in WPARAM wParam,
+	__in LPARAM lParam)
+{
+	return ::DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-#include "tests/cefclient/browser/resource.h"
+void decorateCommandLine(TCHAR* backUp, bool restore)
+{
+	auto cmd = GetCommandLine();
+	if(restore)
+	{
+		lstrcpy(cmd, backUp);
+	}
+	else
+	{
+		lstrcpy(backUp, cmd);
+		auto idx=wcsstr(cmd, L"\" --");
+		if(idx)
+		{
+			idx=idx+1;
+		}
+		else
+		{
+			// todo boundary check
+			idx = cmd+lstrlen(cmd);
+		}
+		if(idx)
+		{
+			lstrcpy(idx, TEXT(" -single-process -no-proxy-server -disable-logging"));
+		}
+	}
+}
 
 
+// test exposed
 LRESULT WINAPI testWindowProc(
 	__in HWND hWnd,
 	__in UINT msg,
@@ -192,11 +157,93 @@ LRESULT WINAPI testWindowProc(
 	case WM_IME_STARTCOMPOSITION: {
 		break;
 	}
+	case WM_CLOSE: {
+		break;
 	}
-	return ::DefWindowProc(hWnd, msg, wParam, lParam);
+	case WM_DESTROY:
+		if(hWnd==hwnd)
+		{
+			PostQuitMessage( 0 );
+		}
+		break;
+	}
+	return wWindowProc(hWnd, msg, wParam, lParam);
 }
 
+namespace client {
+namespace {
 
+int RunMain(HINSTANCE hInstance, int nCmdShow) {
+  // Enable High-DPI support on Windows 7 or newer.
+  CefEnableHighDPISupport();
+
+  CefMainArgs main_args(g_hInstance);
+
+  void* sandbox_info = nullptr;
+  // Parse command-line arguments.
+  CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
+  command_line->AppendSwitch("no-proxy-server");
+
+  // Create a ClientApp of the correct type.
+  CefRefPtr<ClientApp> app = new ClientAppBrowser();
+
+  auto cmd = GetCommandLine();
+  auto idx=wcsstr(cmd, L"\" --");
+  if(idx)
+  {
+	  idx=idx+1;
+  }
+  else
+  {
+	  // todo boundary check
+	  idx = cmd+lstrlen(cmd);
+  }
+  if(idx)
+  {
+	 lstrcpy(idx, TEXT(" -single-process -no-proxy-server -disable-logging"));
+  }
+
+  // Execute the secondary process, if any.
+  int exit_code = CefExecuteProcess(main_args, app, sandbox_info);
+  if (exit_code >= 0)
+    return exit_code;
+
+  // Create the main context object.
+  scoped_ptr<MainContextImpl> context(new MainContextImpl(command_line, true));
+
+  CefSettings settings;
+  settings.Set({}, 0);
+  CefString(&settings.application_client_id_for_file_scanning).FromString("9A8DE24D-B822-4C6C-8259-5A848FEA1E68");
+  context->PopulateSettings(&settings);
+  settings.command_line_args_disabled=0;
+  //settings.no_sandbox = true;
+  //settings.log_severity=LOGSEVERITY_DISABLE;
+
+  settings.multi_threaded_message_loop=1;
+  looper = new MainMessageLoopMultithreadedWin();
+
+  // Initialize CEF.
+  context->Initialize(main_args, settings, app, sandbox_info);
+  
+  RootWindowConfig window_config;
+  window_config.always_on_top = false;
+  window_config.with_controls = true;
+  window_config.with_osr = false; 
+
+  // Create the first window.
+  auto Browser = context->GetRootWindowManager()->CreateRootWindow(window_config);
+
+  looper->agent=true;
+  looper->Run();
+
+  Browser->Close(true);
+  context->Shutdown();
+  context.reset();
+  delete looper;
+  return 0;
+}
+
+#include "tests/cefclient/browser/resource.h"
 
 
 BOOL regWndClass(LPCTSTR lpcsClassName, DWORD dwStyle)
@@ -218,93 +265,193 @@ BOOL regWndClass(LPCTSTR lpcsClassName, DWORD dwStyle)
 	return TRUE;
 }
 
-int MainRun(HINSTANCE hInstance, int nCmdShow) {
-  // Enable High-DPI support on Windows 7 or newer.
-  CefEnableHighDPISupport();
+int bwCreateBrowser(HWND hParent, int nCmdShow) {
+	if(IsWindow(hParent))
+	{
+		if(!looper)
+		{
+			// Enable High-DPI support on Windows 7 or newer.
+			//CefEnableHighDPISupport();
 
-  CefMainArgs main_args(hInstance);
+			CefMainArgs main_args(g_hInstance);
 
-  void* sandbox_info = nullptr;
+			void* sandbox_info = nullptr;
 
 #if defined(CEF_USE_SANDBOX)
-  // Manage the life span of the sandbox information object. This is necessary
-  // for sandbox support on Windows. See cef_sandbox_win.h for complete details.
-  CefScopedSandboxInfo scoped_sandbox;
-  sandbox_info = scoped_sandbox.sandbox_info();
+			// Manage the life span of the sandbox information object. This is necessary
+			// for sandbox support on Windows. See cef_sandbox_win.h for complete details.
+			CefScopedSandboxInfo scoped_sandbox;
+			sandbox_info = scoped_sandbox.sandbox_info();
 #endif
 
-  // Parse command-line arguments.
-  CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
-  command_line->AppendSwitch("no-proxy-server");//加载慢，关闭代理试试
-  command_line->AppendSwitch("-log_severity=disable");//加载慢，关闭代理试试
+			// Parse command-line arguments.
+			CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
+
+			CefRefPtr<CefApp> app = new ClientAppBrowser();
+
+			TCHAR cmd_extra[MAX_PATH];
+			decorateCommandLine(cmd_extra, 0);
+
+			// Execute the secondary process, if any.
+			int exit_code = CefExecuteProcess(main_args, app, sandbox_info);
+			if (exit_code >= 0)
+				return exit_code;
+			
+			pMainContextImpl = new MainContextImpl(command_line, true); // Create the main context object.
+
+			CefSettings settings;
+			settings.Set({}, 0);
+			CefString(&settings.application_client_id_for_file_scanning).FromString("9A8DE24D-B822-4C6C-8259-5A848FEA1E68");
+			//context->PopulateSettings(&settings);
+			settings.command_line_args_disabled=0;
+			settings.no_sandbox = true;
+			settings.log_severity=LOGSEVERITY_DISABLE;
+			settings.multi_threaded_message_loop=1;
+
+			// Initialize CEF.
+			pMainContextImpl->Initialize(main_args, settings, app, sandbox_info);
+			// Initialize CEF.
+
+			looper = new MainMessageLoopMultithreadedWin();
+			looper->Run();
+		}
+
+		CefBrowserSettings browser_settings;
+		CefWindowInfo window_info;
+		RECT rc;
+		GetWindowRect(hParent, &rc);
+		window_info.SetAsChild(hParent, rc);
+		CefRefPtr<ClientHandler>  g_handler = new ClientHandlerStd(0, "www.baidu.com");
+		CefRefPtr<CefDictionaryValue> extra_info;
+		CefRefPtr<CefRequestContext> request_context;
+		CefBrowserHost::CreateBrowser(window_info, g_handler, "www.baidu.com", browser_settings, extra_info, request_context);
+	}
+}
 
 
-  CefRefPtr<CefApp> app = new ClientAppBrowser();
+CefRefPtr<CefApp> app = new ClientAppBrowser();
 
-  // Execute the secondary process, if any.
-  int exit_code = CefExecuteProcess(main_args, app, sandbox_info);
-  if (exit_code >= 0)
-    return exit_code;
 
-  // Create the main context object.
-  scoped_ptr<MainContextImpl> context(new MainContextImpl(command_line, true));
+int MainRun1(HINSTANCE hInstance, int nCmdShow) {
+	{
+		regWndClass(L"ASDASD", CS_HREDRAW | CS_VREDRAW);
+		hwnd = ::CreateWindowEx(0 , L"ASDASD" , NULL
+			, WS_OVERLAPPEDWINDOW , 0 , 0 , 840 , 680 , NULL , NULL , g_hInstance, NULL);
+		ShowWindow(hwnd, true);
+	}
 
-  CefSettings settings;
+	bwCreateBrowser(hwnd, nCmdShow);
 
-  settings.no_sandbox = true;
-  // Applications should specify a unique GUID here to enable trusted downloads.
-  CefString(&settings.application_client_id_for_file_scanning).FromString("9A8DE24D-B822-4C6C-8259-5A848FEA1E68");
+	HACCEL hAccelTable = LoadAccelerators(g_hInstance, MAKEINTRESOURCE(IDC_CEFCLIENT));
 
-  // Populate the settings based on command line arguments.
-  context->PopulateSettings(&settings);
+	MSG msg;
+	{
+		while (GetMessage(&msg, NULL, 0, 0)) {
+			if ((looper && looper->dialog_hwnd_ && IsDialogMessage(looper->dialog_hwnd_ , &msg)))
+				continue;
+			if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+			{
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+		}
+	}
 
-  settings.multi_threaded_message_loop=1; 
+	return 1;
+}
 
-  // Initialize CEF.
-  // Initialize CEF.
-  // Initialize CEF.
-  context->Initialize(main_args, settings, app, sandbox_info);
-  // Initialize CEF.
-  // Initialize CEF.
-  // Initialize CEF.
 
-  auto looper = new MainMessageLoopMultithreadedWin();
+int MainRun(HINSTANCE hInstance, int nCmdShow) {
+	{
+		regWndClass(L"ASDASD", CS_HREDRAW | CS_VREDRAW);
+		hwnd = ::CreateWindowEx(0 , L"ASDASD" , NULL
+			, WS_OVERLAPPEDWINDOW , 0 , 0 , 840 , 680 , NULL , NULL , g_hInstance, NULL);
+		ShowWindow(hwnd, true);
+	}
 
-  RootWindowConfig window_config;
-  window_config.always_on_top = 0;
-  window_config.with_controls = 1;
-  window_config.with_osr = /*windowless_rendering_enabled*/0 ? true : false;
-  
-  // Create the first window.
-  //context->GetRootWindowManager()->CreateRootWindow(window_config);
+	//if(0)
+	{
+		// Enable High-DPI support on Windows 7 or newer.
+		//CefEnableHighDPISupport();
 
-  // Run the message loop. This will block until Quit() is called by the
-  // RootWindowManager after all windows have been destroyed.
+		CefMainArgs main_args(hInstance);
 
-  HWND hwnd;
-  {
-	  regWndClass(L"ASDASD", CS_HREDRAW | CS_VREDRAW);
-	  hwnd = ::CreateWindowEx(WS_EX_APPWINDOW , L"ASDASD" , NULL
-		  , WS_OVERLAPPEDWINDOW | WS_VISIBLE , 0 , 0 , 840 , 680 , NULL , NULL , g_hInstance, NULL);
+		void* sandbox_info = nullptr;
 
-	  ShowWindow(hwnd, true);
-  }
+#if defined(CEF_USE_SANDBOX)
+		// Manage the life span of the sandbox information object. This is necessary
+		// for sandbox support on Windows. See cef_sandbox_win.h for complete details.
+		CefScopedSandboxInfo scoped_sandbox;
+		sandbox_info = scoped_sandbox.sandbox_info();
+#endif
 
-	CefBrowserSettings browser_settings;
-	CefWindowInfo window_info;
-	RECT rc;
-	GetWindowRect(hwnd, &rc);
-	//rc.bottom -= 160;
-	window_info.SetAsChild(hwnd, rc);
+		// Parse command-line arguments.
+		CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
 
-	CefRefPtr<ClientHandler>  g_handler = new ClientHandlerStd(0, "www.baidu.com");
-	CefRefPtr<CefDictionaryValue> extra_info;
-	CefRefPtr<CefRequestContext> request_context;
-	CefBrowserHost::CreateBrowser(window_info, g_handler, "www.baidu.com", browser_settings, extra_info, request_context);
+		TCHAR cmd_extra[MAX_PATH];
+		decorateCommandLine(cmd_extra, 0);
 
-  hAccelTable = LoadAccelerators(g_hInstance, MAKEINTRESOURCE(IDC_CEFCLIENT));
+		// Execute the secondary process, if any.
+		int exit_code = CefExecuteProcess(main_args, app, sandbox_info);
+		if (exit_code >= 0)
+			return exit_code;
 
-  looper->Run();
+		// Create the main context object.
+		pMainContextImpl = new MainContextImpl(command_line, true);
+
+		CefSettings settings;
+
+		settings.no_sandbox = true;
+		// Applications should specify a unique GUID here to enable trusted downloads.
+		CefString(&settings.application_client_id_for_file_scanning).FromString("9A8DE24D-B822-4C6C-8259-5A848FEA1E68");
+
+		// Populate the settings based on command line arguments.
+		pMainContextImpl->PopulateSettings(&settings);
+
+		settings.multi_threaded_message_loop=1; 
+
+		// Initialize CEF.
+		// Initialize CEF.
+		// Initialize CEF.
+		pMainContextImpl->Initialize(main_args, settings, app, sandbox_info);
+		// Initialize CEF.
+		// Initialize CEF.
+		// Initialize CEF.
+
+
+		RootWindowConfig window_config;
+		window_config.always_on_top = 0;
+		window_config.with_controls = 1;
+		window_config.with_osr = /*windowless_rendering_enabled*/0 ? true : false;
+
+		// Create the first window.
+		//pMainContextImpl->GetRootWindowManager()->CreateRootWindow(window_config);
+
+		// Run the message loop. This will block until Quit() is called by the
+		// RootWindowManager after all windows have been destroyed.
+
+
+		CefBrowserSettings browser_settings;
+		CefWindowInfo window_info;
+		RECT rc;
+		GetWindowRect(hwnd, &rc);
+		//rc.bottom -= 160;
+		window_info.SetAsChild(hwnd, rc);
+
+		CefRefPtr<ClientHandlerStd>  g_handler = new ClientHandlerStd(0, "www.baidu.com");
+		CefRefPtr<CefDictionaryValue> extra_info;
+		CefRefPtr<CefRequestContext> request_context;
+		CefBrowserHost::CreateBrowser(window_info, g_handler, "www.baidu.com", browser_settings, extra_info, request_context);
+
+		//g_handler->_browser->GetMainFrame()->LoadURL("www.bing.com");
+
+		looper = new MainMessageLoopMultithreadedWin();
+		looper->Run();
+	}
+
+	
+
+	HACCEL hAccelTable = LoadAccelerators(g_hInstance, MAKEINTRESOURCE(IDC_CEFCLIENT));
 
   MSG msg;
 
@@ -312,10 +459,10 @@ int MainRun(HINSTANCE hInstance, int nCmdShow) {
 	  // Run the application message loop.
 	  while (GetMessage(&msg, NULL, 0, 0)) {
 		  // Allow processing of dialog messages.
-		  //if ((looper->dialog_hwnd_ && IsDialogMessage(looper->dialog_hwnd_ , &msg)))
-			//  continue;
-
-		  if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg)) {
+		  if ((looper && looper->dialog_hwnd_ && IsDialogMessage(looper->dialog_hwnd_ , &msg)))
+			  continue;
+		  //if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+		  {
 			  TranslateMessage(&msg);
 			  DispatchMessage(&msg);
 		  }
@@ -329,11 +476,11 @@ int MainRun(HINSTANCE hInstance, int nCmdShow) {
   int result = static_cast<int>(msg.wParam);
 
   // Shut down CEF.
-  context->Shutdown();
+  //context->Shutdown();
 
   // Release objects in reverse order of creation.
   //message_loop.reset();
-  context.reset();
+  //context.reset();
 
   return result;
 }
@@ -354,7 +501,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   //if (::GetLastError() == ERROR_ALREADY_EXISTS)
 //	  return 0;
 
-  return client::RunMain(hInstance, nCmdShow);
+  return client::MainRun1(hInstance, nCmdShow);
 }
 #else
 BOOL APIENTRY DllMain( HANDLE hModule, 
@@ -364,14 +511,14 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 	//::MessageBox(NULL, TEXT("DllMain"), TEXT(""), MB_OK);
 	switch (reasonForCall)
 	{
+	case DLL_THREAD_ATTACH:
 	case DLL_PROCESS_ATTACH:
 	{
+		g_hInstance=hModule;
 		break;
 	}
 
 	case DLL_PROCESS_DETACH:
-		break;
-	case DLL_THREAD_ATTACH:
 		break;
 
 	case DLL_THREAD_DETACH:

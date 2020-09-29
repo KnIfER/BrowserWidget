@@ -6,8 +6,46 @@
 
 namespace client {
 
-ClientHandlerStd::ClientHandlerStd(Delegate* delegate,
-                                   const std::string& startup_url)
-    : ClientHandler(delegate, false, startup_url) {}
+
+ClientHandlerStd::ClientHandlerStd(Delegate* delegate, const std::string& startup_url) 
+						: ClientHandler(delegate, false, startup_url) {}
+
+void ClientHandlerStd::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
+	ClientHandler::OnAfterCreated(browser);
+	TCHAR buffer[100]={0};
+	//wsprintf(buffer,TEXT("OnAfterCreated=%d"), this);
+	//::MessageBox(NULL, buffer, TEXT(""), MB_OK);
+	_browser = browser.get();
+	//if(!isRoot && !agent)
+	{
+		//::MessageBox(NULL, TEXT("OnAfterCreated1"), TEXT(""), MB_OK);
+		//HWND hwnd = browser->GetHost()->GetWindowHandle();
+		//SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)wWindowProc);
+		//auto OldProc = (WNDPROC)GetWindowLongPtr(hwnd, GWLP_WNDPROC);
+		//auto newProc = new WNDCALL{OldProc};
+		//WNDPROC* proc = (WNDPROC*)newProc;
+		//proc+=1;
+		//SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)*proc);
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }  // namespace client

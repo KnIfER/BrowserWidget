@@ -574,10 +574,10 @@ bool ClientHandler::OnBeforePopup(
     CefRefPtr<CefDictionaryValue>& extra_info,
     bool* no_javascript_access) {
   CEF_REQUIRE_UI_THREAD();
-
-  // Return true to cancel the popup window.
-  return !CreatePopupWindow(browser, false, popupFeatures, windowInfo, client,
-                            settings);
+  frame->LoadURL(target_url);
+  return true;
+  //popup
+  //return !CreatePopupWindow(browser, false, popupFeatures, windowInfo, client, settings);
 }
 
 void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
@@ -729,6 +729,7 @@ CefRefPtr<CefResourceRequestHandler> ClientHandler::GetResourceRequestHandler(
   return this;
 }
 
+
 bool ClientHandler::GetAuthCredentials(CefRefPtr<CefBrowser> browser,
                                        const CefString& origin_url,
                                        bool isProxy,
@@ -876,9 +877,11 @@ cef_return_value_t ClientHandler::OnBeforeResourceLoad(
     CefRefPtr<CefRequest> request,
     CefRefPtr<CefRequestCallback> callback) {
   CEF_REQUIRE_IO_THREAD();
+  
 
-  return resource_manager_->OnBeforeResourceLoad(browser, frame, request,
-                                                 callback);
+
+
+  return resource_manager_->OnBeforeResourceLoad(browser, frame, request, callback);
 }
 
 CefRefPtr<CefResourceHandler> ClientHandler::GetResourceHandler(
@@ -1044,7 +1047,7 @@ void ClientHandler::NotifyBrowserCreated(CefRefPtr<CefBrowser> browser) {
         base::Bind(&ClientHandler::NotifyBrowserCreated, this, browser));
     return;
   }
-
+  
   if (delegate_)
     delegate_->OnBrowserCreated(browser);
 }

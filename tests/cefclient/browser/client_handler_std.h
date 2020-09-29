@@ -16,6 +16,9 @@ class ClientHandlerStd : public ClientHandler {
  public:
   ClientHandlerStd(Delegate* delegate, const std::string& startup_url);
 
+  virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) ;
+
+  CefBrowser* _browser=nullptr;
  private:
   // Include the default reference counting implementation.
   IMPLEMENT_REFCOUNTING(ClientHandlerStd);

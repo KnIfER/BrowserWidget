@@ -92,6 +92,8 @@ void RunGetSourceTest(CefRefPtr<CefBrowser> browser) {
     IMPLEMENT_REFCOUNTING(Visitor);
   };
 
+  //::MessageBox(NULL, TEXT("RunGetSourceTest"), TEXT(""), MB_OK);
+
   browser->GetMainFrame()->GetSource(new Visitor(browser));
 }
 
@@ -489,8 +491,7 @@ class RequestDumpResourceProvider : public CefResourceManager::Provider {
 // with LoadStringResourcePage().
 class StringResourceProvider : public CefResourceManager::Provider {
  public:
-  StringResourceProvider(const std::set<std::string>& pages,
-                         StringResourceMap* string_resource_map)
+  StringResourceProvider(const std::set<std::string>& pages, StringResourceMap* string_resource_map)
       : pages_(pages), string_resource_map_(string_resource_map) {
     DCHECK(!pages.empty());
   }
@@ -795,8 +796,8 @@ std::string GetErrorString(cef_errorcode_t code) {
   }
 }
 
-void SetupResourceManager(CefRefPtr<CefResourceManager> resource_manager,
-                          StringResourceMap* string_resource_map) {
+
+void SetupResourceManager(CefRefPtr<CefResourceManager> resource_manager, StringResourceMap* string_resource_map) {
   if (!CefCurrentlyOn(TID_IO)) {
     // Execute on the browser IO thread.
     CefPostTask(TID_IO, base::Bind(SetupResourceManager, resource_manager,
