@@ -4,7 +4,7 @@
 #include <windows.h>
 #include <shlwapi.h>
 
-bool running=1;
+HWND hBrowser;
 
 LRESULT WINAPI testWindowProc(
 	__in HWND hWnd,
@@ -24,6 +24,12 @@ LRESULT WINAPI testWindowProc(
 
 	case WM_SIZE:
 	{
+		if(hBrowser)
+		{
+			RECT rc;
+			GetClientRect(hWnd, &rc);
+			::MoveWindow(hBrowser, rc.left, rc.top, rc.right, rc.bottom,1);
+		}
 		return 0;
 	}
 	case WM_KEYDOWN:
@@ -109,6 +115,18 @@ typedef const void * (__cdecl * WIdGETINVOKER)(HINSTANCE, bool);
 
 typedef const int (__cdecl * BWCREATEBROWSER)(HWND, int, const CHAR*, LONG_PTR);
 
+typedef const HWND (__cdecl * BWGETHWNDFORBROWSER)(void*);
+
+BWCREATEBROWSER bwCreateBrowser;
+
+BWGETHWNDFORBROWSER bwGetHWNDForBrowser;
+
+void onBrowserPrepared(void* browserPtr)
+{
+	hBrowser = bwGetHWNDForBrowser(browserPtr);
+
+}
+
 WIdGETINVOKER pWIdGETINVOKER = nullptr;
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow) {
@@ -135,8 +153,10 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmd
 		if(hLibBwgt)
 		{
 			pWIdGETINVOKER = (WIdGETINVOKER)GetProcAddress(hLibBwgt, "RunMain");
-			BWCREATEBROWSER bwCreateBrowser = (BWCREATEBROWSER)GetProcAddress(hLibBwgt, "bwCreateBrowser");
-			bwCreateBrowser(hwnd, nCmdShow, "www.bing.com", 0);
+			bwCreateBrowser = (BWCREATEBROWSER)GetProcAddress(hLibBwgt, "bwCreateBrowser");
+			bwGetHWNDForBrowser = (BWGETHWNDFORBROWSER)GetProcAddress(hLibBwgt, "bwGetHWNDForBrowser");
+
+			bwCreateBrowser(hwnd, nCmdShow, "www.bing.com", (LONG_PTR)onBrowserPrepared);
 			//if(pWIdGETINVOKER)
 			//{
 			//	pWIdGETINVOKER((HINSTANCE)hLibBwgt, nCmdShow);
@@ -148,9 +168,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmd
 	MSG msg;
 
 	{
-		// Run the application message loop.
-		while (running&&GetMessage(&msg, NULL, 0, 0)) {
-			// Allow processing of dialog messages.
+		while (GetMessage(&msg, NULL, 0, 0)) {
 			//if ((looper->dialog_hwnd_ && IsDialogMessage(looper->dialog_hwnd_ , &msg)))
 			//  continue;
 			TranslateMessage(&msg);
