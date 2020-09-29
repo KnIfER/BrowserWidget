@@ -113,7 +113,7 @@ BOOL regWndClass(LPCTSTR lpcsClassName, DWORD dwStyle)
 
 typedef const void * (__cdecl * WIdGETINVOKER)(HINSTANCE, bool);
 
-typedef const int (__cdecl * BWCREATEBROWSER)(HWND, int, const CHAR*, LONG_PTR);
+typedef const int (__cdecl * BWCREATEBROWSER)(HWND, const CHAR*, LONG_PTR);
 
 typedef const HWND (__cdecl * BWGETHWNDFORBROWSER)(void*);
 
@@ -156,7 +156,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmd
 			bwCreateBrowser = (BWCREATEBROWSER)GetProcAddress(hLibBwgt, "bwCreateBrowser");
 			bwGetHWNDForBrowser = (BWGETHWNDFORBROWSER)GetProcAddress(hLibBwgt, "bwGetHWNDForBrowser");
 
-			bwCreateBrowser(hwnd, nCmdShow, "www.bing.com", (LONG_PTR)onBrowserPrepared);
+			bwCreateBrowser(hwnd, "www.bing.com", (LONG_PTR)onBrowserPrepared);
 			//if(pWIdGETINVOKER)
 			//{
 			//	pWIdGETINVOKER((HINSTANCE)hLibBwgt, nCmdShow);

@@ -31,7 +31,7 @@
 
 extern  HINSTANCE g_hInstance;
 
-#undef CEF_USE_SANDBOX 
+//#undef CEF_USE_SANDBOX 
 
 #if defined(CEF_USE_SANDBOX)
 // The cef_sandbox.lib static library may not link successfully with all VS
@@ -286,7 +286,7 @@ void browsercallback1(CefBrowser* browser)
 }
 
 
-extern "C" __declspec(dllexport) int bwCreateBrowser(HWND hParent, int nCmdShow, CHAR* URL, BrowserCallback bwCallback) {
+extern "C" __declspec(dllexport) int bwCreateBrowser(HWND hParent, CHAR* URL, BrowserCallback bwCallback) {
 	if(IsWindow(hParent))
 	{
 		if(!looper)
@@ -324,7 +324,7 @@ extern "C" __declspec(dllexport) int bwCreateBrowser(HWND hParent, int nCmdShow,
 			CefString(&settings.application_client_id_for_file_scanning).FromString("9A8DE24D-B822-4C6C-8259-5A848FEA1E68");
 			//context->PopulateSettings(&settings);
 			settings.command_line_args_disabled=0;
-			settings.no_sandbox = true;
+			settings.no_sandbox = false;
 			settings.log_severity=LOGSEVERITY_DISABLE;
 			settings.multi_threaded_message_loop=1;
 
@@ -361,8 +361,8 @@ int MainRun1(HINSTANCE hInstance, int nCmdShow) {
 		ShowWindow(hwnd, true);
 	}
 
-	bwCreateBrowser(hwnd, nCmdShow, "www.baidu.com", (BrowserCallback)browsercallback);
-	bwCreateBrowser(hwnd, nCmdShow, "www.bing.com", (BrowserCallback)browsercallback1);
+	bwCreateBrowser(hwnd, "www.baidu.com", (BrowserCallback)browsercallback);
+	bwCreateBrowser(hwnd, "www.bing.com", (BrowserCallback)browsercallback1);
 
 	HACCEL hAccelTable = LoadAccelerators(g_hInstance, MAKEINTRESOURCE(IDC_CEFCLIENT));
 
