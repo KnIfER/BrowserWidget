@@ -618,6 +618,11 @@ void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
     }
   }
 
+  if(bwCallback)
+  {
+	  bwCallback(browser);
+  }
+
   NotifyBrowserCreated(browser);
 }
 

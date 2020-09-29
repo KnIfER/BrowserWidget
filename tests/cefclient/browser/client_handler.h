@@ -15,6 +15,7 @@
 #include "include/wrapper/cef_resource_manager.h"
 #include "tests/cefclient/browser/client_types.h"
 #include "tests/cefclient/browser/test_runner.h"
+#include "bw.h"
 
 #if defined(OS_LINUX)
 #include "tests/cefclient/browser/dialog_handler_gtk.h"
@@ -326,7 +327,7 @@ class ClientHandler : public CefClient,
   void set_download_favicon_images(bool allow) {
     download_favicon_images_ = allow;
   }
-
+  BrowserCallback bwCallback = nullptr;
  private:
   friend class ClientDownloadImageCallback;
 

@@ -411,6 +411,9 @@
     <ClInclude Include="$(ROOTPA)\tests\shared\browser\util_win.h">
       <Filter>shared\browser</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\tests\cefclient\browser\bw.h">
+      <Filter>cefclient\browser</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="$(ROOTPA)\tests\cefclient\resources\logo.png">

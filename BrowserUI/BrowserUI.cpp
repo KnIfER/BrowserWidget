@@ -22,11 +22,6 @@ LRESULT WINAPI testWindowProc(
 	case WM_ERASEBKGND:
 		return TRUE;
 
-	case WM_PAINT:
-	{
-		return 1;
-		break;
-	}
 	case WM_SIZE:
 	{
 		return 0;
@@ -78,7 +73,10 @@ LRESULT WINAPI testWindowProc(
 		break;
 	}
 	case WM_CLOSE: {
-		running=0;
+		break;
+	}
+	case WM_DESTROY: {
+		PostQuitMessage( 0 );
 		break;
 	}
 	}
@@ -109,9 +107,21 @@ BOOL regWndClass(LPCTSTR lpcsClassName, DWORD dwStyle)
 
 typedef const void * (__cdecl * WIdGETINVOKER)(HINSTANCE, bool);
 
+typedef const int (__cdecl * BWCREATEBROWSER)(HWND, int, const CHAR*, LONG_PTR);
+
 WIdGETINVOKER pWIdGETINVOKER = nullptr;
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow) {
+	HWND hwnd=0;
+	if(1)
+	{
+		regWndClass(L"ASDASD", CS_HREDRAW | CS_VREDRAW);
+		hwnd = ::CreateWindowEx(WS_EX_APPWINDOW , L"ASDASD" , NULL
+			, WS_OVERLAPPEDWINDOW | WS_VISIBLE , 0 , 0 , 840 , 680 , NULL , NULL , ::GetModuleHandle(NULL), NULL);
+
+		ShowWindow(hwnd, true);
+	}
+
 	TCHAR buffer[MAX_PATH]; 
 	GetModuleFileName(NULL, buffer, MAX_PATH);
 	PathRemoveFileSpec(buffer);
@@ -125,38 +135,27 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmd
 		if(hLibBwgt)
 		{
 			pWIdGETINVOKER = (WIdGETINVOKER)GetProcAddress(hLibBwgt, "RunMain");
-			if(pWIdGETINVOKER)
-			{
-				pWIdGETINVOKER((HINSTANCE)hLibBwgt, nCmdShow);
-			}
+			BWCREATEBROWSER bwCreateBrowser = (BWCREATEBROWSER)GetProcAddress(hLibBwgt, "bwCreateBrowser");
+			bwCreateBrowser(hwnd, nCmdShow, "www.bing.com", 0);
+			//if(pWIdGETINVOKER)
+			//{
+			//	pWIdGETINVOKER((HINSTANCE)hLibBwgt, nCmdShow);
+			//}
 		}
 	}
 
-	if(0)
+
+	MSG msg;
+
 	{
-		HWND hwnd;
-		{
-			regWndClass(L"ASDASD", CS_HREDRAW | CS_VREDRAW);
-			hwnd = ::CreateWindowEx(WS_EX_APPWINDOW , L"ASDASD" , NULL
-				, WS_OVERLAPPEDWINDOW | WS_VISIBLE , 0 , 0 , 840 , 680 , NULL , NULL , ::GetModuleHandle(NULL), NULL);
-
-			ShowWindow(hwnd, true);
+		// Run the application message loop.
+		while (running&&GetMessage(&msg, NULL, 0, 0)) {
+			// Allow processing of dialog messages.
+			//if ((looper->dialog_hwnd_ && IsDialogMessage(looper->dialog_hwnd_ , &msg)))
+			//  continue;
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
 		}
-
-		MSG msg;
-
-		{
-			// Run the application message loop.
-			while (running&&GetMessage(&msg, NULL, 0, 0)) {
-				// Allow processing of dialog messages.
-				//if ((looper->dialog_hwnd_ && IsDialogMessage(looper->dialog_hwnd_ , &msg)))
-				//  continue;
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-
-		}
-
 	}
 
 	return 0;

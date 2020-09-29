@@ -317,6 +317,7 @@
     <ClCompile Include="$(ROOTPA)\tests\cefclient\renderer\performance_test_tests.cc" />
     <ClCompile Include="$(ROOTPA)\tests\shared\renderer\client_app_renderer.cc" />
     <ClInclude Include="$(ROOTPA)\tests\shared\renderer\client_app_renderer.h" />
+    <ClInclude Include="..\..\..\tests\cefclient\browser\bw.h" />
     <None Include="$(ROOTPA)\tests\cefclient\resources\binding.html" />
     <None Include="$(ROOTPA)\tests\cefclient\resources\dialogs.html" />
     <None Include="$(ROOTPA)\tests\cefclient\resources\draggable.html" />

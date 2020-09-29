@@ -12,7 +12,7 @@ ClientHandlerStd::ClientHandlerStd(Delegate* delegate, const std::string& startu
 
 void ClientHandlerStd::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 	ClientHandler::OnAfterCreated(browser);
-	TCHAR buffer[100]={0};
+	//TCHAR buffer[100]={0};
 	//wsprintf(buffer,TEXT("OnAfterCreated=%d"), this);
 	//::MessageBox(NULL, buffer, TEXT(""), MB_OK);
 	_browser = browser.get();

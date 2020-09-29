@@ -21,6 +21,7 @@
 
 #include "tests\cefclient\browser\client_handler.h"
 #include "tests\cefclient\browser\client_handler_std.h"
+#include "tests\cefclient\browser\bw.h"
 
 // When generating projects with CMake the CEF_USE_SANDBOX value will be defined
 // automatically if using the required compiler version. Pass -DUSE_SANDBOX=OFF
@@ -102,11 +103,6 @@ LRESULT WINAPI testWindowProc(
 	case WM_ERASEBKGND:
 		return TRUE;
 
-	case WM_PAINT:
-	{
-		return 1;
-		break;
-	}
 	case WM_SIZE:
 	{
 		return 0;
@@ -168,6 +164,12 @@ LRESULT WINAPI testWindowProc(
 		break;
 	}
 	return wWindowProc(hWnd, msg, wParam, lParam);
+}
+
+extern "C" __declspec(dllexport) HWND bwGetHWNDForBrowser(void* pBrowser)
+{
+	CefBrowser* browser = (CefBrowser*)pBrowser;
+	return browser?browser->GetHost()->GetWindowHandle():0;
 }
 
 namespace client {
@@ -252,8 +254,8 @@ BOOL regWndClass(LPCTSTR lpcsClassName, DWORD dwStyle)
 
 	wndclass.style = dwStyle;
 	wndclass.lpfnWndProc = testWindowProc;
-	wndclass.cbClsExtra = 200;
-	wndclass.cbWndExtra = 200;
+	wndclass.cbClsExtra = 0;
+	wndclass.cbWndExtra = 0;
 	wndclass.hInstance = g_hInstance;
 	wndclass.hIcon = NULL;
 	//wndclass.hCursor = LoadCursor(NULL, IDC_ARROW);
@@ -265,14 +267,32 @@ BOOL regWndClass(LPCTSTR lpcsClassName, DWORD dwStyle)
 	return TRUE;
 }
 
-int bwCreateBrowser(HWND hParent, int nCmdShow) {
+void browsercallback(CefBrowser* browser)
+{
+	HWND hwnd = bwGetHWNDForBrowser(browser);
+	if(hwnd)
+	{
+		MoveWindow(hwnd, 0, 0, 500, 500, 1);
+	}
+}
+
+void browsercallback1(CefBrowser* browser)
+{
+	HWND hwnd = bwGetHWNDForBrowser(browser);
+	if(hwnd)
+	{
+		MoveWindow(hwnd, 0, 500, 500, 500, 1);
+	}
+}
+
+
+extern "C" __declspec(dllexport) int bwCreateBrowser(HWND hParent, int nCmdShow, CHAR* URL, BrowserCallback bwCallback) {
 	if(IsWindow(hParent))
 	{
 		if(!looper)
 		{
 			// Enable High-DPI support on Windows 7 or newer.
 			//CefEnableHighDPISupport();
-
 			CefMainArgs main_args(g_hInstance);
 
 			void* sandbox_info = nullptr;
@@ -316,15 +336,16 @@ int bwCreateBrowser(HWND hParent, int nCmdShow) {
 			looper->Run();
 		}
 
+		CefRefPtr<ClientHandler>  g_handler = new ClientHandlerStd(0, URL);
 		CefBrowserSettings browser_settings;
 		CefWindowInfo window_info;
 		RECT rc;
 		GetWindowRect(hParent, &rc);
 		window_info.SetAsChild(hParent, rc);
-		CefRefPtr<ClientHandler>  g_handler = new ClientHandlerStd(0, "www.baidu.com");
 		CefRefPtr<CefDictionaryValue> extra_info;
 		CefRefPtr<CefRequestContext> request_context;
-		CefBrowserHost::CreateBrowser(window_info, g_handler, "www.baidu.com", browser_settings, extra_info, request_context);
+		g_handler->bwCallback = bwCallback;
+		CefBrowserHost::CreateBrowser(window_info, g_handler, URL, browser_settings, extra_info, request_context);
 	}
 }
 
@@ -340,7 +361,8 @@ int MainRun1(HINSTANCE hInstance, int nCmdShow) {
 		ShowWindow(hwnd, true);
 	}
 
-	bwCreateBrowser(hwnd, nCmdShow);
+	bwCreateBrowser(hwnd, nCmdShow, "www.baidu.com", (BrowserCallback)browsercallback);
+	bwCreateBrowser(hwnd, nCmdShow, "www.bing.com", (BrowserCallback)browsercallback1);
 
 	HACCEL hAccelTable = LoadAccelerators(g_hInstance, MAKEINTRESOURCE(IDC_CEFCLIENT));
 
@@ -363,13 +385,13 @@ int MainRun1(HINSTANCE hInstance, int nCmdShow) {
 
 int MainRun(HINSTANCE hInstance, int nCmdShow) {
 	{
-		regWndClass(L"ASDASD", CS_HREDRAW | CS_VREDRAW);
-		hwnd = ::CreateWindowEx(0 , L"ASDASD" , NULL
-			, WS_OVERLAPPEDWINDOW , 0 , 0 , 840 , 680 , NULL , NULL , g_hInstance, NULL);
+		regWndClass(L"ASDASD", CS_BYTEALIGNWINDOW | CS_DBLCLKS);
+		hwnd = ::CreateWindowEx(0 , L"ASDASD" , TEXT("TEST")
+			, (WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN) , 0 , 0 , 840 , 680 , NULL , NULL , g_hInstance, NULL);
 		ShowWindow(hwnd, true);
 	}
 
-	//if(0)
+	if(0)
 	{
 		// Enable High-DPI support on Windows 7 or newer.
 		//CefEnableHighDPISupport();
@@ -459,9 +481,9 @@ int MainRun(HINSTANCE hInstance, int nCmdShow) {
 	  // Run the application message loop.
 	  while (GetMessage(&msg, NULL, 0, 0)) {
 		  // Allow processing of dialog messages.
-		  if ((looper && looper->dialog_hwnd_ && IsDialogMessage(looper->dialog_hwnd_ , &msg)))
-			  continue;
-		  //if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+		  //if ((looper && looper->dialog_hwnd_ && IsDialogMessage(looper->dialog_hwnd_ , &msg)))
+			//  continue;
+		  if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
 		  {
 			  TranslateMessage(&msg);
 			  DispatchMessage(&msg);
@@ -501,7 +523,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   //if (::GetLastError() == ERROR_ALREADY_EXISTS)
 //	  return 0;
 
-  return client::MainRun1(hInstance, nCmdShow);
+  //return client::MainRun1(hInstance, nCmdShow);
+  return client::MainRun(hInstance, nCmdShow);
 }
 #else
 BOOL APIENTRY DllMain( HANDLE hModule, 
@@ -514,7 +537,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 	case DLL_THREAD_ATTACH:
 	case DLL_PROCESS_ATTACH:
 	{
-		g_hInstance=hModule;
+		g_hInstance=(HINSTANCE)hModule;
 		break;
 	}
 
