@@ -471,7 +471,7 @@ void RootWindowViews::OnBeforeContextMenu(CefRefPtr<CefMenuModel> model) {
 void RootWindowViews::CreateClientHandler(const std::string& url) {
   DCHECK(!client_handler_);
 
-  client_handler_ = new ClientHandlerStd(this, url);
+  client_handler_ = new ClientHandlerStd(this, url, 0);
   client_handler_->set_download_favicon_images(true);
 }
 

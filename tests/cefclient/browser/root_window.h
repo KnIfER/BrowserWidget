@@ -15,6 +15,7 @@
 #include "include/views/cef_window.h"
 #include "tests/cefclient/browser/client_types.h"
 #include "tests/cefclient/browser/image_cache.h"
+#include "tests/cefclient/browser/bw.h"
 #include "tests/shared/browser/main_message_loop.h"
 
 #if defined(OS_MACOSX) && __OBJC__
@@ -61,6 +62,8 @@ struct RootWindowConfig {
 
   // Initial URL to load.
   std::string url;
+
+  BC_URLInterceptor bcInterceptor=0;
 };
 
 typedef std::set<CefRefPtr<CefExtension>> ExtensionSet;

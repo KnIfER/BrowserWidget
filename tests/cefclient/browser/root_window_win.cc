@@ -163,8 +163,8 @@ void RootWindowWin::Init(RootWindow::Delegate* delegate,
   start_rect_.top = config.bounds.y;
   start_rect_.right = config.bounds.x + config.bounds.width;
   start_rect_.bottom = config.bounds.y + config.bounds.height;
-
-  CreateBrowserWindow(config.url);
+  
+  CreateBrowserWindow(config.url, &config);
 
   initialized_ = true;
 
@@ -203,7 +203,7 @@ void RootWindowWin::InitAsPopup(RootWindow::Delegate* delegate,
   if (popupFeatures.heightSet)
     start_rect_.bottom = start_rect_.top + popupFeatures.height;
 
-  CreateBrowserWindow(std::string());
+  CreateBrowserWindow(std::string(), 0);
 
   initialized_ = true;
 
@@ -306,13 +306,13 @@ bool RootWindowWin::WithExtension() const {
   return with_extension_;
 }
 
-void RootWindowWin::CreateBrowserWindow(const std::string& startup_url) {
+void RootWindowWin::CreateBrowserWindow(const std::string& startup_url, const RootWindowConfig* config) {
   if (with_osr_) {
     OsrRendererSettings settings = {};
     MainContext::Get()->PopulateOsrSettings(&settings);
     browser_window_.reset(new BrowserWindowOsrWin(this, startup_url, settings));
   } else {
-    browser_window_.reset(new BrowserWindowStdWin(this, startup_url));
+    browser_window_.reset(new BrowserWindowStdWin(this, startup_url, config));
   }
 }
 

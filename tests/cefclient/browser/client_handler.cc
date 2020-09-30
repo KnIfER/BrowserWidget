@@ -607,8 +607,7 @@ void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 
   if (browser->GetHost()->GetExtension()) {
     // Browsers hosting extension apps should auto-resize.
-    browser->GetHost()->SetAutoResizeEnabled(true, CefSize(20, 20),
-                                             CefSize(1000, 1000));
+    browser->GetHost()->SetAutoResizeEnabled(true, CefSize(20, 20), CefSize(1000, 1000));
 
     CefRefPtr<CefExtension> extension = browser->GetHost()->GetExtension();
     if (extension_util::IsInternalExtension(extension->GetPath())) {
@@ -618,9 +617,18 @@ void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
     }
   }
 
-  if(bwCallback)
+  if(_resource_interceptor)
   {
-	  bwCallback(browser);
+	  //传递给browser也没有用。
+	  //TCHAR buffer[100]={0};
+	  //wsprintf(buffer,TEXT("OnAfterCreated=%d=%d"), _resource_interceptor, this);
+	  //::MessageBox(NULL, buffer, TEXT(""), MB_OK);
+	  //browser->_resource_interceptor=_resource_interceptor;
+  }
+
+  if(_bw_callback)
+  {
+	  _bw_callback(browser);
   }
 
   NotifyBrowserCreated(browser);
@@ -714,6 +722,7 @@ bool ClientHandler::OnOpenURLFromTab(
     config.with_controls = true;
     config.with_osr = is_osr();
     config.url = target_url;
+    config.bcInterceptor = _resource_interceptor;
     MainContext::Get()->GetRootWindowManager()->CreateRootWindow(config);
     return true;
   }
@@ -1027,13 +1036,13 @@ void ClientHandler::SetStringResource(const std::string& page, const std::string
   string_resource_map_[page] = data;
 }
 
-void ClientHandler::SetStrResource(const std::string& page, const CHAR* data) {
+void ClientHandler::SetStrResource(const std::string& page, const CHAR* data, size_t length) {
   if (!CefCurrentlyOn(TID_IO)) {
-    CefPostTask(TID_IO, base::Bind(&ClientHandler::SetStrResource, this, page, data));
+    CefPostTask(TID_IO, base::Bind(&ClientHandler::SetStrResource, this, page, data, length));
     return;
   }
 
-  str_resource_map_[page] = data;
+  str_resource_map_[page] = {data, length};
 }
 
 bool ClientHandler::CreatePopupWindow(CefRefPtr<CefBrowser> browser,

@@ -47,7 +47,6 @@ client::MainContextImpl * pMainContextImpl;
 
 client::MainMessageLoopMultithreadedWin* looper;
 
-
 //internal
 LRESULT WINAPI wWindowProc(
 	__in HWND hWnd,
@@ -186,14 +185,12 @@ extern "C" __declspec(dllexport) int bwLoadUrl(LONG_PTR pBrowser, CHAR* URL)
 	return 0;
 }
 
-extern "C" __declspec(dllexport) int bwLoadString(LONG_PTR pBrowser, CHAR* URL)
+extern "C" __declspec(dllexport) int bwLoadString(LONG_PTR pBrowser, CHAR* URL, const CHAR* Data, size_t length)
 {
 	CefBrowser* browser = (CefBrowser*)pBrowser;
 	if(browser)
 	{
-		CefRefPtr<CefRequest> request(CefRequest::Create());
-
-		//browser->GetMainFrame()->LoadURL(request);
+		client::test_runner::LoadStrResourcePage(browser, URL, Data, length);
 	}
 	return 0;
 }
@@ -281,7 +278,7 @@ BOOL regWndClass(LPCTSTR lpcsClassName, DWORD dwStyle)
 	return TRUE;
 }
 
-void browsercallback(CefBrowser* browser)
+void Test_browsercallback(CefBrowser* browser)
 {
 	HWND hwnd = bwGetHWNDForBrowser((LONG_PTR)browser);
 	if(hwnd)
@@ -290,7 +287,7 @@ void browsercallback(CefBrowser* browser)
 	}
 }
 
-void browsercallback1(CefBrowser* browser)
+void Test_browsercallback1(CefBrowser* browser)
 {
 	HWND hwnd = bwGetHWNDForBrowser((LONG_PTR)browser);
 	if(hwnd)
@@ -299,9 +296,15 @@ void browsercallback1(CefBrowser* browser)
 	}
 }
 
+struct BWCreateOptions{
+	HWND hParent=0;
+	const CHAR* URL=nullptr;
+	BC_BrowserCallback bcCallback=0;
+	BC_URLInterceptor bcInterceptor=0;
+};
 
-extern "C" __declspec(dllexport) int bwCreateBrowser(HWND hParent, CHAR* URL, BrowserCallback bwCallback) {
-	if(IsWindow(hParent))
+extern "C" __declspec(dllexport) int bwCreateBrowser(BWCreateOptions& BWOpt) {
+	if(IsWindow(BWOpt.hParent))
 	{
 		if(!looper)
 		{
@@ -355,20 +358,27 @@ extern "C" __declspec(dllexport) int bwCreateBrowser(HWND hParent, CHAR* URL, Br
 
 		if(looper)
 		{
-			CefRefPtr<ClientHandler>  g_handler = new ClientHandlerStd(0, URL);
+			CefRefPtr<ClientHandler>  g_handler = new ClientHandlerStd(0, BWOpt.URL, BWOpt.bcInterceptor);
 			CefBrowserSettings browser_settings;
 			CefWindowInfo window_info;
 			RECT rc;
-			GetWindowRect(hParent, &rc);
-			window_info.SetAsChild(hParent, rc);
+			GetWindowRect(BWOpt.hParent, &rc);
+			window_info.SetAsChild(BWOpt.hParent, rc);
 			CefRefPtr<CefDictionaryValue> extra_info;
 			CefRefPtr<CefRequestContext> request_context;
 
-			g_handler->bwCallback = bwCallback;
-			return CefBrowserHost::CreateBrowser(window_info, g_handler, URL, browser_settings, extra_info, request_context);
+			g_handler->_bw_callback = BWOpt.bcCallback;
+			return CefBrowserHost::CreateBrowser(window_info, g_handler, BWOpt.URL, browser_settings, extra_info, request_context);
 		}
 	}
 	return 0;
+}
+
+url_intercept_result* Test_InterceptBaidu(std::string url){
+	if(url=="https://www.baidu.com/") {
+		return new url_intercept_result{"HAPPY", 5, 200, "OK"};
+	}
+	return nullptr;
 }
 
 
@@ -383,8 +393,10 @@ int MainRun1(HINSTANCE hInstance, int nCmdShow) {
 		ShowWindow(hwnd, true);
 	}
 
-	bwCreateBrowser(hwnd, "www.baidu.com", (BrowserCallback)browsercallback);
-	bwCreateBrowser(hwnd, "www.bing.com", (BrowserCallback)browsercallback1);
+	BWCreateOptions args = {hwnd, "www.baidu.com", Test_browsercallback, Test_InterceptBaidu};
+	bwCreateBrowser(args);
+	//args = {hwnd, "www.bing.com", (BrowserCallback)Test_browsercallback1, (URLInterceptor)Test_InterceptBaidu};
+	//bwCreateBrowser(args);
 
 	HACCEL hAccelTable = LoadAccelerators(g_hInstance, MAKEINTRESOURCE(IDC_CEFCLIENT));
 
@@ -482,7 +494,7 @@ int MainRun(HINSTANCE hInstance, int nCmdShow) {
 		//rc.bottom -= 160;
 		window_info.SetAsChild(hwnd, rc);
 
-		CefRefPtr<ClientHandlerStd>  g_handler = new ClientHandlerStd(0, "www.baidu.com");
+		CefRefPtr<ClientHandlerStd>  g_handler = new ClientHandlerStd(0, "www.baidu.com", 0);
 		CefRefPtr<CefDictionaryValue> extra_info;
 		CefRefPtr<CefRequestContext> request_context;
 		CefBrowserHost::CreateBrowser(window_info, g_handler, "www.baidu.com", browser_settings, extra_info, request_context);
@@ -545,8 +557,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   //if (::GetLastError() == ERROR_ALREADY_EXISTS)
 //	  return 0;
 
-  //return client::MainRun1(hInstance, nCmdShow);
-  return client::RunMain(hInstance, nCmdShow);
+  return client::MainRun1(hInstance, nCmdShow);
+  //return client::RunMain(hInstance, nCmdShow);
 }
 #else
 BOOL APIENTRY DllMain( HANDLE hModule, 

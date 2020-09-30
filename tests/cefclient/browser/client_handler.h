@@ -310,7 +310,7 @@ class ClientHandler : public CefClient,
   void ShowSSLInformation(CefRefPtr<CefBrowser> browser);
 
   // Set a string resource for loading via StringResourceProvider.
-  void SetStrResource(const std::string& page, const CHAR* data);
+  void SetStrResource(const std::string& page, const CHAR* data, size_t length);
 
   void SetStringResource(const std::string& page, const std::string& data);
 
@@ -329,7 +329,8 @@ class ClientHandler : public CefClient,
   void set_download_favicon_images(bool allow) {
     download_favicon_images_ = allow;
   }
-  BrowserCallback bwCallback = nullptr;
+  BC_BrowserCallback _bw_callback = nullptr;
+  BC_URLInterceptor _resource_interceptor = nullptr;
  private:
   friend class ClientDownloadImageCallback;
 

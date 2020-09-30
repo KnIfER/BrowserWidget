@@ -5,6 +5,25 @@
 #include "include/cef_stream.h"
 #include "include/cef_string_visitor.h"
 
+#ifndef CEF_INCLUDE_BW_H_
+#define CEF_INCLUDE_BW_H_
+#pragma once
+
 class CefBrowser;
 
-typedef const void * (__cdecl * BrowserCallback)(CefBrowser*);
+struct url_intercept_result{
+	CHAR* data;
+	size_t length;
+	int status_code;
+	CHAR* status_text;
+	CHAR mime[92]={0};
+	bool delete_internal=false;
+};
+
+
+typedef void (__cdecl* BC_BrowserCallback)(CefBrowser*);
+
+typedef url_intercept_result* (__cdecl * BC_URLInterceptor)(std::string);
+
+
+#endif

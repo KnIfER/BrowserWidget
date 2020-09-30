@@ -9,10 +9,10 @@
 
 namespace client {
 
-BrowserWindowStdWin::BrowserWindowStdWin(Delegate* delegate,
-                                         const std::string& startup_url)
-    : BrowserWindow(delegate) {
-  client_handler_ = new ClientHandlerStd(this, startup_url);
+BrowserWindowStdWin::BrowserWindowStdWin(Delegate* delegate, const std::string& startup_url, const RootWindowConfig* config) 
+	: BrowserWindow(delegate) {
+	//::MessageBox(NULL, TEXT("BrowserWindowStdWin"), TEXT(""), MB_OK);
+  client_handler_ = new ClientHandlerStd(this, startup_url, config?config->bcInterceptor:0);
 }
 
 void BrowserWindowStdWin::CreateBrowser(

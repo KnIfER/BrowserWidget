@@ -50,7 +50,7 @@ class RootWindowWin : public RootWindow, public BrowserWindow::Delegate {
   bool WithExtension() const OVERRIDE;
 
  private:
-  void CreateBrowserWindow(const std::string& startup_url);
+  void CreateBrowserWindow(const std::string& startup_url, const RootWindowConfig* config);
   void CreateRootWindow(const CefBrowserSettings& settings,
                         bool initially_hidden);
 

@@ -7,8 +7,10 @@
 namespace client {
 
 
-ClientHandlerStd::ClientHandlerStd(Delegate* delegate, const std::string& startup_url) 
-						: ClientHandler(delegate, false, startup_url) {}
+ClientHandlerStd::ClientHandlerStd(Delegate* delegate, const std::string& startup_url, BC_URLInterceptor url_interceptor) 
+						: ClientHandler(delegate, false, startup_url) {
+	_resource_interceptor = url_interceptor;
+}
 
 void ClientHandlerStd::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 	ClientHandler::OnAfterCreated(browser);

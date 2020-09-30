@@ -3,6 +3,7 @@
 
 #include <windows.h>
 #include <shlwapi.h>
+#include "BrowserUI.h"
 
 HWND hBrowser;
 
@@ -89,8 +90,6 @@ LRESULT WINAPI testWindowProc(
 	return ::DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-
-
 BOOL regWndClass(LPCTSTR lpcsClassName, DWORD dwStyle)
 {
 	WNDCLASS wndclass = { 0 };
@@ -111,23 +110,18 @@ BOOL regWndClass(LPCTSTR lpcsClassName, DWORD dwStyle)
 }
 
 
-typedef const void * (__cdecl * WIdGETINVOKER)(HINSTANCE, bool);
-
-typedef const int (__cdecl * BWCREATEBROWSER)(HWND, const CHAR*, LONG_PTR);
-
-typedef const HWND (__cdecl * BWGETHWNDFORBROWSER)(LONG_PTR);
-
-BWCREATEBROWSER bwCreateBrowser;
-
-BWGETHWNDFORBROWSER bwGetHWNDForBrowser;
-
-void onBrowserPrepared(LONG_PTR browserPtr)
+void onBrowserPrepared(bwWebView browserPtr)
 {
 	hBrowser = bwGetHWNDForBrowser(browserPtr);
-
 }
 
-WIdGETINVOKER pWIdGETINVOKER = nullptr;
+url_intercept_result* InterceptBaidu(std::string url)
+{
+	if(url=="https://www.bing.com/") {
+		//return new url_intercept_result{(CHAR*)"HAPPY", 5, 200, (CHAR*)"OK"};
+	}
+	return nullptr;
+}
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow) {
 	HWND hwnd=0;
@@ -146,25 +140,15 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmd
 	PathAppend(buffer, L"cefclient.dll");
 	TCHAR LibBwgtPath[MAX_PATH]; 
 	PathCanonicalize(LibBwgtPath, buffer);
-	if(PathFileExists(LibBwgtPath))
+	if(bwInit(LibBwgtPath))
 	{
-		const DWORD dwFlags = GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")), "AddDllDirectory") != NULL ? LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_DEFAULT_DIRS : 0;
-		auto hLibBwgt = ::LoadLibraryEx(LibBwgtPath, NULL, dwFlags);
-		if(hLibBwgt)
-		{
-			pWIdGETINVOKER = (WIdGETINVOKER)GetProcAddress(hLibBwgt, "RunMain");
-			bwCreateBrowser = (BWCREATEBROWSER)GetProcAddress(hLibBwgt, "bwCreateBrowser");
-			bwGetHWNDForBrowser = (BWGETHWNDFORBROWSER)GetProcAddress(hLibBwgt, "bwGetHWNDForBrowser");
-
-			bwCreateBrowser(hwnd, "www.bing.com", (LONG_PTR)onBrowserPrepared);
-
-			//if(pWIdGETINVOKER)
-			//{
-			//	pWIdGETINVOKER((HINSTANCE)hLibBwgt, nCmdShow);
-			//}
-		}
+		bwCreateBrowser({hwnd, "www.bing.com", onBrowserPrepared, InterceptBaidu});
 	}
 
+	//if(pWIdGETINVOKER)
+	//{
+	//	pWIdGETINVOKER((HINSTANCE)hLibBwgt, nCmdShow);
+	//}
 
 	MSG msg;
 

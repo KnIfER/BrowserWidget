@@ -7,6 +7,7 @@
 #pragma once
 
 #include "tests/cefclient/browser/browser_window.h"
+#include "tests/cefclient/browser/root_window.h"
 
 namespace client {
 
@@ -17,7 +18,7 @@ class BrowserWindowStdWin : public BrowserWindow {
  public:
   // Constructor may be called on any thread.
   // |delegate| must outlive this object.
-  BrowserWindowStdWin(Delegate* delegate, const std::string& startup_url);
+  BrowserWindowStdWin(Delegate* delegate, const std::string& startup_url, const RootWindowConfig* config);
 
   // BrowserWindow methods.
   void CreateBrowser(ClientWindowHandle parent_handle,

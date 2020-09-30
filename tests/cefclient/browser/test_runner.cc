@@ -34,11 +34,18 @@
 namespace client {
 namespace test_runner {
 
-namespace {
+	const char kTestHost[] = "tests";
+	const char kLocalHost[] = "localhost";
+	const char kTestOrigin[] = "http://tests/";
 
-const char kTestHost[] = "tests";
-const char kLocalHost[] = "localhost";
-const char kTestOrigin[] = "http://tests/";
+	void LoadStrResourcePage(CefRefPtr<CefBrowser> browser, const std::string& page, const CHAR* data, size_t length) {
+		CefRefPtr<CefClient> client = browser->GetHost()->GetClient();
+		ClientHandler* client_handler = static_cast<ClientHandler*>(client.get());
+		client_handler->SetStrResource(page, data, length);
+		browser->GetMainFrame()->LoadURL(kTestOrigin + page);
+	}
+
+namespace {
 
 // Pages handled via StringResourceProvider.
 const char kTestGetSourcePage[] = "get_source.html";
@@ -56,14 +63,6 @@ void LoadStringResourcePage(CefRefPtr<CefBrowser> browser,
   browser->GetMainFrame()->LoadURL(kTestOrigin + page);
 }
 
-void LoadStrResourcePage(CefRefPtr<CefBrowser> browser,
-                            const std::string& page,
-                            const CHAR* data) {
-  CefRefPtr<CefClient> client = browser->GetHost()->GetClient();
-  ClientHandler* client_handler = static_cast<ClientHandler*>(client.get());
-  client_handler->SetStrResource(page, data);
-  browser->GetMainFrame()->LoadURL(kTestOrigin + page);
-}
 
 // Replace all instances of |from| with |to| in |str|.
 std::string StringReplace(const std::string& str,
@@ -513,12 +512,37 @@ class StringResourceProvider : public CefResourceManager::Provider {
     //DCHECK(!pages.empty());
   }
 
+
   bool OnRequest(scoped_refptr<CefResourceManager::Request> request) OVERRIDE {
     CEF_REQUIRE_IO_THREAD();
 
     const std::string& url = request->url();
-    if (url.find(kTestOrigin) != 0U) {
-      // Not handled by this provider.
+    if (url.compare(0, 13, kTestOrigin)) { //try_intercept
+		//TCHAR buffer[100]={0};
+		//wsprintf(buffer,TEXT("OnAfterCreated=%d=%d=%d"), request->browser()->_resource_interceptor, request->browser().get(), request->browser()->GetHost().get());
+		//::MessageBox(NULL, buffer, TEXT(""), MB_OK);
+		if(((ClientHandler*)request->browser()->GetHost()->GetClient().get())->_resource_interceptor)
+		{
+			const url_intercept_result* ret = ((ClientHandler*)request->browser()->GetHost()->GetClient().get())->_resource_interceptor(url);
+			if(ret && ret->data)
+			{
+				CHAR* MIME = (CHAR*)ret->mime;
+				if(strlen(MIME)==0)
+				{
+					strcpy(MIME, request->mime_type_resolver().Run(url).data());
+				}
+				CefRefPtr<CefStreamReader> response = CefStreamReader::CreateForData(
+					static_cast<void*>(const_cast<char*>(ret->data)), ret->length);
+				request->Continue(new CefStreamResourceHandler(
+					ret->status_code, ret->status_text, MIME, CefResponse::HeaderMap(), response));
+				if(ret->delete_internal)
+				{
+					delete[] ret->data;
+				}
+				delete ret;
+				return true;
+			}
+		}
       return false;
     }
 
@@ -529,7 +553,6 @@ class StringResourceProvider : public CefResourceManager::Provider {
 		auto value = it->second;
 		CefRefPtr<CefStreamReader> response = CefStreamReader::CreateForData(
 			static_cast<void*>(const_cast<char*>(value.c_str())), value.size());
-
 		request->Continue(new CefStreamResourceHandler(
 			200, "OK", "text/html", CefResponse::HeaderMap(), response));
 		return true;
@@ -539,8 +562,7 @@ class StringResourceProvider : public CefResourceManager::Provider {
 	if (it_str != str_resource_map_->end()) {
 		auto value = it_str->second;
 		CefRefPtr<CefStreamReader> response = CefStreamReader::CreateForData(
-			static_cast<void*>(const_cast<char*>(value)), strlen(value));
-
+			static_cast<void*>(const_cast<char*>(value.data)), value.length);
 		request->Continue(new CefStreamResourceHandler(
 			200, "OK", "text/html", CefResponse::HeaderMap(), response));
 		return true;
@@ -655,8 +677,14 @@ void RunTest(CefRefPtr<CefBrowser> browser, int id) {
       MuteAudio(browser, false);
       break;
     case ID_TESTS_OTHER_TESTS:
-      RunOtherTests(browser);
-      break;
+	{
+		//RunOtherTests(browser);
+		//CHAR* data = new CHAR[6];
+		//strcpy(data, "HAPPY");
+		//delete []data;
+		LoadStrResourcePage(browser, "HAPPY.html", "HAPPY!", 12);
+	}
+     break;
   }
 }
 
