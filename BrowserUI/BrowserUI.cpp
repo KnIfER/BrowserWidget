@@ -118,7 +118,7 @@ void onBrowserPrepared(bwWebView browserPtr)
 url_intercept_result* InterceptBaidu(std::string url)
 {
 	if(url=="https://www.bing.com/") {
-		//return new url_intercept_result{(CHAR*)"HAPPY", 5, 200, (CHAR*)"OK"};
+		return new url_intercept_result{(CHAR*)"HAPPY", 5, 200, (CHAR*)"OK"};
 	}
 	return nullptr;
 }

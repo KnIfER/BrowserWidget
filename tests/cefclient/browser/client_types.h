@@ -21,7 +21,7 @@
 #define ClientNativeMacWindow void*
 #ifdef __OBJC__
 #define CAST_CLIENT_NATIVE_MAC_WINDOW_TO_NSWINDOW(native) \
-  (__bridge NSWindow*)native
+	(__bridge NSWindow*)native
 #define CAST_NSWINDOW_TO_CLIENT_NATIVE_MAC_WINDOW(window) (__bridge void*)window
 #endif  // __OBJC__
 #endif  // defined OS_MACOSX

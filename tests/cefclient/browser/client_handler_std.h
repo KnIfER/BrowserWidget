@@ -10,20 +10,20 @@
 
 namespace client {
 
-// Client handler implementation for windowed browsers. There will only ever be
-// one browser per handler instance.
-class ClientHandlerStd : public ClientHandler {
- public:
-  ClientHandlerStd(Delegate* delegate, const std::string& startup_url, BC_URLInterceptor url_interceptor);
+	// Client handler implementation for windowed browsers. There will only ever be
+	// one browser per handler instance.
+	class ClientHandlerStd : public ClientHandler {
+	public:
+		ClientHandlerStd(Delegate* delegate, const std::string& startup_url, BC_URLInterceptor url_interceptor);
 
-  virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) ;
+		virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) ;
 
-  CefBrowser* _browser=nullptr;
- private:
-  // Include the default reference counting implementation.
-  IMPLEMENT_REFCOUNTING(ClientHandlerStd);
-  DISALLOW_COPY_AND_ASSIGN(ClientHandlerStd);
-};
+		CefBrowser* _browser=nullptr;
+	private:
+		// Include the default reference counting implementation.
+		IMPLEMENT_REFCOUNTING(ClientHandlerStd);
+		DISALLOW_COPY_AND_ASSIGN(ClientHandlerStd);
+	};
 
 }  // namespace client
 

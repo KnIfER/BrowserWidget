@@ -10,25 +10,25 @@
 
 namespace client {
 
-// Represents the main message loop in the browser process. This implementation
-// is a light-weight wrapper around the Chromium UI thread.
-class MainMessageLoopStd : public MainMessageLoop {
- public:
-  MainMessageLoopStd();
+	// Represents the main message loop in the browser process. This implementation
+	// is a light-weight wrapper around the Chromium UI thread.
+	class MainMessageLoopStd : public MainMessageLoop {
+	public:
+		MainMessageLoopStd();
 
-  // MainMessageLoop methods.
-  int Run() OVERRIDE;
-  void Quit() OVERRIDE;
-  void PostTask(CefRefPtr<CefTask> task) OVERRIDE;
-  bool RunsTasksOnCurrentThread() const OVERRIDE;
+		// MainMessageLoop methods.
+		int Run() OVERRIDE;
+		void Quit() OVERRIDE;
+		void PostTask(CefRefPtr<CefTask> task) OVERRIDE;
+		bool RunsTasksOnCurrentThread() const OVERRIDE;
 
 #if defined(OS_WIN)
-  void SetCurrentModelessDialog(HWND hWndDialog) OVERRIDE;
+		void SetCurrentModelessDialog(HWND hWndDialog) OVERRIDE;
 #endif
 
- private:
-  DISALLOW_COPY_AND_ASSIGN(MainMessageLoopStd);
-};
+	private:
+		DISALLOW_COPY_AND_ASSIGN(MainMessageLoopStd);
+	};
 
 }  // namespace client
 

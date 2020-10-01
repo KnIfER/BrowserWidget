@@ -8,30 +8,30 @@
 
 namespace client {
 
-MainMessageLoopStd::MainMessageLoopStd() {}
+	MainMessageLoopStd::MainMessageLoopStd() {}
 
-int MainMessageLoopStd::Run() {
-  CefRunMessageLoop();
-  return 0;
-}
+	int MainMessageLoopStd::Run() {
+		CefRunMessageLoop();
+		return 0;
+	}
 
-void MainMessageLoopStd::Quit() {
-  CefQuitMessageLoop();
-}
+	void MainMessageLoopStd::Quit() {
+		CefQuitMessageLoop();
+	}
 
-void MainMessageLoopStd::PostTask(CefRefPtr<CefTask> task) {
-  CefPostTask(TID_UI, task);
-}
+	void MainMessageLoopStd::PostTask(CefRefPtr<CefTask> task) {
+		CefPostTask(TID_UI, task);
+	}
 
-bool MainMessageLoopStd::RunsTasksOnCurrentThread() const {
-  return CefCurrentlyOn(TID_UI);
-}
+	bool MainMessageLoopStd::RunsTasksOnCurrentThread() const {
+		return CefCurrentlyOn(TID_UI);
+	}
 
 #if defined(OS_WIN)
-void MainMessageLoopStd::SetCurrentModelessDialog(HWND hWndDialog) {
-  // Nothing to do here. The Chromium message loop implementation will
-  // internally route dialog messages.
-}
+	void MainMessageLoopStd::SetCurrentModelessDialog(HWND hWndDialog) {
+		// Nothing to do here. The Chromium message loop implementation will
+		// internally route dialog messages.
+	}
 #endif
 
 }  // namespace client

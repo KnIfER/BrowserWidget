@@ -12,37 +12,37 @@
 
 namespace client {
 
-// Base class for customizing process-type-based behavior.
-class ClientApp : public CefApp {
- public:
-  ClientApp();
+	// Base class for customizing process-type-based behavior.
+	class ClientApp : public CefApp {
+	public:
+		ClientApp();
 
-  enum ProcessType {
-    BrowserProcess,
-    RendererProcess,
-    ZygoteProcess,
-    OtherProcess,
-  };
+		enum ProcessType {
+			BrowserProcess,
+			RendererProcess,
+			ZygoteProcess,
+			OtherProcess,
+		};
 
-  // Determine the process type based on command-line arguments.
-  static ProcessType GetProcessType(CefRefPtr<CefCommandLine> command_line);
+		// Determine the process type based on command-line arguments.
+		static ProcessType GetProcessType(CefRefPtr<CefCommandLine> command_line);
 
- protected:
-  // Schemes that will be registered with the global cookie manager.
-  std::vector<CefString> cookieable_schemes_;
+	protected:
+		// Schemes that will be registered with the global cookie manager.
+		std::vector<CefString> cookieable_schemes_;
 
- private:
-  // Registers custom schemes. Implemented by cefclient in
-  // client_app_delegates_common.cc
-  static void RegisterCustomSchemes(CefRawPtr<CefSchemeRegistrar> registrar,
-                                    std::vector<CefString>& cookiable_schemes);
+	private:
+		// Registers custom schemes. Implemented by cefclient in
+		// client_app_delegates_common.cc
+		static void RegisterCustomSchemes(CefRawPtr<CefSchemeRegistrar> registrar,
+		std::vector<CefString>& cookiable_schemes);
 
-  // CefApp methods.
-  void OnRegisterCustomSchemes(
-      CefRawPtr<CefSchemeRegistrar> registrar) OVERRIDE;
+		// CefApp methods.
+		void OnRegisterCustomSchemes(
+		CefRawPtr<CefSchemeRegistrar> registrar) OVERRIDE;
 
-  DISALLOW_COPY_AND_ASSIGN(ClientApp);
-};
+		DISALLOW_COPY_AND_ASSIGN(ClientApp);
+	};
 
 }  // namespace client
 

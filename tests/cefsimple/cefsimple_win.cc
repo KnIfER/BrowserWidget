@@ -22,71 +22,71 @@
 
 // Entry point function for all processes.
 int APIENTRY wWinMain(HINSTANCE hInstance,
-                      HINSTANCE hPrevInstance,
-                      LPTSTR lpCmdLine,
-                      int nCmdShow) {
-  UNREFERENCED_PARAMETER(hPrevInstance);
-  UNREFERENCED_PARAMETER(lpCmdLine);
+HINSTANCE hPrevInstance,
+LPTSTR lpCmdLine,
+int nCmdShow) {
+	UNREFERENCED_PARAMETER(hPrevInstance);
+	UNREFERENCED_PARAMETER(lpCmdLine);
 
-  // Enable High-DPI support on Windows 7 or newer.
-  CefEnableHighDPISupport();
+	// Enable High-DPI support on Windows 7 or newer.
+	CefEnableHighDPISupport();
 
-  void* sandbox_info = nullptr;
+	void* sandbox_info = nullptr;
 
 #if defined(CEF_USE_SANDBOX)
-  // Manage the life span of the sandbox information object. This is necessary
-  // for sandbox support on Windows. See cef_sandbox_win.h for complete details.
-  CefScopedSandboxInfo scoped_sandbox;
-  sandbox_info = scoped_sandbox.sandbox_info();
+	// Manage the life span of the sandbox information object. This is necessary
+	// for sandbox support on Windows. See cef_sandbox_win.h for complete details.
+	CefScopedSandboxInfo scoped_sandbox;
+	sandbox_info = scoped_sandbox.sandbox_info();
 #endif
 
-  // Provide CEF with command-line arguments.
-  CefMainArgs main_args(hInstance);
+	// Provide CEF with command-line arguments.
+	CefMainArgs main_args(hInstance);
 
-  // CEF applications have multiple sub-processes (render, plugin, GPU, etc)
-  // that share the same executable. This function checks the command-line and,
-  // if this is a sub-process, executes the appropriate logic.
-  int exit_code = CefExecuteProcess(main_args, nullptr, sandbox_info);
-  if (exit_code >= 0) {
-    // The sub-process has completed so return here.
-    return exit_code;
-  }
+	// CEF applications have multiple sub-processes (render, plugin, GPU, etc)
+	// that share the same executable. This function checks the command-line and,
+	// if this is a sub-process, executes the appropriate logic.
+	int exit_code = CefExecuteProcess(main_args, nullptr, sandbox_info);
+	if (exit_code >= 0) {
+		// The sub-process has completed so return here.
+		return exit_code;
+	}
 
-  // Parse command-line arguments for use in this method.
-  CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
-  //command_line->InitFromString(::GetCommandLineW());
-  command_line->AppendSwitch("no-proxy-server");
+	// Parse command-line arguments for use in this method.
+	CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
+	//command_line->InitFromString(::GetCommandLineW());
+	command_line->AppendSwitch("no-proxy-server");
 
-  // Specify CEF global settings here.
-  CefSettings settings;
+	// Specify CEF global settings here.
+	CefSettings settings;
 
-  if (command_line->HasSwitch("enable-chrome-runtime")) {
-    // Enable experimental Chrome runtime. See issue #2969 for details.
-    //settings.chrome_runtime = true;
-  }
+	if (command_line->HasSwitch("enable-chrome-runtime")) {
+		// Enable experimental Chrome runtime. See issue #2969 for details.
+		//settings.chrome_runtime = true;
+	}
 
-  settings.no_sandbox = true;
+	settings.no_sandbox = true;
 
-  settings.no_sandbox = true;
-  settings.command_line_args_disabled=false;
-  settings.log_file={L"C:\\tmp\\123.log", 14};
+	settings.no_sandbox = true;
+	settings.command_line_args_disabled=false;
+	settings.log_file={L"C:\\tmp\\123.log", 14};
 
 
 
-  // SimpleApp implements application-level callbacks for the browser process.
-  // It will create the first browser instance in OnContextInitialized() after
-  // CEF has initialized.
-  CefRefPtr<SimpleApp> app(new SimpleApp);
+	// SimpleApp implements application-level callbacks for the browser process.
+	// It will create the first browser instance in OnContextInitialized() after
+	// CEF has initialized.
+	CefRefPtr<SimpleApp> app(new SimpleApp);
 
-  // Initialize CEF.
-  CefInitialize(main_args, settings, app.get(), sandbox_info);
+	// Initialize CEF.
+	CefInitialize(main_args, settings, app.get(), sandbox_info);
 
-  // Run the CEF message loop. This will block until CefQuitMessageLoop() is
-  // called.
-  CefRunMessageLoop();
+	// Run the CEF message loop. This will block until CefQuitMessageLoop() is
+	// called.
+	CefRunMessageLoop();
 
-  // Shut down CEF.
-  CefShutdown();
+	// Shut down CEF.
+	CefShutdown();
 
-  return 0;
+	return 0;
 }

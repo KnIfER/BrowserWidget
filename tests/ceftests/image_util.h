@@ -10,17 +10,17 @@
 
 namespace image_util {
 
-// Load an PNG image. Tests that the size is |expected_size| in DIPs. Call
-// multiple times to load the same image at different scale factors.
-void LoadImage(CefRefPtr<CefImage> image,
-               double scale_factor,
-               const std::string& name,
-               const CefSize& expected_size);
+	// Load an PNG image. Tests that the size is |expected_size| in DIPs. Call
+	// multiple times to load the same image at different scale factors.
+	void LoadImage(CefRefPtr<CefImage> image,
+	double scale_factor,
+	const std::string& name,
+	const CefSize& expected_size);
 
-// Load an icon image. Expected size is 16x16 DIPs.
-void LoadIconImage(CefRefPtr<CefImage> image,
-                   double scale_factor,
-                   const std::string& name = "window_icon");
+	// Load an icon image. Expected size is 16x16 DIPs.
+	void LoadIconImage(CefRefPtr<CefImage> image,
+	double scale_factor,
+	const std::string& name = "window_icon");
 
 }  // namespace image_util
 

@@ -13,18 +13,18 @@
 
 namespace client {
 
-namespace views_style {
+	namespace views_style {
 
-// Returns true if a style is set.
-bool IsSet();
+		// Returns true if a style is set.
+		bool IsSet();
 
-// Apply style to views objects.
-void ApplyTo(CefRefPtr<CefPanel> panel);
-void ApplyTo(CefRefPtr<CefLabelButton> label_button);
-void ApplyTo(CefRefPtr<CefTextfield> textfield);
-void ApplyTo(CefRefPtr<CefMenuModel> menu_model);
+		// Apply style to views objects.
+		void ApplyTo(CefRefPtr<CefPanel> panel);
+		void ApplyTo(CefRefPtr<CefLabelButton> label_button);
+		void ApplyTo(CefRefPtr<CefTextfield> textfield);
+		void ApplyTo(CefRefPtr<CefMenuModel> menu_model);
 
-}  // namespace views_style
+	}  // namespace views_style
 
 }  // namespace client
 

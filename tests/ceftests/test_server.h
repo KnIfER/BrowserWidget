@@ -16,110 +16,110 @@
 
 namespace test_server {
 
-extern const char kServerAddress[];
-extern const uint16 kServerPort;
-extern const char kServerScheme[];
-extern const char kServerOrigin[];
+	extern const char kServerAddress[];
+	extern const uint16 kServerPort;
+	extern const char kServerScheme[];
+	extern const char kServerOrigin[];
 
-typedef base::Closure DoneCallback;
+	typedef base::Closure DoneCallback;
 
-typedef base::Callback<void(const std::string& server_origin)>
-    StartDoneCallback;
+	typedef base::Callback<void(const std::string& server_origin)>
+	StartDoneCallback;
 
-// Starts the server if it is not currently running, and executes |callback| on
-// the UI thread. This method should be called by each test case that relies on
-// the server.
-void Start(const StartDoneCallback& callback);
+	// Starts the server if it is not currently running, and executes |callback| on
+	// the UI thread. This method should be called by each test case that relies on
+	// the server.
+	void Start(const StartDoneCallback& callback);
 
-// Stops the server if it is currently running, and executes |callback| on the
-// UI thread. This method will be called by the test framework on shutdown.
-void Stop(const DoneCallback& callback);
+	// Stops the server if it is currently running, and executes |callback| on the
+	// UI thread. This method will be called by the test framework on shutdown.
+	void Stop(const DoneCallback& callback);
 
-// Observer for CefServerHandler callbacks. Methods will be called on the UI
-// thread.
-class Observer {
- public:
-  // Called when this Observer is registered.
-  virtual void OnRegistered() = 0;
+	// Observer for CefServerHandler callbacks. Methods will be called on the UI
+	// thread.
+	class Observer {
+	public:
+		// Called when this Observer is registered.
+		virtual void OnRegistered() = 0;
 
-  // Called when this Observer is unregistered.
-  virtual void OnUnregistered() = 0;
+		// Called when this Observer is unregistered.
+		virtual void OnUnregistered() = 0;
 
-  // See CefServerHandler documentation for usage. Return true if the callback
-  // was handled.
-  virtual bool OnClientConnected(CefRefPtr<CefServer> server,
-                                 int connection_id) {
-    return false;
-  }
-  virtual bool OnClientDisconnected(CefRefPtr<CefServer> server,
-                                    int connection_id) {
-    return false;
-  }
-  virtual bool OnHttpRequest(CefRefPtr<CefServer> server,
-                             int connection_id,
-                             const CefString& client_address,
-                             CefRefPtr<CefRequest> request) = 0;
+		// See CefServerHandler documentation for usage. Return true if the callback
+		// was handled.
+		virtual bool OnClientConnected(CefRefPtr<CefServer> server,
+		int connection_id) {
+			return false;
+		}
+		virtual bool OnClientDisconnected(CefRefPtr<CefServer> server,
+		int connection_id) {
+			return false;
+		}
+		virtual bool OnHttpRequest(CefRefPtr<CefServer> server,
+		int connection_id,
+		const CefString& client_address,
+		CefRefPtr<CefRequest> request) = 0;
 
- protected:
-  virtual ~Observer() {}
-};
+	protected:
+		virtual ~Observer() {}
+	};
 
-// Add an observer for CefServerHandler callbacks. Remains registered until the
-// returned CefRegistration object is destroyed. Registered observers will be
-// executed in the order of registration until one returns true to indicate that
-// it handled the callback. |callback| will be executed on the UI thread after
-// registration is complete.
-CefRefPtr<CefRegistration> AddObserver(Observer* observer,
-                                       const DoneCallback& callback);
+	// Add an observer for CefServerHandler callbacks. Remains registered until the
+	// returned CefRegistration object is destroyed. Registered observers will be
+	// executed in the order of registration until one returns true to indicate that
+	// it handled the callback. |callback| will be executed on the UI thread after
+	// registration is complete.
+	CefRefPtr<CefRegistration> AddObserver(Observer* observer,
+	const DoneCallback& callback);
 
-// Combination of AddObserver() followed by Start().
-CefRefPtr<CefRegistration> AddObserverAndStart(
-    Observer* observer,
-    const StartDoneCallback& callback);
+	// Combination of AddObserver() followed by Start().
+	CefRefPtr<CefRegistration> AddObserverAndStart(
+	Observer* observer,
+	const StartDoneCallback& callback);
 
-// Helper for sending a fully qualified response.
-void SendResponse(CefRefPtr<CefServer> server,
-                  int connection_id,
-                  CefRefPtr<CefResponse> response,
-                  const std::string& response_data);
+	// Helper for sending a fully qualified response.
+	void SendResponse(CefRefPtr<CefServer> server,
+	int connection_id,
+	CefRefPtr<CefResponse> response,
+	const std::string& response_data);
 
-// Helper for managing Observer registration and callbacks. Only used on the UI
-// thread.
-class ObserverHelper : Observer {
- public:
-  ObserverHelper();
-  ~ObserverHelper() override;
+	// Helper for managing Observer registration and callbacks. Only used on the UI
+	// thread.
+	class ObserverHelper : Observer {
+	public:
+		ObserverHelper();
+		~ObserverHelper() override;
 
-  // Initialize the registration. Results in a call to OnInitialized().
-  void Initialize();
+		// Initialize the registration. Results in a call to OnInitialized().
+		void Initialize();
 
-  // Shut down the registration. Results in a call to OnShutdown().
-  void Shutdown();
+		// Shut down the registration. Results in a call to OnShutdown().
+		void Shutdown();
 
-  // Implement this method to start sending server requests after Initialize().
-  virtual void OnInitialized(const std::string& server_origin) = 0;
+		// Implement this method to start sending server requests after Initialize().
+		virtual void OnInitialized(const std::string& server_origin) = 0;
 
-  // Implement this method to continue the test after Shutdown().
-  virtual void OnShutdown() = 0;
+		// Implement this method to continue the test after Shutdown().
+		virtual void OnShutdown() = 0;
 
- private:
-  void OnStartDone(const std::string& server_origin);
-  void OnRegistered() override;
-  void OnUnregistered() override;
+	private:
+		void OnStartDone(const std::string& server_origin);
+		void OnRegistered() override;
+		void OnUnregistered() override;
 
-  CefRefPtr<CefRegistration> registration_;
+		CefRefPtr<CefRegistration> registration_;
 
-  enum class State {
-    NONE,
-    INITIALIZING,
-    INITIALIZED,
-    SHUTTINGDOWN,
-  } state_ = State::NONE;
+		enum class State {
+			NONE,
+			INITIALIZING,
+			INITIALIZED,
+			SHUTTINGDOWN,
+		} state_ = State::NONE;
 
-  base::WeakPtrFactory<ObserverHelper> weak_ptr_factory_;
+		base::WeakPtrFactory<ObserverHelper> weak_ptr_factory_;
 
-  DISALLOW_COPY_AND_ASSIGN(ObserverHelper);
-};
+		DISALLOW_COPY_AND_ASSIGN(ObserverHelper);
+	};
 
 }  // namespace test_server
 

@@ -10,70 +10,70 @@
 
 // Test manual reset.
 TEST(WaitableEventTest, ManualReset) {
-  CefRefPtr<CefWaitableEvent> event =
-      CefWaitableEvent::CreateWaitableEvent(false, false);
+	CefRefPtr<CefWaitableEvent> event =
+	CefWaitableEvent::CreateWaitableEvent(false, false);
 
-  EXPECT_FALSE(event->IsSignaled());
+	EXPECT_FALSE(event->IsSignaled());
 
-  event->Signal();
-  EXPECT_TRUE(event->IsSignaled());
-  EXPECT_TRUE(event->IsSignaled());
+	event->Signal();
+	EXPECT_TRUE(event->IsSignaled());
+	EXPECT_TRUE(event->IsSignaled());
 
-  event->Reset();
-  EXPECT_FALSE(event->IsSignaled());
-  EXPECT_FALSE(event->TimedWait(10));
+	event->Reset();
+	EXPECT_FALSE(event->IsSignaled());
+	EXPECT_FALSE(event->TimedWait(10));
 
-  event->Signal();
-  event->Wait();
-  EXPECT_TRUE(event->TimedWait(10));
+	event->Signal();
+	event->Wait();
+	EXPECT_TRUE(event->TimedWait(10));
 }
 
 // Test automatic reset.
 TEST(WaitableEventTest, AutomaticReset) {
-  CefRefPtr<CefWaitableEvent> event =
-      CefWaitableEvent::CreateWaitableEvent(true, false);
+	CefRefPtr<CefWaitableEvent> event =
+	CefWaitableEvent::CreateWaitableEvent(true, false);
 
-  EXPECT_FALSE(event->IsSignaled());
+	EXPECT_FALSE(event->IsSignaled());
 
-  event->Signal();
-  EXPECT_TRUE(event->IsSignaled());
-  EXPECT_FALSE(event->IsSignaled());
+	event->Signal();
+	EXPECT_TRUE(event->IsSignaled());
+	EXPECT_FALSE(event->IsSignaled());
 
-  event->Reset();
-  EXPECT_FALSE(event->IsSignaled());
-  EXPECT_FALSE(event->TimedWait(10));
+	event->Reset();
+	EXPECT_FALSE(event->IsSignaled());
+	EXPECT_FALSE(event->TimedWait(10));
 
-  event->Signal();
-  event->Wait();
-  EXPECT_FALSE(event->TimedWait(10));
+	event->Signal();
+	event->Wait();
+	EXPECT_FALSE(event->TimedWait(10));
 
-  event->Signal();
-  EXPECT_TRUE(event->TimedWait(10));
+	event->Signal();
+	EXPECT_TRUE(event->TimedWait(10));
 }
 
 namespace {
 
-void SignalEvent(CefWaitableEvent* event) {
-  event->Signal();
-}
+	void SignalEvent(CefWaitableEvent* event) {
+		event->Signal();
+	}
 
 }  // namespace
 
 // Tests that a WaitableEvent can be safely deleted when |Wait| is done without
 // additional synchronization.
 TEST(WaitableEventTest, WaitAndDelete) {
-  CefRefPtr<CefWaitableEvent> event =
-      CefWaitableEvent::CreateWaitableEvent(true, false);
+	CefRefPtr<CefWaitableEvent> event =
+	CefWaitableEvent::CreateWaitableEvent(true, false);
 
-  CefRefPtr<CefThread> thread = CefThread::CreateThread("waitable_event_test");
-  thread->GetTaskRunner()->PostDelayedTask(
-      CefCreateClosureTask(
-          base::Bind(SignalEvent, base::Unretained(event.get()))),
-      10);
+	CefRefPtr<CefThread> thread = CefThread::CreateThread("waitable_event_test");
+	thread->GetTaskRunner()->PostDelayedTask(
+	CefCreateClosureTask(
+	base::Bind(SignalEvent, base::Unretained(event.get()))),
+	10);
 
-  event->Wait();
-  event = nullptr;
+	event->Wait();
+	event = nullptr;
 
-  thread->Stop();
-  thread = nullptr;
+	thread->Stop();
+	thread = nullptr;
 }

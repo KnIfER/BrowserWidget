@@ -19,11 +19,11 @@
 namespace client {
 
 #if defined(OS_WIN)
-typedef TempWindowWin TempWindow;
+	typedef TempWindowWin TempWindow;
 #elif defined(OS_LINUX)
-typedef TempWindowX11 TempWindow;
+	typedef TempWindowX11 TempWindow;
 #elif defined(OS_MACOSX)
-typedef TempWindowMac TempWindow;
+	typedef TempWindowMac TempWindow;
 #endif
 
 }  // namespace client

@@ -10,169 +10,169 @@
 
 namespace client {
 
-ClientHandlerOsr::ClientHandlerOsr(Delegate* delegate,
-                                   OsrDelegate* osr_delegate,
-                                   const std::string& startup_url)
-    : ClientHandler(delegate, true, startup_url), osr_delegate_(osr_delegate) {
-  DCHECK(osr_delegate_);
-}
+	ClientHandlerOsr::ClientHandlerOsr(Delegate* delegate,
+	OsrDelegate* osr_delegate,
+	const std::string& startup_url)
+	: ClientHandler(delegate, true, startup_url), osr_delegate_(osr_delegate) {
+		DCHECK(osr_delegate_);
+	}
 
-void ClientHandlerOsr::DetachOsrDelegate() {
-  if (!CefCurrentlyOn(TID_UI)) {
-    // Execute this method on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&ClientHandlerOsr::DetachOsrDelegate, this));
-    return;
-  }
+	void ClientHandlerOsr::DetachOsrDelegate() {
+		if (!CefCurrentlyOn(TID_UI)) {
+			// Execute this method on the UI thread.
+			CefPostTask(TID_UI, base::Bind(&ClientHandlerOsr::DetachOsrDelegate, this));
+			return;
+		}
 
-  DCHECK(osr_delegate_);
-  osr_delegate_ = nullptr;
-}
+		DCHECK(osr_delegate_);
+		osr_delegate_ = nullptr;
+	}
 
-void ClientHandlerOsr::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
-  CEF_REQUIRE_UI_THREAD();
-  if (osr_delegate_)
-    osr_delegate_->OnAfterCreated(browser);
-  ClientHandler::OnAfterCreated(browser);
-}
+	void ClientHandlerOsr::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
+		CEF_REQUIRE_UI_THREAD();
+		if (osr_delegate_)
+		osr_delegate_->OnAfterCreated(browser);
+		ClientHandler::OnAfterCreated(browser);
+	}
 
-void ClientHandlerOsr::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
-  CEF_REQUIRE_UI_THREAD();
-  if (osr_delegate_)
-    osr_delegate_->OnBeforeClose(browser);
-  ClientHandler::OnBeforeClose(browser);
-}
+	void ClientHandlerOsr::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
+		CEF_REQUIRE_UI_THREAD();
+		if (osr_delegate_)
+		osr_delegate_->OnBeforeClose(browser);
+		ClientHandler::OnBeforeClose(browser);
+	}
 
-bool ClientHandlerOsr::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
-                                         CefRect& rect) {
-  CEF_REQUIRE_UI_THREAD();
-  if (!osr_delegate_)
-    return false;
-  return osr_delegate_->GetRootScreenRect(browser, rect);
-}
+	bool ClientHandlerOsr::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
+	CefRect& rect) {
+		CEF_REQUIRE_UI_THREAD();
+		if (!osr_delegate_)
+		return false;
+		return osr_delegate_->GetRootScreenRect(browser, rect);
+	}
 
-void ClientHandlerOsr::GetViewRect(CefRefPtr<CefBrowser> browser,
-                                   CefRect& rect) {
-  CEF_REQUIRE_UI_THREAD();
-  if (!osr_delegate_) {
-    // Never return an empty rectangle.
-    rect.width = rect.height = 1;
-    return;
-  }
-  osr_delegate_->GetViewRect(browser, rect);
-}
+	void ClientHandlerOsr::GetViewRect(CefRefPtr<CefBrowser> browser,
+	CefRect& rect) {
+		CEF_REQUIRE_UI_THREAD();
+		if (!osr_delegate_) {
+			// Never return an empty rectangle.
+			rect.width = rect.height = 1;
+			return;
+		}
+		osr_delegate_->GetViewRect(browser, rect);
+	}
 
-bool ClientHandlerOsr::GetScreenPoint(CefRefPtr<CefBrowser> browser,
-                                      int viewX,
-                                      int viewY,
-                                      int& screenX,
-                                      int& screenY) {
-  CEF_REQUIRE_UI_THREAD();
-  if (!osr_delegate_)
-    return false;
-  return osr_delegate_->GetScreenPoint(browser, viewX, viewY, screenX, screenY);
-}
+	bool ClientHandlerOsr::GetScreenPoint(CefRefPtr<CefBrowser> browser,
+	int viewX,
+	int viewY,
+	int& screenX,
+	int& screenY) {
+		CEF_REQUIRE_UI_THREAD();
+		if (!osr_delegate_)
+		return false;
+		return osr_delegate_->GetScreenPoint(browser, viewX, viewY, screenX, screenY);
+	}
 
-bool ClientHandlerOsr::GetScreenInfo(CefRefPtr<CefBrowser> browser,
-                                     CefScreenInfo& screen_info) {
-  CEF_REQUIRE_UI_THREAD();
-  if (!osr_delegate_)
-    return false;
-  return osr_delegate_->GetScreenInfo(browser, screen_info);
-}
+	bool ClientHandlerOsr::GetScreenInfo(CefRefPtr<CefBrowser> browser,
+	CefScreenInfo& screen_info) {
+		CEF_REQUIRE_UI_THREAD();
+		if (!osr_delegate_)
+		return false;
+		return osr_delegate_->GetScreenInfo(browser, screen_info);
+	}
 
-void ClientHandlerOsr::OnPopupShow(CefRefPtr<CefBrowser> browser, bool show) {
-  CEF_REQUIRE_UI_THREAD();
-  if (!osr_delegate_)
-    return;
-  return osr_delegate_->OnPopupShow(browser, show);
-}
+	void ClientHandlerOsr::OnPopupShow(CefRefPtr<CefBrowser> browser, bool show) {
+		CEF_REQUIRE_UI_THREAD();
+		if (!osr_delegate_)
+		return;
+		return osr_delegate_->OnPopupShow(browser, show);
+	}
 
-void ClientHandlerOsr::OnPopupSize(CefRefPtr<CefBrowser> browser,
-                                   const CefRect& rect) {
-  CEF_REQUIRE_UI_THREAD();
-  if (!osr_delegate_)
-    return;
-  return osr_delegate_->OnPopupSize(browser, rect);
-}
+	void ClientHandlerOsr::OnPopupSize(CefRefPtr<CefBrowser> browser,
+	const CefRect& rect) {
+		CEF_REQUIRE_UI_THREAD();
+		if (!osr_delegate_)
+		return;
+		return osr_delegate_->OnPopupSize(browser, rect);
+	}
 
-void ClientHandlerOsr::OnPaint(CefRefPtr<CefBrowser> browser,
-                               PaintElementType type,
-                               const RectList& dirtyRects,
-                               const void* buffer,
-                               int width,
-                               int height) {
-  CEF_REQUIRE_UI_THREAD();
-  if (!osr_delegate_)
-    return;
-  osr_delegate_->OnPaint(browser, type, dirtyRects, buffer, width, height);
-}
+	void ClientHandlerOsr::OnPaint(CefRefPtr<CefBrowser> browser,
+	PaintElementType type,
+	const RectList& dirtyRects,
+	const void* buffer,
+	int width,
+	int height) {
+		CEF_REQUIRE_UI_THREAD();
+		if (!osr_delegate_)
+		return;
+		osr_delegate_->OnPaint(browser, type, dirtyRects, buffer, width, height);
+	}
 
-void ClientHandlerOsr::OnAcceleratedPaint(
-    CefRefPtr<CefBrowser> browser,
-    CefRenderHandler::PaintElementType type,
-    const CefRenderHandler::RectList& dirtyRects,
-    void* share_handle) {
-  CEF_REQUIRE_UI_THREAD();
-  if (!osr_delegate_)
-    return;
-  osr_delegate_->OnAcceleratedPaint(browser, type, dirtyRects, share_handle);
-}
+	void ClientHandlerOsr::OnAcceleratedPaint(
+	CefRefPtr<CefBrowser> browser,
+	CefRenderHandler::PaintElementType type,
+	const CefRenderHandler::RectList& dirtyRects,
+	void* share_handle) {
+		CEF_REQUIRE_UI_THREAD();
+		if (!osr_delegate_)
+		return;
+		osr_delegate_->OnAcceleratedPaint(browser, type, dirtyRects, share_handle);
+	}
 
-void ClientHandlerOsr::OnCursorChange(CefRefPtr<CefBrowser> browser,
-                                      CefCursorHandle cursor,
-                                      CursorType type,
-                                      const CefCursorInfo& custom_cursor_info) {
-  CEF_REQUIRE_UI_THREAD();
-  if (!osr_delegate_)
-    return;
-  osr_delegate_->OnCursorChange(browser, cursor, type, custom_cursor_info);
-}
+	void ClientHandlerOsr::OnCursorChange(CefRefPtr<CefBrowser> browser,
+	CefCursorHandle cursor,
+	CursorType type,
+	const CefCursorInfo& custom_cursor_info) {
+		CEF_REQUIRE_UI_THREAD();
+		if (!osr_delegate_)
+		return;
+		osr_delegate_->OnCursorChange(browser, cursor, type, custom_cursor_info);
+	}
 
-bool ClientHandlerOsr::StartDragging(
-    CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefDragData> drag_data,
-    CefRenderHandler::DragOperationsMask allowed_ops,
-    int x,
-    int y) {
-  CEF_REQUIRE_UI_THREAD();
-  if (!osr_delegate_)
-    return false;
-  return osr_delegate_->StartDragging(browser, drag_data, allowed_ops, x, y);
-}
+	bool ClientHandlerOsr::StartDragging(
+	CefRefPtr<CefBrowser> browser,
+	CefRefPtr<CefDragData> drag_data,
+	CefRenderHandler::DragOperationsMask allowed_ops,
+	int x,
+	int y) {
+		CEF_REQUIRE_UI_THREAD();
+		if (!osr_delegate_)
+		return false;
+		return osr_delegate_->StartDragging(browser, drag_data, allowed_ops, x, y);
+	}
 
-void ClientHandlerOsr::UpdateDragCursor(
-    CefRefPtr<CefBrowser> browser,
-    CefRenderHandler::DragOperation operation) {
-  CEF_REQUIRE_UI_THREAD();
-  if (!osr_delegate_)
-    return;
-  osr_delegate_->UpdateDragCursor(browser, operation);
-}
+	void ClientHandlerOsr::UpdateDragCursor(
+	CefRefPtr<CefBrowser> browser,
+	CefRenderHandler::DragOperation operation) {
+		CEF_REQUIRE_UI_THREAD();
+		if (!osr_delegate_)
+		return;
+		osr_delegate_->UpdateDragCursor(browser, operation);
+	}
 
-void ClientHandlerOsr::OnImeCompositionRangeChanged(
-    CefRefPtr<CefBrowser> browser,
-    const CefRange& selection_range,
-    const CefRenderHandler::RectList& character_bounds) {
-  CEF_REQUIRE_UI_THREAD();
-  if (!osr_delegate_)
-    return;
-  osr_delegate_->OnImeCompositionRangeChanged(browser, selection_range,
-                                              character_bounds);
-}
+	void ClientHandlerOsr::OnImeCompositionRangeChanged(
+	CefRefPtr<CefBrowser> browser,
+	const CefRange& selection_range,
+	const CefRenderHandler::RectList& character_bounds) {
+		CEF_REQUIRE_UI_THREAD();
+		if (!osr_delegate_)
+		return;
+		osr_delegate_->OnImeCompositionRangeChanged(browser, selection_range,
+		character_bounds);
+	}
 
-void ClientHandlerOsr::OnAccessibilityTreeChange(CefRefPtr<CefValue> value) {
-  CEF_REQUIRE_UI_THREAD();
-  if (!osr_delegate_)
-    return;
-  osr_delegate_->UpdateAccessibilityTree(value);
-}
+	void ClientHandlerOsr::OnAccessibilityTreeChange(CefRefPtr<CefValue> value) {
+		CEF_REQUIRE_UI_THREAD();
+		if (!osr_delegate_)
+		return;
+		osr_delegate_->UpdateAccessibilityTree(value);
+	}
 
-void ClientHandlerOsr::OnAccessibilityLocationChange(
-    CefRefPtr<CefValue> value) {
-  CEF_REQUIRE_UI_THREAD();
-  if (!osr_delegate_)
-    return;
-  osr_delegate_->UpdateAccessibilityLocation(value);
-}
+	void ClientHandlerOsr::OnAccessibilityLocationChange(
+	CefRefPtr<CefValue> value) {
+		CEF_REQUIRE_UI_THREAD();
+		if (!osr_delegate_)
+		return;
+		osr_delegate_->UpdateAccessibilityLocation(value);
+	}
 
 }  // namespace client

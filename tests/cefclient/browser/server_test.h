@@ -9,12 +9,12 @@
 #include "tests/cefclient/browser/test_runner.h"
 
 namespace client {
-namespace server_test {
+	namespace server_test {
 
-// Create message handlers. Called from test_runner.cc.
-void CreateMessageHandlers(test_runner::MessageHandlerSet& handlers);
+		// Create message handlers. Called from test_runner.cc.
+		void CreateMessageHandlers(test_runner::MessageHandlerSet& handlers);
 
-}  // namespace server_test
+	}  // namespace server_test
 }  // namespace client
 
 #endif  // CEF_TESTS_CEFCLIENT_BROWSER_SERVER_TEST_H_

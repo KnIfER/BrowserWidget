@@ -18,25 +18,25 @@
 
 namespace client {
 
-// static
-scoped_refptr<RootWindow> RootWindow::Create(bool use_views) {
-  if (use_views) {
+	// static
+	scoped_refptr<RootWindow> RootWindow::Create(bool use_views) {
+		if (use_views) {
 #if defined(OS_WIN) || defined(OS_LINUX)
-    return new RootWindowViews();
+			return new RootWindowViews();
 #else
-    LOG(FATAL) << "Views framework is not supported on this platform.";
+			LOG(FATAL) << "Views framework is not supported on this platform.";
 #endif
-  }
+		}
 
 #if defined(OS_WIN)
-  return new RootWindowWin();
+		return new RootWindowWin();
 #elif defined(OS_LINUX)
-  return new RootWindowGtk();
+		return new RootWindowGtk();
 #elif defined(OS_MACOSX)
-  return new RootWindowMac();
+		return new RootWindowMac();
 #endif
 
-  return nullptr;
-}
+		return nullptr;
+	}
 
 }  // namespace client

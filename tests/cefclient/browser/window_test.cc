@@ -28,95 +28,95 @@
 #endif
 
 namespace client {
-namespace window_test {
+	namespace window_test {
 
-namespace {
+		namespace {
 
-const char kTestUrlPath[] = "/window";
-const char kMessagePositionName[] = "WindowTest.Position";
-const char kMessageMinimizeName[] = "WindowTest.Minimize";
-const char kMessageMaximizeName[] = "WindowTest.Maximize";
-const char kMessageRestoreName[] = "WindowTest.Restore";
+			const char kTestUrlPath[] = "/window";
+			const char kMessagePositionName[] = "WindowTest.Position";
+			const char kMessageMinimizeName[] = "WindowTest.Minimize";
+			const char kMessageMaximizeName[] = "WindowTest.Maximize";
+			const char kMessageRestoreName[] = "WindowTest.Restore";
 
-// Create the appropriate platform test runner object.
-scoped_ptr<WindowTestRunner> CreateWindowTestRunner() {
+			// Create the appropriate platform test runner object.
+			scoped_ptr<WindowTestRunner> CreateWindowTestRunner() {
 #if defined(OS_WIN) || defined(OS_LINUX)
-  if (MainContext::Get()->UseViews())
-    return scoped_ptr<WindowTestRunner>(new WindowTestRunnerViews());
+				if (MainContext::Get()->UseViews())
+				return scoped_ptr<WindowTestRunner>(new WindowTestRunnerViews());
 #endif
 
 #if defined(OS_WIN)
-  return scoped_ptr<WindowTestRunner>(new WindowTestRunnerWin());
+				return scoped_ptr<WindowTestRunner>(new WindowTestRunnerWin());
 #elif defined(OS_LINUX)
-  return scoped_ptr<WindowTestRunner>(new WindowTestRunnerGtk());
+				return scoped_ptr<WindowTestRunner>(new WindowTestRunnerGtk());
 #elif defined(OS_MACOSX)
-  return scoped_ptr<WindowTestRunner>(new WindowTestRunnerMac());
+				return scoped_ptr<WindowTestRunner>(new WindowTestRunnerMac());
 #else
 #error "No implementation available for your platform."
 #endif
-}
+			}
 
-// Handle messages in the browser process.
-class Handler : public CefMessageRouterBrowserSide::Handler {
- public:
-  Handler() : runner_(CreateWindowTestRunner()) {}
+			// Handle messages in the browser process.
+			class Handler : public CefMessageRouterBrowserSide::Handler {
+			public:
+				Handler() : runner_(CreateWindowTestRunner()) {}
 
-  // Called due to cefBroadcast execution in window.html.
-  virtual bool OnQuery(CefRefPtr<CefBrowser> browser,
-                       CefRefPtr<CefFrame> frame,
-                       int64 query_id,
-                       const CefString& request,
-                       bool persistent,
-                       CefRefPtr<Callback> callback) OVERRIDE {
-    // Only handle messages from the test URL.
-    const std::string& url = frame->GetURL();
-    if (!test_runner::IsTestURL(url, kTestUrlPath))
-      return false;
+				// Called due to cefBroadcast execution in window.html.
+				virtual bool OnQuery(CefRefPtr<CefBrowser> browser,
+				CefRefPtr<CefFrame> frame,
+				int64 query_id,
+				const CefString& request,
+				bool persistent,
+				CefRefPtr<Callback> callback) OVERRIDE {
+					// Only handle messages from the test URL.
+					const std::string& url = frame->GetURL();
+					if (!test_runner::IsTestURL(url, kTestUrlPath))
+					return false;
 
-    const std::string& message_name = request;
-    if (message_name.find(kMessagePositionName) == 0) {
-      // Parse the comma-delimited list of integer values.
-      std::vector<int> vec;
-      const std::string& vals =
-          message_name.substr(sizeof(kMessagePositionName));
-      std::stringstream ss(vals);
-      int i;
-      while (ss >> i) {
-        vec.push_back(i);
-        if (ss.peek() == ',')
-          ss.ignore();
-      }
+					const std::string& message_name = request;
+					if (message_name.find(kMessagePositionName) == 0) {
+						// Parse the comma-delimited list of integer values.
+						std::vector<int> vec;
+						const std::string& vals =
+						message_name.substr(sizeof(kMessagePositionName));
+						std::stringstream ss(vals);
+						int i;
+						while (ss >> i) {
+							vec.push_back(i);
+							if (ss.peek() == ',')
+							ss.ignore();
+						}
 
-      if (vec.size() == 4) {
-        // Execute SetPos() on the main thread.
-        runner_->SetPos(browser, vec[0], vec[1], vec[2], vec[3]);
-      }
-    } else if (message_name == kMessageMinimizeName) {
-      // Execute Minimize() on the main thread.
-      runner_->Minimize(browser);
-    } else if (message_name == kMessageMaximizeName) {
-      // Execute Maximize() on the main thread.
-      runner_->Maximize(browser);
-    } else if (message_name == kMessageRestoreName) {
-      // Execute Restore() on the main thread.
-      runner_->Restore(browser);
-    } else {
-      NOTREACHED();
-    }
+						if (vec.size() == 4) {
+							// Execute SetPos() on the main thread.
+							runner_->SetPos(browser, vec[0], vec[1], vec[2], vec[3]);
+						}
+					} else if (message_name == kMessageMinimizeName) {
+						// Execute Minimize() on the main thread.
+						runner_->Minimize(browser);
+					} else if (message_name == kMessageMaximizeName) {
+						// Execute Maximize() on the main thread.
+						runner_->Maximize(browser);
+					} else if (message_name == kMessageRestoreName) {
+						// Execute Restore() on the main thread.
+						runner_->Restore(browser);
+					} else {
+						NOTREACHED();
+					}
 
-    callback->Success("");
-    return true;
-  }
+					callback->Success("");
+					return true;
+				}
 
- private:
-  scoped_ptr<WindowTestRunner> runner_;
-};
+			private:
+				scoped_ptr<WindowTestRunner> runner_;
+			};
 
-}  // namespace
+		}  // namespace
 
-void CreateMessageHandlers(test_runner::MessageHandlerSet& handlers) {
-  handlers.insert(new Handler());
-}
+		void CreateMessageHandlers(test_runner::MessageHandlerSet& handlers) {
+			handlers.insert(new Handler());
+		}
 
-}  // namespace window_test
+	}  // namespace window_test
 }  // namespace client

@@ -17,21 +17,21 @@
 namespace client {
 
 #if defined(OS_POSIX)
-// Returns the directory containing resource files.
-bool GetResourceDir(std::string& dir);
+	// Returns the directory containing resource files.
+	bool GetResourceDir(std::string& dir);
 #endif
 
-// Retrieve a resource as a string.
-bool LoadBinaryResource(const char* resource_name, std::string& resource_data);
+	// Retrieve a resource as a string.
+	bool LoadBinaryResource(const char* resource_name, std::string& resource_data);
 
-// Retrieve a resource as a steam reader.
-CefRefPtr<CefStreamReader> GetBinaryResourceReader(const char* resource_name);
+	// Retrieve a resource as a steam reader.
+	CefRefPtr<CefStreamReader> GetBinaryResourceReader(const char* resource_name);
 
 #if defined(OS_WIN)
-// Create a new provider for loading binary resources.
-CefResourceManager::Provider* CreateBinaryResourceProvider(
-    const std::string& url_path,
-    const std::string& resource_path_prefix);
+	// Create a new provider for loading binary resources.
+	CefResourceManager::Provider* CreateBinaryResourceProvider(
+	const std::string& url_path,
+	const std::string& resource_path_prefix);
 #endif
 
 }  // namespace client

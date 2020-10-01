@@ -11,39 +11,39 @@
 
 namespace client {
 
-// Represents a native child window hosting a single windowed browser instance.
-// The methods of this class must be called on the main thread unless otherwise
-// indicated.
-class BrowserWindowStdWin : public BrowserWindow {
- public:
-  // Constructor may be called on any thread.
-  // |delegate| must outlive this object.
-  BrowserWindowStdWin(Delegate* delegate, const std::string& startup_url, const RootWindowConfig* config);
+	// Represents a native child window hosting a single windowed browser instance.
+	// The methods of this class must be called on the main thread unless otherwise
+	// indicated.
+	class BrowserWindowStdWin : public BrowserWindow {
+	public:
+		// Constructor may be called on any thread.
+		// |delegate| must outlive this object.
+		BrowserWindowStdWin(Delegate* delegate, const std::string& startup_url, const RootWindowConfig* config);
 
-  // BrowserWindow methods.
-  void CreateBrowser(ClientWindowHandle parent_handle,
-                     const CefRect& rect,
-                     const CefBrowserSettings& settings,
-                     CefRefPtr<CefDictionaryValue> extra_info,
-                     CefRefPtr<CefRequestContext> request_context) OVERRIDE;
-  void GetPopupConfig(CefWindowHandle temp_handle,
-                      CefWindowInfo& windowInfo,
-                      CefRefPtr<CefClient>& client,
-                      CefBrowserSettings& settings) OVERRIDE;
-  void ShowPopup(ClientWindowHandle parent_handle,
-                 int x,
-                 int y,
-                 size_t width,
-                 size_t height) OVERRIDE;
-  void Show() OVERRIDE;
-  void Hide() OVERRIDE;
-  void SetBounds(int x, int y, size_t width, size_t height) OVERRIDE;
-  void SetFocus(bool focus) OVERRIDE;
-  ClientWindowHandle GetWindowHandle() const OVERRIDE;
+		// BrowserWindow methods.
+		void CreateBrowser(ClientWindowHandle parent_handle,
+		const CefRect& rect,
+		const CefBrowserSettings& settings,
+		CefRefPtr<CefDictionaryValue> extra_info,
+		CefRefPtr<CefRequestContext> request_context) OVERRIDE;
+		void GetPopupConfig(CefWindowHandle temp_handle,
+		CefWindowInfo& windowInfo,
+		CefRefPtr<CefClient>& client,
+		CefBrowserSettings& settings) OVERRIDE;
+		void ShowPopup(ClientWindowHandle parent_handle,
+		int x,
+		int y,
+		size_t width,
+		size_t height) OVERRIDE;
+		void Show() OVERRIDE;
+		void Hide() OVERRIDE;
+		void SetBounds(int x, int y, size_t width, size_t height) OVERRIDE;
+		void SetFocus(bool focus) OVERRIDE;
+		ClientWindowHandle GetWindowHandle() const OVERRIDE;
 
- private:
-  DISALLOW_COPY_AND_ASSIGN(BrowserWindowStdWin);
-};
+	private:
+		DISALLOW_COPY_AND_ASSIGN(BrowserWindowStdWin);
+	};
 
 }  // namespace client
 

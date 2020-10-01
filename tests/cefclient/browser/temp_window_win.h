@@ -10,26 +10,26 @@
 
 namespace client {
 
-// Represents a singleton hidden window that acts as a temporary parent for
-// popup browsers. Only accessed on the UI thread.
-class TempWindowWin {
- public:
-  // Returns the singleton window handle.
-  static CefWindowHandle GetWindowHandle();
+	// Represents a singleton hidden window that acts as a temporary parent for
+	// popup browsers. Only accessed on the UI thread.
+	class TempWindowWin {
+	public:
+		// Returns the singleton window handle.
+		static CefWindowHandle GetWindowHandle();
 
- private:
-  // A single instance will be created/owned by RootWindowManager.
-  friend class RootWindowManager;
-  // Allow deletion via scoped_ptr only.
-  friend struct base::DefaultDeleter<TempWindowWin>;
+	private:
+		// A single instance will be created/owned by RootWindowManager.
+		friend class RootWindowManager;
+		// Allow deletion via scoped_ptr only.
+		friend struct base::DefaultDeleter<TempWindowWin>;
 
-  TempWindowWin();
-  ~TempWindowWin();
+		TempWindowWin();
+		~TempWindowWin();
 
-  CefWindowHandle hwnd_;
+		CefWindowHandle hwnd_;
 
-  DISALLOW_COPY_AND_ASSIGN(TempWindowWin);
-};
+		DISALLOW_COPY_AND_ASSIGN(TempWindowWin);
+	};
 
 }  // namespace client
 

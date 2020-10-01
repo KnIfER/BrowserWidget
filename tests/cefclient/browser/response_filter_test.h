@@ -12,16 +12,16 @@
 #include "include/cef_response_filter.h"
 
 namespace client {
-namespace response_filter_test {
+	namespace response_filter_test {
 
-// Create a resource response filter. Called from test_runner.cc.
-CefRefPtr<CefResponseFilter> GetResourceResponseFilter(
-    CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame,
-    CefRefPtr<CefRequest> request,
-    CefRefPtr<CefResponse> response);
+		// Create a resource response filter. Called from test_runner.cc.
+		CefRefPtr<CefResponseFilter> GetResourceResponseFilter(
+		CefRefPtr<CefBrowser> browser,
+		CefRefPtr<CefFrame> frame,
+		CefRefPtr<CefRequest> request,
+		CefRefPtr<CefResponse> response);
 
-}  // namespace response_filter_test
+	}  // namespace response_filter_test
 }  // namespace client
 
 #endif  // CEF_TESTS_CEFCLIENT_BROWSER_RESPONSE_FILTER_TEST_H_

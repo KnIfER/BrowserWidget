@@ -23,166 +23,166 @@
 namespace client {
 
 #define DEFAULT_QUERY_INTERFACE(__Class)                            \
-  HRESULT __stdcall QueryInterface(const IID& iid, void** object) { \
-    *object = nullptr;                                              \
-    if (IsEqualIID(iid, IID_IUnknown)) {                            \
-      IUnknown* obj = this;                                         \
-      *object = obj;                                                \
-    } else if (IsEqualIID(iid, IID_##__Class)) {                    \
-      __Class* obj = this;                                          \
-      *object = obj;                                                \
-    } else {                                                        \
-      return E_NOINTERFACE;                                         \
-    }                                                               \
-    AddRef();                                                       \
-    return S_OK;                                                    \
-  }
+		HRESULT __stdcall QueryInterface(const IID& iid, void** object) { \
+			*object = nullptr;                                              \
+			if (IsEqualIID(iid, IID_IUnknown)) {                            \
+				IUnknown* obj = this;                                         \
+				*object = obj;                                                \
+			} else if (IsEqualIID(iid, IID_##__Class)) {                    \
+				__Class* obj = this;                                          \
+				*object = obj;                                                \
+			} else {                                                        \
+				return E_NOINTERFACE;                                         \
+			}                                                               \
+			AddRef();                                                       \
+			return S_OK;                                                    \
+		}
 #define IUNKNOWN_IMPLEMENTATION                     \
-  ULONG __stdcall AddRef() { return ++ref_count_; } \
-  ULONG __stdcall Release() {                       \
-    if (--ref_count_ == 0) {                        \
-      delete this;                                  \
-      return 0U;                                    \
-    }                                               \
-    return ref_count_;                              \
-  }                                                 \
-                                                    \
- protected:                                         \
-  ULONG ref_count_;
+		ULONG __stdcall AddRef() { return ++ref_count_; } \
+		ULONG __stdcall Release() {                       \
+			if (--ref_count_ == 0) {                        \
+				delete this;                                  \
+				return 0U;                                    \
+			}                                               \
+			return ref_count_;                              \
+		}                                                 \
+		\
+	protected:                                         \
+		ULONG ref_count_;
 
-class DropTargetWin : public IDropTarget {
- public:
-  static CComPtr<DropTargetWin> Create(OsrDragEvents* callback, HWND hWnd);
+	class DropTargetWin : public IDropTarget {
+	public:
+		static CComPtr<DropTargetWin> Create(OsrDragEvents* callback, HWND hWnd);
 
-  CefBrowserHost::DragOperationsMask StartDragging(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefDragData> drag_data,
-      CefRenderHandler::DragOperationsMask allowed_ops,
-      int x,
-      int y);
+		CefBrowserHost::DragOperationsMask StartDragging(
+		CefRefPtr<CefBrowser> browser,
+		CefRefPtr<CefDragData> drag_data,
+		CefRenderHandler::DragOperationsMask allowed_ops,
+		int x,
+		int y);
 
-  // IDropTarget implementation:
-  HRESULT __stdcall DragEnter(IDataObject* data_object,
-                              DWORD key_state,
-                              POINTL cursor_position,
-                              DWORD* effect);
+		// IDropTarget implementation:
+		HRESULT __stdcall DragEnter(IDataObject* data_object,
+		DWORD key_state,
+		POINTL cursor_position,
+		DWORD* effect);
 
-  HRESULT __stdcall DragOver(DWORD key_state,
-                             POINTL cursor_position,
-                             DWORD* effect);
+		HRESULT __stdcall DragOver(DWORD key_state,
+		POINTL cursor_position,
+		DWORD* effect);
 
-  HRESULT __stdcall DragLeave();
+		HRESULT __stdcall DragLeave();
 
-  HRESULT __stdcall Drop(IDataObject* data_object,
-                         DWORD key_state,
-                         POINTL cursor_position,
-                         DWORD* effect);
+		HRESULT __stdcall Drop(IDataObject* data_object,
+		DWORD key_state,
+		POINTL cursor_position,
+		DWORD* effect);
 
-  DEFAULT_QUERY_INTERFACE(IDropTarget)
-  IUNKNOWN_IMPLEMENTATION
+		DEFAULT_QUERY_INTERFACE(IDropTarget)
+		IUNKNOWN_IMPLEMENTATION
 
- protected:
-  DropTargetWin(OsrDragEvents* callback, HWND hWnd)
-      : ref_count_(0), callback_(callback), hWnd_(hWnd) {}
-  virtual ~DropTargetWin() {}
+	protected:
+		DropTargetWin(OsrDragEvents* callback, HWND hWnd)
+		: ref_count_(0), callback_(callback), hWnd_(hWnd) {}
+		virtual ~DropTargetWin() {}
 
- private:
-  OsrDragEvents* callback_;
-  HWND hWnd_;
+	private:
+		OsrDragEvents* callback_;
+		HWND hWnd_;
 
-  CefRefPtr<CefDragData> current_drag_data_;
-};
+		CefRefPtr<CefDragData> current_drag_data_;
+	};
 
-class DropSourceWin : public IDropSource {
- public:
-  static CComPtr<DropSourceWin> Create();
+	class DropSourceWin : public IDropSource {
+	public:
+		static CComPtr<DropSourceWin> Create();
 
-  // IDropSource implementation:
-  HRESULT __stdcall GiveFeedback(DWORD dwEffect);
+		// IDropSource implementation:
+		HRESULT __stdcall GiveFeedback(DWORD dwEffect);
 
-  HRESULT __stdcall QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState);
+		HRESULT __stdcall QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState);
 
-  DEFAULT_QUERY_INTERFACE(IDropSource)
-  IUNKNOWN_IMPLEMENTATION
+		DEFAULT_QUERY_INTERFACE(IDropSource)
+		IUNKNOWN_IMPLEMENTATION
 
- protected:
-  explicit DropSourceWin() : ref_count_(0) {}
-  virtual ~DropSourceWin() {}
-};
+	protected:
+		explicit DropSourceWin() : ref_count_(0) {}
+		virtual ~DropSourceWin() {}
+	};
 
-class DragEnumFormatEtc : public IEnumFORMATETC {
- public:
-  static HRESULT CreateEnumFormatEtc(UINT cfmt,
-                                     FORMATETC* afmt,
-                                     IEnumFORMATETC** ppEnumFormatEtc);
+	class DragEnumFormatEtc : public IEnumFORMATETC {
+	public:
+		static HRESULT CreateEnumFormatEtc(UINT cfmt,
+		FORMATETC* afmt,
+		IEnumFORMATETC** ppEnumFormatEtc);
 
-  //
-  // IEnumFormatEtc members
-  //
-  HRESULT __stdcall Next(ULONG celt,
-                         FORMATETC* pFormatEtc,
-                         ULONG* pceltFetched);
-  HRESULT __stdcall Skip(ULONG celt);
-  HRESULT __stdcall Reset(void);
-  HRESULT __stdcall Clone(IEnumFORMATETC** ppEnumFormatEtc);
+		//
+		// IEnumFormatEtc members
+		//
+		HRESULT __stdcall Next(ULONG celt,
+		FORMATETC* pFormatEtc,
+		ULONG* pceltFetched);
+		HRESULT __stdcall Skip(ULONG celt);
+		HRESULT __stdcall Reset(void);
+		HRESULT __stdcall Clone(IEnumFORMATETC** ppEnumFormatEtc);
 
-  //
-  // Construction / Destruction
-  //
-  DragEnumFormatEtc(FORMATETC* pFormatEtc, int nNumFormats);
-  virtual ~DragEnumFormatEtc();
+		//
+		// Construction / Destruction
+		//
+		DragEnumFormatEtc(FORMATETC* pFormatEtc, int nNumFormats);
+		virtual ~DragEnumFormatEtc();
 
-  static void DeepCopyFormatEtc(FORMATETC* dest, FORMATETC* source);
+		static void DeepCopyFormatEtc(FORMATETC* dest, FORMATETC* source);
 
-  DEFAULT_QUERY_INTERFACE(IEnumFORMATETC)
-  IUNKNOWN_IMPLEMENTATION
+		DEFAULT_QUERY_INTERFACE(IEnumFORMATETC)
+		IUNKNOWN_IMPLEMENTATION
 
- private:
-  ULONG m_nIndex;           // current enumerator index
-  ULONG m_nNumFormats;      // number of FORMATETC members
-  FORMATETC* m_pFormatEtc;  // array of FORMATETC objects
-};
+	private:
+		ULONG m_nIndex;           // current enumerator index
+		ULONG m_nNumFormats;      // number of FORMATETC members
+		FORMATETC* m_pFormatEtc;  // array of FORMATETC objects
+	};
 
-class DataObjectWin : public IDataObject {
- public:
-  static CComPtr<DataObjectWin> Create(FORMATETC* fmtetc,
-                                       STGMEDIUM* stgmed,
-                                       int count);
+	class DataObjectWin : public IDataObject {
+	public:
+		static CComPtr<DataObjectWin> Create(FORMATETC* fmtetc,
+		STGMEDIUM* stgmed,
+		int count);
 
-  // IDataObject memberS
-  HRESULT __stdcall GetDataHere(FORMATETC* pFormatEtc, STGMEDIUM* pmedium);
-  HRESULT __stdcall QueryGetData(FORMATETC* pFormatEtc);
-  HRESULT __stdcall GetCanonicalFormatEtc(FORMATETC* pFormatEct,
-                                          FORMATETC* pFormatEtcOut);
-  HRESULT __stdcall SetData(FORMATETC* pFormatEtc,
-                            STGMEDIUM* pMedium,
-                            BOOL fRelease);
-  HRESULT __stdcall DAdvise(FORMATETC* pFormatEtc,
-                            DWORD advf,
-                            IAdviseSink*,
-                            DWORD*);
-  HRESULT __stdcall DUnadvise(DWORD dwConnection);
-  HRESULT __stdcall EnumDAdvise(IEnumSTATDATA** ppEnumAdvise);
+		// IDataObject memberS
+		HRESULT __stdcall GetDataHere(FORMATETC* pFormatEtc, STGMEDIUM* pmedium);
+		HRESULT __stdcall QueryGetData(FORMATETC* pFormatEtc);
+		HRESULT __stdcall GetCanonicalFormatEtc(FORMATETC* pFormatEct,
+		FORMATETC* pFormatEtcOut);
+		HRESULT __stdcall SetData(FORMATETC* pFormatEtc,
+		STGMEDIUM* pMedium,
+		BOOL fRelease);
+		HRESULT __stdcall DAdvise(FORMATETC* pFormatEtc,
+		DWORD advf,
+		IAdviseSink*,
+		DWORD*);
+		HRESULT __stdcall DUnadvise(DWORD dwConnection);
+		HRESULT __stdcall EnumDAdvise(IEnumSTATDATA** ppEnumAdvise);
 
-  HRESULT __stdcall EnumFormatEtc(DWORD dwDirection,
-                                  IEnumFORMATETC** ppEnumFormatEtc);
-  HRESULT __stdcall GetData(FORMATETC* pFormatEtc, STGMEDIUM* pMedium);
+		HRESULT __stdcall EnumFormatEtc(DWORD dwDirection,
+		IEnumFORMATETC** ppEnumFormatEtc);
+		HRESULT __stdcall GetData(FORMATETC* pFormatEtc, STGMEDIUM* pMedium);
 
-  DEFAULT_QUERY_INTERFACE(IDataObject)
-  IUNKNOWN_IMPLEMENTATION
+		DEFAULT_QUERY_INTERFACE(IDataObject)
+		IUNKNOWN_IMPLEMENTATION
 
- protected:
-  int m_nNumFormats;
-  FORMATETC* m_pFormatEtc;
-  STGMEDIUM* m_pStgMedium;
+	protected:
+		int m_nNumFormats;
+		FORMATETC* m_pFormatEtc;
+		STGMEDIUM* m_pStgMedium;
 
-  static HGLOBAL DupGlobalMem(HGLOBAL hMem);
+		static HGLOBAL DupGlobalMem(HGLOBAL hMem);
 
-  int LookupFormatEtc(FORMATETC* pFormatEtc);
+		int LookupFormatEtc(FORMATETC* pFormatEtc);
 
-  explicit DataObjectWin(FORMATETC* fmtetc, STGMEDIUM* stgmed, int count);
-  virtual ~DataObjectWin() {}
-};
+		explicit DataObjectWin(FORMATETC* fmtetc, STGMEDIUM* stgmed, int count);
+		virtual ~DataObjectWin() {}
+	};
 
 }  // namespace client
 

@@ -10,15 +10,15 @@
 
 namespace client {
 
-// Client app implementation for other process types.
-class ClientAppOther : public ClientApp {
- public:
-  ClientAppOther();
+	// Client app implementation for other process types.
+	class ClientAppOther : public ClientApp {
+	public:
+		ClientAppOther();
 
- private:
-  IMPLEMENT_REFCOUNTING(ClientAppOther);
-  DISALLOW_COPY_AND_ASSIGN(ClientAppOther);
-};
+	private:
+		IMPLEMENT_REFCOUNTING(ClientAppOther);
+		DISALLOW_COPY_AND_ASSIGN(ClientAppOther);
+	};
 
 }  // namespace client
 

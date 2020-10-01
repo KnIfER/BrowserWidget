@@ -7,15 +7,15 @@
 #pragma once
 
 class TrackCallback {
- public:
-  TrackCallback() : gotit_(false) {}
-  void yes() { gotit_ = true; }
-  bool isSet() { return gotit_; }
-  void reset() { gotit_ = false; }
-  operator bool() const { return gotit_; }
+public:
+	TrackCallback() : gotit_(false) {}
+	void yes() { gotit_ = true; }
+	bool isSet() { return gotit_; }
+	void reset() { gotit_ = false; }
+	operator bool() const { return gotit_; }
 
- protected:
-  bool gotit_;
+protected:
+	bool gotit_;
 };
 
 #endif  // CEF_TESTS_CEFTESTS_TRACK_CALLBACK_H_

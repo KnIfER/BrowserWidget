@@ -321,7 +321,7 @@ namespace client {
 				int exit_code = CefExecuteProcess(main_args, app, sandbox_info);
 				if (exit_code >= 0)
 				return 0;
-					
+				
 				pMainContextImpl = new MainContextImpl(command_line, true); // Create the main context object.
 
 				CefSettings settings;

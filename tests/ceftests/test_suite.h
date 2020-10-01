@@ -15,42 +15,42 @@
 // A single instance of this object will be created by main() in
 // run_all_unittests.cc.
 class CefTestSuite {
- public:
-  CefTestSuite(int argc, char** argv);
-  ~CefTestSuite();
+public:
+	CefTestSuite(int argc, char** argv);
+	~CefTestSuite();
 
-  static CefTestSuite* GetInstance();
+	static CefTestSuite* GetInstance();
 
-  void InitMainProcess();
-  int Run();
+	void InitMainProcess();
+	int Run();
 
-  void GetSettings(CefSettings& settings) const;
-  bool GetCachePath(std::string& path) const;
+	void GetSettings(CefSettings& settings) const;
+	bool GetCachePath(std::string& path) const;
 
-  // Register a temp directory that should be deleted on shutdown.
-  void RegisterTempDirectory(const CefString& directory);
+	// Register a temp directory that should be deleted on shutdown.
+	void RegisterTempDirectory(const CefString& directory);
 
-  // Called after shutdown to delete any registered temp directories.
-  void DeleteTempDirectories();
+	// Called after shutdown to delete any registered temp directories.
+	void DeleteTempDirectories();
 
-  CefRefPtr<CefCommandLine> command_line() const { return command_line_; }
+	CefRefPtr<CefCommandLine> command_line() const { return command_line_; }
 
-  // The return value from Run().
-  int retval() const { return retval_; }
+	// The return value from Run().
+	int retval() const { return retval_; }
 
- private:
-  void PreInitialize();
-  void Initialize();
-  void Shutdown();
+private:
+	void PreInitialize();
+	void Initialize();
+	void Shutdown();
 
-  int argc_;
-  CefScopedArgArray argv_;
-  CefRefPtr<CefCommandLine> command_line_;
+	int argc_;
+	CefScopedArgArray argv_;
+	CefRefPtr<CefCommandLine> command_line_;
 
-  std::vector<CefString> temp_directories_;
-  base::Lock temp_directories_lock_;
+	std::vector<CefString> temp_directories_;
+	base::Lock temp_directories_lock_;
 
-  int retval_;
+	int retval_;
 };
 
 #define CEF_SETTINGS_ACCEPT_LANGUAGE "en-GB"

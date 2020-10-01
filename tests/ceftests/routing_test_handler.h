@@ -13,30 +13,30 @@
 // RoutingTestHandler implementation must be called from subclass
 // overrides unless otherwise indicated.
 class RoutingTestHandler : public TestHandler,
-                           public CefMessageRouterBrowserSide::Handler {
- public:
-  RoutingTestHandler();
+public CefMessageRouterBrowserSide::Handler {
+public:
+	RoutingTestHandler();
 
-  void OnAfterCreated(CefRefPtr<CefBrowser> browser) override;
-  void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;
-  void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
-                                 TerminationStatus status) override;
+	void OnAfterCreated(CefRefPtr<CefBrowser> browser) override;
+	void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;
+	void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
+	TerminationStatus status) override;
 
-  // Only call this method if the navigation isn't canceled.
-  bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
-                      CefRefPtr<CefFrame> frame,
-                      CefRefPtr<CefRequest> request,
-                      bool user_gesture,
-                      bool is_redirect) override;
+	// Only call this method if the navigation isn't canceled.
+	bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
+	CefRefPtr<CefFrame> frame,
+	CefRefPtr<CefRequest> request,
+	bool user_gesture,
+	bool is_redirect) override;
 
-  // Returns true if the router handled the navigation.
-  bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
-                                CefRefPtr<CefFrame> frame,
-                                CefProcessId source_process,
-                                CefRefPtr<CefProcessMessage> message) override;
+	// Returns true if the router handled the navigation.
+	bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+	CefRefPtr<CefFrame> frame,
+	CefProcessId source_process,
+	CefRefPtr<CefProcessMessage> message) override;
 
- private:
-  CefRefPtr<CefMessageRouterBrowserSide> message_router_;
+private:
+	CefRefPtr<CefMessageRouterBrowserSide> message_router_;
 };
 
 #endif  // CEF_TESTS_CEFTESTS_ROUTING_TEST_HANDLER_H_

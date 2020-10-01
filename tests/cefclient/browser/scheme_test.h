@@ -7,14 +7,14 @@
 #pragma once
 
 namespace client {
-namespace scheme_test {
+	namespace scheme_test {
 
-// Create and register the custom scheme handler. See
-// common/scheme_handler_common.h for registration of the custom scheme
-// name/type which must occur in all processes. Called from test_runner.cc.
-void RegisterSchemeHandlers();
+		// Create and register the custom scheme handler. See
+		// common/scheme_handler_common.h for registration of the custom scheme
+		// name/type which must occur in all processes. Called from test_runner.cc.
+		void RegisterSchemeHandlers();
 
-}  // namespace scheme_test
+	}  // namespace scheme_test
 }  // namespace client
 
 #endif  // CEF_TESTS_CEFCLIENT_BROWSER_SCHEME_TEST_H_

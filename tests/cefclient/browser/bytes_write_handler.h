@@ -11,33 +11,33 @@
 
 namespace client {
 
-class BytesWriteHandler : public CefWriteHandler {
- public:
-  explicit BytesWriteHandler(size_t grow);
-  ~BytesWriteHandler();
+	class BytesWriteHandler : public CefWriteHandler {
+	public:
+		explicit BytesWriteHandler(size_t grow);
+		~BytesWriteHandler();
 
-  size_t Write(const void* ptr, size_t size, size_t n) OVERRIDE;
-  int Seek(int64 offset, int whence) OVERRIDE;
-  int64 Tell() OVERRIDE;
-  int Flush() OVERRIDE;
-  bool MayBlock() OVERRIDE { return false; }
+		size_t Write(const void* ptr, size_t size, size_t n) OVERRIDE;
+		int Seek(int64 offset, int whence) OVERRIDE;
+		int64 Tell() OVERRIDE;
+		int Flush() OVERRIDE;
+		bool MayBlock() OVERRIDE { return false; }
 
-  void* GetData() { return data_; }
-  int64 GetDataSize() { return offset_; }
+		void* GetData() { return data_; }
+		int64 GetDataSize() { return offset_; }
 
- private:
-  size_t Grow(size_t size);
+	private:
+		size_t Grow(size_t size);
 
-  size_t grow_;
-  void* data_;
-  int64 datasize_;
-  int64 offset_;
+		size_t grow_;
+		void* data_;
+		int64 datasize_;
+		int64 offset_;
 
-  base::Lock lock_;
+		base::Lock lock_;
 
-  IMPLEMENT_REFCOUNTING(BytesWriteHandler);
-  DISALLOW_COPY_AND_ASSIGN(BytesWriteHandler);
-};
+		IMPLEMENT_REFCOUNTING(BytesWriteHandler);
+		DISALLOW_COPY_AND_ASSIGN(BytesWriteHandler);
+	};
 
 }  // namespace client
 

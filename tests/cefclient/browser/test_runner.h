@@ -15,63 +15,63 @@
 #include "include/wrapper/cef_resource_manager.h"
 
 namespace client {
-namespace test_runner {
+	namespace test_runner {
 
-// Run a test.
-void RunTest(CefRefPtr<CefBrowser> browser, int id);
+		// Run a test.
+		void RunTest(CefRefPtr<CefBrowser> browser, int id);
 
-// Returns the contents of the CefRequest as a string.
-std::string DumpRequestContents(CefRefPtr<CefRequest> request);
+		// Returns the contents of the CefRequest as a string.
+		std::string DumpRequestContents(CefRefPtr<CefRequest> request);
 
-// Returns the dump response as a stream. |request| is the request.
-// |response_headers| will be populated with extra response headers, if any.
-CefRefPtr<CefStreamReader> GetDumpResponse(
-    CefRefPtr<CefRequest> request,
-    CefResponse::HeaderMap& response_headers);
+		// Returns the dump response as a stream. |request| is the request.
+		// |response_headers| will be populated with extra response headers, if any.
+		CefRefPtr<CefStreamReader> GetDumpResponse(
+		CefRefPtr<CefRequest> request,
+		CefResponse::HeaderMap& response_headers);
 
-// Returns a data: URI with the specified contents.
-std::string GetDataURI(const std::string& data, const std::string& mime_type);
+		// Returns a data: URI with the specified contents.
+		std::string GetDataURI(const std::string& data, const std::string& mime_type);
 
-// Returns the string representation of the specified error code.
-std::string GetErrorString(cef_errorcode_t code);
+		// Returns the string representation of the specified error code.
+		std::string GetErrorString(cef_errorcode_t code);
 
-typedef std::map<std::string, std::string> StringResourceMap;
+		typedef std::map<std::string, std::string> StringResourceMap;
 
-struct str_data {
-	const CHAR* data;
-	size_t length;
-};
+		struct str_data {
+			const CHAR* data;
+			size_t length;
+		};
 
-typedef std::map<std::string, str_data> StrResourceMap;
+		typedef std::map<std::string, str_data> StrResourceMap;
 
-// Set up the resource manager for tests.
-void SetupResourceManager(CefRefPtr<CefResourceManager> resource_manager, StringResourceMap* string_resource_map, StrResourceMap* str_resource_map);
+		// Set up the resource manager for tests.
+		void SetupResourceManager(CefRefPtr<CefResourceManager> resource_manager, StringResourceMap* string_resource_map, StrResourceMap* str_resource_map);
 
-void LoadStrResourcePage(CefRefPtr<CefBrowser> browser, const std::string& page, const CHAR* data, size_t length);
+		void LoadStrResourcePage(CefRefPtr<CefBrowser> browser, const std::string& page, const CHAR* data, size_t length);
 
-// Show a JS alert message.
-void Alert(CefRefPtr<CefBrowser> browser, const std::string& message);
+		// Show a JS alert message.
+		void Alert(CefRefPtr<CefBrowser> browser, const std::string& message);
 
-// Returns true if |url| is a test URL with the specified |path|. This matches
-// both http://tests/<path> and http://localhost:xxxx/<path>.
-bool IsTestURL(const std::string& url, const std::string& path);
+		// Returns true if |url| is a test URL with the specified |path|. This matches
+		// both http://tests/<path> and http://localhost:xxxx/<path>.
+		bool IsTestURL(const std::string& url, const std::string& path);
 
-// Create all CefMessageRouterBrowserSide::Handler objects. They will be
-// deleted when the ClientHandler is destroyed.
-typedef std::set<CefMessageRouterBrowserSide::Handler*> MessageHandlerSet;
-void CreateMessageHandlers(MessageHandlerSet& handlers);
+		// Create all CefMessageRouterBrowserSide::Handler objects. They will be
+		// deleted when the ClientHandler is destroyed.
+		typedef std::set<CefMessageRouterBrowserSide::Handler*> MessageHandlerSet;
+		void CreateMessageHandlers(MessageHandlerSet& handlers);
 
-// Register scheme handlers for tests.
-void RegisterSchemeHandlers();
+		// Register scheme handlers for tests.
+		void RegisterSchemeHandlers();
 
-// Create a resource response filter for tests.
-CefRefPtr<CefResponseFilter> GetResourceResponseFilter(
-    CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame,
-    CefRefPtr<CefRequest> request,
-    CefRefPtr<CefResponse> response);
+		// Create a resource response filter for tests.
+		CefRefPtr<CefResponseFilter> GetResourceResponseFilter(
+		CefRefPtr<CefBrowser> browser,
+		CefRefPtr<CefFrame> frame,
+		CefRefPtr<CefRequest> request,
+		CefRefPtr<CefResponse> response);
 
-}  // namespace test_runner
+	}  // namespace test_runner
 }  // namespace client
 
 #endif  // CEF_TESTS_CEFCLIENT_BROWSER_TEST_RUNNER_H_

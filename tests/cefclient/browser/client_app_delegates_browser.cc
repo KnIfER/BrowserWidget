@@ -12,18 +12,18 @@
 
 namespace client {
 
-// static
-void ClientAppBrowser::CreateDelegates(DelegateSet& delegates) {
-  browser::CreateDelegates(delegates);
-}
+	// static
+	void ClientAppBrowser::CreateDelegates(DelegateSet& delegates) {
+		browser::CreateDelegates(delegates);
+	}
 
-// static
-CefRefPtr<CefPrintHandler> ClientAppBrowser::CreatePrintHandler() {
+	// static
+	CefRefPtr<CefPrintHandler> ClientAppBrowser::CreatePrintHandler() {
 #if defined(OS_LINUX)
-  return new ClientPrintHandlerGtk();
+		return new ClientPrintHandlerGtk();
 #else
-  return nullptr;
+		return nullptr;
 #endif
-}
+	}
 
 }  // namespace client

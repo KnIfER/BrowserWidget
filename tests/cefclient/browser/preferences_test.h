@@ -9,12 +9,12 @@
 #include "tests/cefclient/browser/test_runner.h"
 
 namespace client {
-namespace preferences_test {
+	namespace preferences_test {
 
-// Create message handlers. Called from test_runner.cc.
-void CreateMessageHandlers(test_runner::MessageHandlerSet& handlers);
+		// Create message handlers. Called from test_runner.cc.
+		void CreateMessageHandlers(test_runner::MessageHandlerSet& handlers);
 
-}  // namespace preferences_test
+	}  // namespace preferences_test
 }  // namespace client
 
 #endif  // CEF_TESTS_CEFCLIENT_BROWSER_PREFERENCES_TEST_H_

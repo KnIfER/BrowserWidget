@@ -27,138 +27,138 @@
 
 #define TEXTFIELD_TEST(name) UI_THREAD_TEST(ViewsTextfieldTest, name)
 #define TEXTFIELD_TEST_ASYNC(name) \
-  UI_THREAD_TEST_ASYNC(ViewsTextfieldTest, name)
+	UI_THREAD_TEST_ASYNC(ViewsTextfieldTest, name)
 
 namespace {
 
-void TextfieldContentsImpl() {
-  CefRefPtr<CefTextfield> textfield = CefTextfield::CreateTextfield(nullptr);
-  EXPECT_TRUE(textfield.get());
-  EXPECT_TRUE(textfield->AsTextfield().get());
+	void TextfieldContentsImpl() {
+		CefRefPtr<CefTextfield> textfield = CefTextfield::CreateTextfield(nullptr);
+		EXPECT_TRUE(textfield.get());
+		EXPECT_TRUE(textfield->AsTextfield().get());
 
-  // Test defaults.
-  EXPECT_TRUE(textfield->GetText().empty());
-  EXPECT_FALSE(textfield->HasSelection());
-  EXPECT_EQ(CefRange(0, 0), textfield->GetSelectedRange());
-  EXPECT_EQ(0U, textfield->GetCursorPosition());
+		// Test defaults.
+		EXPECT_TRUE(textfield->GetText().empty());
+		EXPECT_FALSE(textfield->HasSelection());
+		EXPECT_EQ(CefRange(0, 0), textfield->GetSelectedRange());
+		EXPECT_EQ(0U, textfield->GetCursorPosition());
 
-  // Test set/get text.
-  const char kText[] = "My test message!";
-  textfield->SetText(kText);
-  EXPECT_STREQ(kText, textfield->GetText().ToString().c_str());
+		// Test set/get text.
+		const char kText[] = "My test message!";
+		textfield->SetText(kText);
+		EXPECT_STREQ(kText, textfield->GetText().ToString().c_str());
 
-  size_t cursor_pos = sizeof(kText) - 1;
-  EXPECT_EQ(cursor_pos, textfield->GetCursorPosition());
+		size_t cursor_pos = sizeof(kText) - 1;
+		EXPECT_EQ(cursor_pos, textfield->GetCursorPosition());
 
-  // Test append text.
-  const char kAppendText[] = " And more.";
-  textfield->AppendText(kAppendText);
-  EXPECT_STREQ((std::string(kText) + kAppendText).c_str(),
-               textfield->GetText().ToString().c_str());
-  EXPECT_EQ(cursor_pos, textfield->GetCursorPosition());
+		// Test append text.
+		const char kAppendText[] = " And more.";
+		textfield->AppendText(kAppendText);
+		EXPECT_STREQ((std::string(kText) + kAppendText).c_str(),
+		textfield->GetText().ToString().c_str());
+		EXPECT_EQ(cursor_pos, textfield->GetCursorPosition());
 
-  // Test select range.
-  EXPECT_FALSE(textfield->HasSelection());
-  EXPECT_EQ(
-      CefRange(static_cast<int>(cursor_pos), static_cast<int>(cursor_pos)),
-      textfield->GetSelectedRange());
-  textfield->SelectRange(CefRange(0, static_cast<int>(cursor_pos)));
-  EXPECT_TRUE(textfield->HasSelection());
-  EXPECT_EQ(CefRange(0, static_cast<int>(cursor_pos)),
-            textfield->GetSelectedRange());
-  EXPECT_STREQ(kText, textfield->GetSelectedText().ToString().c_str());
-  EXPECT_EQ(cursor_pos, textfield->GetCursorPosition());
+		// Test select range.
+		EXPECT_FALSE(textfield->HasSelection());
+		EXPECT_EQ(
+		CefRange(static_cast<int>(cursor_pos), static_cast<int>(cursor_pos)),
+		textfield->GetSelectedRange());
+		textfield->SelectRange(CefRange(0, static_cast<int>(cursor_pos)));
+		EXPECT_TRUE(textfield->HasSelection());
+		EXPECT_EQ(CefRange(0, static_cast<int>(cursor_pos)),
+		textfield->GetSelectedRange());
+		EXPECT_STREQ(kText, textfield->GetSelectedText().ToString().c_str());
+		EXPECT_EQ(cursor_pos, textfield->GetCursorPosition());
 
-  // Test insert or replace.
-  const char kReplaceText[] = "Other text.";
-  textfield->InsertOrReplaceText(kReplaceText);
-  EXPECT_STREQ((std::string(kReplaceText) + kAppendText).c_str(),
-               textfield->GetText().ToString().c_str());
+		// Test insert or replace.
+		const char kReplaceText[] = "Other text.";
+		textfield->InsertOrReplaceText(kReplaceText);
+		EXPECT_STREQ((std::string(kReplaceText) + kAppendText).c_str(),
+		textfield->GetText().ToString().c_str());
 
-  cursor_pos = sizeof(kReplaceText) - 1;
-  EXPECT_EQ(cursor_pos, textfield->GetCursorPosition());
+		cursor_pos = sizeof(kReplaceText) - 1;
+		EXPECT_EQ(cursor_pos, textfield->GetCursorPosition());
 
-  // Test select all.
-  EXPECT_FALSE(textfield->HasSelection());
-  textfield->SelectAll(false);
-  EXPECT_TRUE(textfield->HasSelection());
+		// Test select all.
+		EXPECT_FALSE(textfield->HasSelection());
+		textfield->SelectAll(false);
+		EXPECT_TRUE(textfield->HasSelection());
 
-  cursor_pos = sizeof(kReplaceText) + sizeof(kAppendText) - 2;
-  EXPECT_EQ(CefRange(0, static_cast<int>(cursor_pos)),
-            textfield->GetSelectedRange());
-  EXPECT_EQ(cursor_pos, textfield->GetCursorPosition());
+		cursor_pos = sizeof(kReplaceText) + sizeof(kAppendText) - 2;
+		EXPECT_EQ(CefRange(0, static_cast<int>(cursor_pos)),
+		textfield->GetSelectedRange());
+		EXPECT_EQ(cursor_pos, textfield->GetCursorPosition());
 
-  // Test clear selection.
-  textfield->ClearSelection();
-  EXPECT_FALSE(textfield->HasSelection());
-  EXPECT_EQ(
-      CefRange(static_cast<int>(cursor_pos), static_cast<int>(cursor_pos)),
-      textfield->GetSelectedRange());
-  EXPECT_EQ(cursor_pos, textfield->GetCursorPosition());
+		// Test clear selection.
+		textfield->ClearSelection();
+		EXPECT_FALSE(textfield->HasSelection());
+		EXPECT_EQ(
+		CefRange(static_cast<int>(cursor_pos), static_cast<int>(cursor_pos)),
+		textfield->GetSelectedRange());
+		EXPECT_EQ(cursor_pos, textfield->GetCursorPosition());
 
-  // Test selection with command.
-  EXPECT_TRUE(textfield->IsCommandEnabled(CEF_TFC_SELECT_ALL));
-  textfield->ExecuteCommand(CEF_TFC_SELECT_ALL);
-  EXPECT_TRUE(textfield->HasSelection());
-  EXPECT_EQ(CefRange(0, static_cast<int>(cursor_pos)),
-            textfield->GetSelectedRange());
-  EXPECT_EQ(cursor_pos, textfield->GetCursorPosition());
+		// Test selection with command.
+		EXPECT_TRUE(textfield->IsCommandEnabled(CEF_TFC_SELECT_ALL));
+		textfield->ExecuteCommand(CEF_TFC_SELECT_ALL);
+		EXPECT_TRUE(textfield->HasSelection());
+		EXPECT_EQ(CefRange(0, static_cast<int>(cursor_pos)),
+		textfield->GetSelectedRange());
+		EXPECT_EQ(cursor_pos, textfield->GetCursorPosition());
 
-  textfield->ClearEditHistory();
-}
+		textfield->ClearEditHistory();
+	}
 
-void TextfieldStyleImpl() {
-  CefRefPtr<CefTextfield> textfield = CefTextfield::CreateTextfield(nullptr);
-  EXPECT_TRUE(textfield.get());
+	void TextfieldStyleImpl() {
+		CefRefPtr<CefTextfield> textfield = CefTextfield::CreateTextfield(nullptr);
+		EXPECT_TRUE(textfield.get());
 
-  // Test defaults.
-  EXPECT_FALSE(textfield->IsPasswordInput());
-  EXPECT_FALSE(textfield->IsReadOnly());
+		// Test defaults.
+		EXPECT_FALSE(textfield->IsPasswordInput());
+		EXPECT_FALSE(textfield->IsReadOnly());
 
-  // Test password input.
-  textfield->SetPasswordInput(true);
-  EXPECT_TRUE(textfield->IsPasswordInput());
-  textfield->SetPasswordInput(false);
-  EXPECT_FALSE(textfield->IsPasswordInput());
+		// Test password input.
+		textfield->SetPasswordInput(true);
+		EXPECT_TRUE(textfield->IsPasswordInput());
+		textfield->SetPasswordInput(false);
+		EXPECT_FALSE(textfield->IsPasswordInput());
 
-  // Test read only.
-  textfield->SetReadOnly(true);
-  EXPECT_TRUE(textfield->IsReadOnly());
-  textfield->SetReadOnly(false);
-  EXPECT_FALSE(textfield->IsReadOnly());
+		// Test read only.
+		textfield->SetReadOnly(true);
+		EXPECT_TRUE(textfield->IsReadOnly());
+		textfield->SetReadOnly(false);
+		EXPECT_FALSE(textfield->IsReadOnly());
 
-  // Test colors.
-  const cef_color_t color = CefColorSetARGB(255, 255, 0, 255);
+		// Test colors.
+		const cef_color_t color = CefColorSetARGB(255, 255, 0, 255);
 
-  EXPECT_NE(color, textfield->GetTextColor());
-  textfield->SetTextColor(color);
-  EXPECT_EQ(color, textfield->GetTextColor());
+		EXPECT_NE(color, textfield->GetTextColor());
+		textfield->SetTextColor(color);
+		EXPECT_EQ(color, textfield->GetTextColor());
 
-  EXPECT_NE(color, textfield->GetSelectionTextColor());
-  textfield->SetSelectionTextColor(color);
-  EXPECT_EQ(color, textfield->GetSelectionTextColor());
+		EXPECT_NE(color, textfield->GetSelectionTextColor());
+		textfield->SetSelectionTextColor(color);
+		EXPECT_EQ(color, textfield->GetSelectionTextColor());
 
-  EXPECT_NE(color, textfield->GetSelectionBackgroundColor());
-  textfield->SetSelectionBackgroundColor(color);
-  EXPECT_EQ(color, textfield->GetSelectionBackgroundColor());
+		EXPECT_NE(color, textfield->GetSelectionBackgroundColor());
+		textfield->SetSelectionBackgroundColor(color);
+		EXPECT_EQ(color, textfield->GetSelectionBackgroundColor());
 
-  textfield->SetPlaceholderTextColor(color);
+		textfield->SetPlaceholderTextColor(color);
 
-  // Test fonts.
-  textfield->SetFontList("Arial, 14px");
+		// Test fonts.
+		textfield->SetFontList("Arial, 14px");
 
-  // Test format ranges.
-  const char kText[] = "test text";
-  textfield->SetText(kText);
-  textfield->ApplyTextColor(color, CefRange(0, 5));
-  textfield->ApplyTextStyle(CEF_TEXT_STYLE_BOLD, true, CefRange(0, 5));
+		// Test format ranges.
+		const char kText[] = "test text";
+		textfield->SetText(kText);
+		textfield->ApplyTextColor(color, CefRange(0, 5));
+		textfield->ApplyTextStyle(CEF_TEXT_STYLE_BOLD, true, CefRange(0, 5));
 
-  // Test placeholder text.
-  textfield->SetPlaceholderText(kText);
-  EXPECT_STREQ(kText, textfield->GetPlaceholderText().ToString().c_str());
+		// Test placeholder text.
+		textfield->SetPlaceholderText(kText);
+		EXPECT_STREQ(kText, textfield->GetPlaceholderText().ToString().c_str());
 
-  textfield->SetAccessibleName("MyTextfield");
-}
+		textfield->SetAccessibleName("MyTextfield");
+	}
 
 }  // namespace
 
@@ -168,119 +168,119 @@ TEXTFIELD_TEST(TextfieldStyle)
 
 namespace {
 
-const int kTextfieldID = 1;
+	const int kTextfieldID = 1;
 
-// Contents need to be supported by the TranslateKey function.
-const char kTestInputMessage[] = "Test Message";
+	// Contents need to be supported by the TranslateKey function.
+	const char kTestInputMessage[] = "Test Message";
 
-void TranslateKey(int c, int* keycode, uint32* modifiers) {
-  *keycode = VKEY_UNKNOWN;
-  *modifiers = 0;
+	void TranslateKey(int c, int* keycode, uint32* modifiers) {
+		*keycode = VKEY_UNKNOWN;
+		*modifiers = 0;
 
-  if (c >= 'a' && c <= 'z') {
-    *keycode = VKEY_A + (c - 'a');
-  } else if (c >= 'A' && c <= 'Z') {
-    *keycode = VKEY_A + (c - 'A');
-    *modifiers = EVENTFLAG_SHIFT_DOWN;
-  } else if (c == ' ') {
-    *keycode = VKEY_SPACE;
-  }
-}
+		if (c >= 'a' && c <= 'z') {
+			*keycode = VKEY_A + (c - 'a');
+		} else if (c >= 'A' && c <= 'Z') {
+			*keycode = VKEY_A + (c - 'A');
+			*modifiers = EVENTFLAG_SHIFT_DOWN;
+		} else if (c == ' ') {
+			*keycode = VKEY_SPACE;
+		}
+	}
 
-class TestTextfieldDelegate : public CefTextfieldDelegate {
- public:
-  TestTextfieldDelegate() {}
+	class TestTextfieldDelegate : public CefTextfieldDelegate {
+	public:
+		TestTextfieldDelegate() {}
 
-  bool OnKeyEvent(CefRefPtr<CefTextfield> textfield,
-                  const CefKeyEvent& event) override {
-    EXPECT_TRUE(textfield.get());
-    EXPECT_EQ(textfield->GetID(), kTextfieldID);
+		bool OnKeyEvent(CefRefPtr<CefTextfield> textfield,
+		const CefKeyEvent& event) override {
+			EXPECT_TRUE(textfield.get());
+			EXPECT_EQ(textfield->GetID(), kTextfieldID);
 
-    if (event.type == KEYEVENT_RAWKEYDOWN &&
-        event.windows_key_code == VKEY_RETURN) {
-      // Got the whole string. Finish the test asynchronously.
-      CefPostTask(TID_UI, base::Bind(&TestTextfieldDelegate::FinishTest, this,
-                                     textfield));
-      return true;
-    }
+			if (event.type == KEYEVENT_RAWKEYDOWN &&
+					event.windows_key_code == VKEY_RETURN) {
+				// Got the whole string. Finish the test asynchronously.
+				CefPostTask(TID_UI, base::Bind(&TestTextfieldDelegate::FinishTest, this,
+				textfield));
+				return true;
+			}
 
-    if (event.type == KEYEVENT_CHAR) {
-      int keycode;
-      uint32 modifiers;
-      TranslateKey(kTestInputMessage[index_++], &keycode, &modifiers);
+			if (event.type == KEYEVENT_CHAR) {
+				int keycode;
+				uint32 modifiers;
+				TranslateKey(kTestInputMessage[index_++], &keycode, &modifiers);
 
-      EXPECT_EQ(keycode, event.windows_key_code);
-      EXPECT_EQ(modifiers, event.modifiers);
-    }
+				EXPECT_EQ(keycode, event.windows_key_code);
+				EXPECT_EQ(modifiers, event.modifiers);
+			}
 
-    return false;
-  }
+			return false;
+		}
 
-  void OnAfterUserAction(CefRefPtr<CefTextfield> textfield) override {
-    after_user_action_ct_++;
-  }
+		void OnAfterUserAction(CefRefPtr<CefTextfield> textfield) override {
+			after_user_action_ct_++;
+		}
 
- private:
-  void FinishTest(CefRefPtr<CefTextfield> textfield) {
-    // OnAfterUserAction() should be called for each unhandled character.
-    EXPECT_EQ(sizeof(kTestInputMessage) - 1, after_user_action_ct_);
+	private:
+		void FinishTest(CefRefPtr<CefTextfield> textfield) {
+			// OnAfterUserAction() should be called for each unhandled character.
+			EXPECT_EQ(sizeof(kTestInputMessage) - 1, after_user_action_ct_);
 
-    // Verify the completed contents.
-    EXPECT_STREQ(kTestInputMessage, textfield->GetText().ToString().c_str());
+			// Verify the completed contents.
+			EXPECT_STREQ(kTestInputMessage, textfield->GetText().ToString().c_str());
 
-    // Close the window to end the test.
-    textfield->GetWindow()->Close();
-  }
+			// Close the window to end the test.
+			textfield->GetWindow()->Close();
+		}
 
-  int index_ = 0;
-  size_t after_user_action_ct_ = 0;
+		int index_ = 0;
+		size_t after_user_action_ct_ = 0;
 
-  IMPLEMENT_REFCOUNTING(TestTextfieldDelegate);
-  DISALLOW_COPY_AND_ASSIGN(TestTextfieldDelegate);
-};
+		IMPLEMENT_REFCOUNTING(TestTextfieldDelegate);
+		DISALLOW_COPY_AND_ASSIGN(TestTextfieldDelegate);
+	};
 
-void RunTextfieldKeyEvent(CefRefPtr<CefWindow> window) {
-  CefRefPtr<CefTextfield> textfield =
-      CefTextfield::CreateTextfield(new TestTextfieldDelegate());
-  textfield->SetID(kTextfieldID);
+	void RunTextfieldKeyEvent(CefRefPtr<CefWindow> window) {
+		CefRefPtr<CefTextfield> textfield =
+		CefTextfield::CreateTextfield(new TestTextfieldDelegate());
+		textfield->SetID(kTextfieldID);
 
-  EXPECT_TRUE(textfield->AsTextfield());
-  EXPECT_EQ(kTextfieldID, textfield->GetID());
-  EXPECT_TRUE(textfield->IsVisible());
-  EXPECT_FALSE(textfield->IsDrawn());
+		EXPECT_TRUE(textfield->AsTextfield());
+		EXPECT_EQ(kTextfieldID, textfield->GetID());
+		EXPECT_TRUE(textfield->IsVisible());
+		EXPECT_FALSE(textfield->IsDrawn());
 
-  window->AddChildView(textfield);
-  window->Layout();
+		window->AddChildView(textfield);
+		window->Layout();
 
-  EXPECT_TRUE(window->IsSame(textfield->GetWindow()));
-  EXPECT_TRUE(window->IsSame(textfield->GetParentView()));
-  EXPECT_TRUE(textfield->IsSame(window->GetViewForID(kTextfieldID)));
-  EXPECT_TRUE(textfield->IsVisible());
-  EXPECT_TRUE(textfield->IsDrawn());
+		EXPECT_TRUE(window->IsSame(textfield->GetWindow()));
+		EXPECT_TRUE(window->IsSame(textfield->GetParentView()));
+		EXPECT_TRUE(textfield->IsSame(window->GetViewForID(kTextfieldID)));
+		EXPECT_TRUE(textfield->IsVisible());
+		EXPECT_TRUE(textfield->IsDrawn());
 
-  window->Show();
+		window->Show();
 
-  // Give input focus to the textfield.
-  textfield->RequestFocus();
+		// Give input focus to the textfield.
+		textfield->RequestFocus();
 
-  // Send the contents of |kTestInputMessage| to the textfield.
-  for (size_t i = 0; i < sizeof(kTestInputMessage) - 1; ++i) {
-    int keycode;
-    uint32 modifiers;
-    TranslateKey(kTestInputMessage[i], &keycode, &modifiers);
-    window->SendKeyPress(keycode, modifiers);
-  }
+		// Send the contents of |kTestInputMessage| to the textfield.
+		for (size_t i = 0; i < sizeof(kTestInputMessage) - 1; ++i) {
+			int keycode;
+			uint32 modifiers;
+			TranslateKey(kTestInputMessage[i], &keycode, &modifiers);
+			window->SendKeyPress(keycode, modifiers);
+		}
 
-  // Send return to end the text input.
-  window->SendKeyPress(VKEY_RETURN, 0);
-}
+		// Send return to end the text input.
+		window->SendKeyPress(VKEY_RETURN, 0);
+	}
 
-void TextfieldKeyEventImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::Config config;
-  config.on_window_created = base::Bind(RunTextfieldKeyEvent);
-  config.close_window = false;
-  TestWindowDelegate::RunTest(event, config);
-}
+	void TextfieldKeyEventImpl(CefRefPtr<CefWaitableEvent> event) {
+		TestWindowDelegate::Config config;
+		config.on_window_created = base::Bind(RunTextfieldKeyEvent);
+		config.close_window = false;
+		TestWindowDelegate::RunTest(event, config);
+	}
 
 }  // namespace
 
