@@ -36,11 +36,15 @@ typedef int (__cdecl* BW_CREATEBROWSER)(BWCreateOptions);
 
 typedef HWND (__cdecl* BW_GETHWNDFORBROWSER)(bwWebView);
 
+typedef void* (__cdecl* BW_LOADSTRDATA)(bwWebView, const CHAR*, const CHAR*, size_t);
+
 /*__declspec(selectany)*/static BW_WINDOWMODE bwWindowMode = nullptr;
 
 /*__declspec(selectany)*/static BW_CREATEBROWSER bwCreateBrowser = nullptr;
 
 /*__declspec(selectany)*/static BW_GETHWNDFORBROWSER bwGetHWNDForBrowser = nullptr;
+
+/*__declspec(selectany)*/static BW_LOADSTRDATA bwLoadStrData = nullptr;
 
 // load module
 static void PRINTMSG(TCHAR* buff, const CHAR* name, int & printed_len)
@@ -79,6 +83,7 @@ static bool bwInit(TCHAR* LibBwgtPath)
 			DEF_FUNC(hLibBwgt, bwWindowMode, BW_WINDOWMODE, "RunMain");
 			DEF_FUNC(hLibBwgt, bwCreateBrowser, BW_CREATEBROWSER, "bwCreateBrowser");
 			DEF_FUNC(hLibBwgt, bwGetHWNDForBrowser, BW_GETHWNDFORBROWSER, "bwGetHWNDForBrowser");
+			DEF_FUNC(hLibBwgt, bwLoadStrData, BW_LOADSTRDATA, "bwLoadStrData");
 			if(PRINTLEN!=PRINTLEN_0)
 			{
 				PRINTBUFF[PRINTLEN]='\0';

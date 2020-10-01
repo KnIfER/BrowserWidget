@@ -349,11 +349,7 @@ namespace client {
 		delegate_->OnBeforeContextMenu(model);
 	}
 
-	bool ClientHandler::OnContextMenuCommand(CefRefPtr<CefBrowser> browser,
-	CefRefPtr<CefFrame> frame,
-	CefRefPtr<CefContextMenuParams> params,
-	int command_id,
-	EventFlags event_flags) {
+	bool ClientHandler::OnContextMenuCommand(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params, int command_id, EventFlags event_flags) {
 		CEF_REQUIRE_UI_THREAD();
 
 		switch (command_id) {
@@ -374,9 +370,12 @@ namespace client {
 			!browser->GetHost()->IsMouseCursorChangeDisabled());
 			return true;
 		case CLIENT_ID_OFFLINE:
+		{
 			offline_ = !offline_;
 			SetOfflineState(browser, offline_);
+			//tg 
 			return true;
+		}
 		default:  // Allow default handling, if any.
 			return ExecuteTestMenu(command_id);
 		}
@@ -628,7 +627,7 @@ namespace client {
 
 		if(_bw_callback)
 		{
-			_bw_callback(browser);
+			_bw_callback(new CefRefPtr<CefBrowser>(browser));
 		}
 
 		NotifyBrowserCreated(browser);

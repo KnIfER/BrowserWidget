@@ -21,7 +21,7 @@ struct url_intercept_result{
 };
 
 
-typedef void (__cdecl* BC_BrowserCallback)(CefBrowser*);
+typedef void (__cdecl* BC_BrowserCallback)(CefRefPtr<CefBrowser>*);
 
 typedef url_intercept_result* (__cdecl * BC_URLInterceptor)(std::string);
 

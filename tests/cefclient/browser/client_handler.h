@@ -22,16 +22,16 @@
 #endif
 
 extern LRESULT WINAPI wWindowProc(
-__in HWND hWnd,
-__in UINT msg,
-__in WPARAM wParam,
-__in LPARAM lParam);
+	__in HWND hWnd,
+	__in UINT msg,
+	__in WPARAM wParam,
+	__in LPARAM lParam);
 
 extern LRESULT WINAPI testWindowProc(
-__in HWND hWnd,
-__in UINT msg,
-__in WPARAM wParam,
-__in LPARAM lParam);
+	__in HWND hWnd,
+	__in UINT msg,
+	__in WPARAM wParam,
+	__in LPARAM lParam);
 
 
 namespace client {

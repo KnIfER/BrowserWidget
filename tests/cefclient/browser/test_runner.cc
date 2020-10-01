@@ -54,9 +54,7 @@ namespace client {
 
 			// Set page data and navigate the browser. Used in combination with
 			// StringResourceProvider.
-			void LoadStringResourcePage(CefRefPtr<CefBrowser> browser,
-			const std::string& page,
-			const std::string& data) {
+			void LoadStringResourcePage(CefRefPtr<CefBrowser> browser, const std::string& page, const std::string& data) {
 				CefRefPtr<CefClient> client = browser->GetHost()->GetClient();
 				ClientHandler* client_handler = static_cast<ClientHandler*>(client.get());
 				client_handler->SetStringResource(page, data);
@@ -65,9 +63,7 @@ namespace client {
 
 
 			// Replace all instances of |from| with |to| in |str|.
-			std::string StringReplace(const std::string& str,
-			const std::string& from,
-			const std::string& to) {
+			std::string StringReplace(const std::string& str, const std::string& from, const std::string& to) {
 				std::string result = str;
 				std::string::size_type pos = 0;
 				std::string::size_type from_len = from.length();

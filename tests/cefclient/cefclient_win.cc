@@ -161,18 +161,29 @@ LRESULT WINAPI testWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return wWindowProc(hWnd, msg, wParam, lParam);
 }
 
-extern "C" __declspec(dllexport) HWND bwGetHWNDForBrowser(LONG_PTR pBrowser)
+extern "C" __declspec(dllexport) HWND bwGetHWNDForBrowser(CefRefPtr<CefBrowser>* pBrowser)
 {
-	CefBrowser* browser = (CefBrowser*)pBrowser;
+	CefRefPtr<CefBrowser> & browser = *pBrowser;
 	return browser?browser->GetHost()->GetWindowHandle():0;
 }
 
-extern "C" __declspec(dllexport) int bwLoadUrl(LONG_PTR pBrowser, CHAR* URL)
+extern "C" __declspec(dllexport) void bwLoadStrData(CefRefPtr<CefBrowser>* pBrowser, const CHAR* virturl, const CHAR* data, size_t len)
 {
-	CefBrowser* browser = (CefBrowser*)pBrowser;
-	if(browser)
+	if(pBrowser)
 	{
-		browser->GetMainFrame()->LoadURL(URL);
+		if(!len)
+		{
+			len = strlen(data);
+		}
+		client::test_runner::LoadStrResourcePage(*pBrowser, virturl, data, len);
+	}
+}
+
+extern "C" __declspec(dllexport) int bwLoadUrl(CefRefPtr<CefBrowser>* pBrowser, CHAR* URL)
+{
+	if(pBrowser)
+	{
+		(*pBrowser)->GetMainFrame()->LoadURL(URL);
 		return 1;
 	}
 	return 0;
@@ -268,18 +279,18 @@ namespace client {
 			return TRUE;
 		}
 
-		void Test_browsercallback(CefBrowser* browser)
+		void Test_browser_prepared(CefRefPtr<CefBrowser>* browser)
 		{
-			HWND hwnd = bwGetHWNDForBrowser((LONG_PTR)browser);
+			HWND hwnd = bwGetHWNDForBrowser(browser);
 			if(hwnd)
 			{
 				MoveWindow(hwnd, 0, 0, 500, 500, 1);
 			}
 		}
 
-		void Test_browsercallback1(CefBrowser* browser)
+		void Test_browsercallback1(CefRefPtr<CefBrowser>* browser)
 		{
-			HWND hwnd = bwGetHWNDForBrowser((LONG_PTR)browser);
+			HWND hwnd = bwGetHWNDForBrowser(browser);
 			if(hwnd)
 			{
 				MoveWindow(hwnd, 0, 500, 500, 500, 1);
@@ -397,7 +408,7 @@ namespace client {
 				ShowWindow(hwnd, true);
 			}
 
-			BWCreateOptions args = {hwnd, "www.baidu.com", Test_browsercallback, Test_InterceptBaidu};
+			BWCreateOptions args = {hwnd, "www.baidu.com", Test_browser_prepared, Test_InterceptBaidu};
 			bwCreateBrowser(args);
 			//args = {hwnd, "www.bing.com", (BrowserCallback)Test_browsercallback1, (URLInterceptor)Test_InterceptBaidu};
 			//bwCreateBrowser(args);

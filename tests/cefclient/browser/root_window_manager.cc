@@ -80,9 +80,7 @@ namespace client {
 				MainContext::Get()->GetRootWindowManager()->AddExtension(extension);
 			}
 
-			CefRefPtr<CefBrowser> GetActiveBrowser(CefRefPtr<CefExtension> extension,
-			CefRefPtr<CefBrowser> browser,
-			bool include_incognito) OVERRIDE {
+			CefRefPtr<CefBrowser> GetActiveBrowser(CefRefPtr<CefExtension> extension, CefRefPtr<CefBrowser> browser, bool include_incognito) OVERRIDE {
 				CEF_REQUIRE_UI_THREAD();
 
 				// Return the browser for the active/foreground window.
@@ -314,16 +312,14 @@ namespace client {
 		}
 	}
 
-	CefRefPtr<CefRequestContext> RootWindowManager::GetRequestContext(
-	RootWindow* root_window) {
+	CefRefPtr<CefRequestContext> RootWindowManager::GetRequestContext(RootWindow* root_window) {
 		REQUIRE_MAIN_THREAD();
 
 		if (request_context_per_browser_) {
 			// Create a new request context for each browser.
 			CefRequestContextSettings settings;
 
-			CefRefPtr<CefCommandLine> command_line =
-			CefCommandLine::GetGlobalCommandLine();
+			CefRefPtr<CefCommandLine> command_line =  CefCommandLine::GetGlobalCommandLine();
 			if (command_line->HasSwitch(switches::kCachePath)) {
 				if (request_context_shared_cache_) {
 					// Give each browser the same cache path. The resulting context objects
@@ -416,8 +412,7 @@ namespace client {
 		}
 	}
 
-	void RootWindowManager::OnBrowserCreated(RootWindow* root_window,
-	CefRefPtr<CefBrowser> browser) {
+	void RootWindowManager::OnBrowserCreated(RootWindow* root_window, CefRefPtr<CefBrowser> browser) {
 		REQUIRE_MAIN_THREAD();
 
 		if (root_window == active_root_window_) {
