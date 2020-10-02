@@ -502,10 +502,10 @@ namespace client {
 		CEF_REQUIRE_UI_THREAD();
 
 		// Forbid dragging of URLs and files.
-		if ((mask & DRAG_OPERATION_LINK) && !dragData->IsFragment()) {
-			test_runner::Alert(browser, "cefclient blocks dragging of URLs and files");
-			return true;
-		}
+		//if ((mask & DRAG_OPERATION_LINK) && !dragData->IsFragment()) {
+			//test_runner::Alert(browser, "cefclient blocks dragging of URLs and files");
+			//return true;
+		//}
 
 		return false;
 	}
