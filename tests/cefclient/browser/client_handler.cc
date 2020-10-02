@@ -24,6 +24,8 @@
 #include "tests/shared/browser/resource_util.h"
 #include "tests/shared/common/client_switches.h"
 
+std::map<int, client::ClientHandler*> tmp_bid_2_client_table;
+
 namespace client {
 
 #if defined(OS_WIN)
@@ -584,6 +586,8 @@ namespace client {
 
 		browser_count_++;
 
+		tmp_bid_2_client_table[browser->GetIdentifier()]=this;
+
 		if (!message_router_) {
 			// Create the browser-side router for query handling.
 			CefMessageRouterConfig config;
@@ -616,7 +620,7 @@ namespace client {
 			}
 		}
 
-		if(_resource_interceptor)
+		//if(_resource_interceptor)
 		{
 			//传递给browser也没有用。
 			//TCHAR buffer[100]={0};
@@ -661,9 +665,9 @@ namespace client {
 	}
 
 	void ClientHandler::OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
-	bool isLoading,
-	bool canGoBack,
-	bool canGoForward) {
+		bool isLoading,
+		bool canGoBack,
+		bool canGoForward) {
 		CEF_REQUIRE_UI_THREAD();
 
 		if (!isLoading && initial_navigation_) {
@@ -674,10 +678,10 @@ namespace client {
 	}
 
 	void ClientHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
-	CefRefPtr<CefFrame> frame,
-	ErrorCode errorCode,
-	const CefString& errorText,
-	const CefString& failedUrl) {
+		CefRefPtr<CefFrame> frame,
+		ErrorCode errorCode,
+		const CefString& errorText,
+		const CefString& failedUrl) {
 		CEF_REQUIRE_UI_THREAD();
 
 		// Don't display an error for downloaded files.
@@ -697,10 +701,10 @@ namespace client {
 	}
 
 	bool ClientHandler::OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
-	CefRefPtr<CefFrame> frame,
-	CefRefPtr<CefRequest> request,
-	bool user_gesture,
-	bool is_redirect) {
+		CefRefPtr<CefFrame> frame,
+		CefRefPtr<CefRequest> request,
+		bool user_gesture,
+		bool is_redirect) {
 		CEF_REQUIRE_UI_THREAD();
 
 		message_router_->OnBeforeBrowse(browser, frame);
@@ -708,10 +712,10 @@ namespace client {
 	}
 
 	bool ClientHandler::OnOpenURLFromTab(
-	CefRefPtr<CefBrowser> browser,
-	CefRefPtr<CefFrame> frame,
-	const CefString& target_url,
-	CefRequestHandler::WindowOpenDisposition target_disposition,
+		CefRefPtr<CefBrowser> browser,
+		CefRefPtr<CefFrame> frame,
+		const CefString& target_url,
+		CefRequestHandler::WindowOpenDisposition target_disposition,
 	bool user_gesture) {
 		if (target_disposition == WOD_NEW_BACKGROUND_TAB ||
 				target_disposition == WOD_NEW_FOREGROUND_TAB) {
@@ -731,25 +735,25 @@ namespace client {
 	}
 
 	CefRefPtr<CefResourceRequestHandler> ClientHandler::GetResourceRequestHandler(
-	CefRefPtr<CefBrowser> browser,
-	CefRefPtr<CefFrame> frame,
-	CefRefPtr<CefRequest> request,
-	bool is_navigation,
-	bool is_download,
-	const CefString& request_initiator,
-	bool& disable_default_handling) {
+		CefRefPtr<CefBrowser> browser,
+		CefRefPtr<CefFrame> frame,
+		CefRefPtr<CefRequest> request,
+		bool is_navigation,
+		bool is_download,
+		const CefString& request_initiator,
+		bool& disable_default_handling) {
 		CEF_REQUIRE_IO_THREAD();
 		return this;
 	}
 
 
 	bool ClientHandler::GetAuthCredentials(CefRefPtr<CefBrowser> browser,
-	const CefString& origin_url,
-	bool isProxy,
-	const CefString& host,
-	int port,
-	const CefString& realm,
-	const CefString& scheme,
+		const CefString& origin_url,
+		bool isProxy,
+		const CefString& host,
+		int port,
+		const CefString& realm,
+		const CefString& scheme,
 	CefRefPtr<CefAuthCallback> callback) {
 		CEF_REQUIRE_IO_THREAD();
 
@@ -770,9 +774,9 @@ namespace client {
 	}
 
 	bool ClientHandler::OnQuotaRequest(CefRefPtr<CefBrowser> browser,
-	const CefString& origin_url,
-	int64 new_size,
-	CefRefPtr<CefRequestCallback> callback) {
+		const CefString& origin_url,
+		int64 new_size,
+		CefRefPtr<CefRequestCallback> callback) {
 		CEF_REQUIRE_IO_THREAD();
 
 		static const int64 max_size = 1024 * 1024 * 20;  // 20mb.
@@ -783,10 +787,10 @@ namespace client {
 	}
 
 	bool ClientHandler::OnCertificateError(CefRefPtr<CefBrowser> browser,
-	ErrorCode cert_error,
-	const CefString& request_url,
-	CefRefPtr<CefSSLInfo> ssl_info,
-	CefRefPtr<CefRequestCallback> callback) {
+		ErrorCode cert_error,
+		const CefString& request_url,
+		CefRefPtr<CefSSLInfo> ssl_info,
+		CefRefPtr<CefRequestCallback> callback) {
 		CEF_REQUIRE_UI_THREAD();
 
 		if (cert_error == ERR_CERT_AUTHORITY_INVALID &&
@@ -807,12 +811,12 @@ namespace client {
 	}
 
 	bool ClientHandler::OnSelectClientCertificate(
-	CefRefPtr<CefBrowser> browser,
-	bool isProxy,
-	const CefString& host,
-	int port,
-	const X509CertificateList& certificates,
-	CefRefPtr<CefSelectClientCertificateCallback> callback) {
+		CefRefPtr<CefBrowser> browser,
+		bool isProxy,
+		const CefString& host,
+		int port,
+		const X509CertificateList& certificates,
+		CefRefPtr<CefSelectClientCertificateCallback> callback) {
 		CEF_REQUIRE_UI_THREAD();
 
 		CefRefPtr<CefCommandLine> command_line =
@@ -843,7 +847,7 @@ namespace client {
 	}
 
 	void ClientHandler::OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
-	TerminationStatus status) {
+		TerminationStatus status) {
 		CEF_REQUIRE_UI_THREAD();
 
 		message_router_->OnRenderProcessTerminated(browser);
@@ -875,7 +879,7 @@ namespace client {
 	}
 
 	void ClientHandler::OnDocumentAvailableInMainFrame(
-	CefRefPtr<CefBrowser> browser) {
+		CefRefPtr<CefBrowser> browser) {
 		CEF_REQUIRE_UI_THREAD();
 
 		// Restore offline mode after main frame navigation. Otherwise, offline state
@@ -898,19 +902,19 @@ namespace client {
 	}
 
 	CefRefPtr<CefResourceHandler> ClientHandler::GetResourceHandler(
-	CefRefPtr<CefBrowser> browser,
-	CefRefPtr<CefFrame> frame,
-	CefRefPtr<CefRequest> request) {
+		CefRefPtr<CefBrowser> browser,
+		CefRefPtr<CefFrame> frame,
+		CefRefPtr<CefRequest> request) {
 		CEF_REQUIRE_IO_THREAD();
 
 		return resource_manager_->GetResourceHandler(browser, frame, request);
 	}
 
 	CefRefPtr<CefResponseFilter> ClientHandler::GetResourceResponseFilter(
-	CefRefPtr<CefBrowser> browser,
-	CefRefPtr<CefFrame> frame,
-	CefRefPtr<CefRequest> request,
-	CefRefPtr<CefResponse> response) {
+		CefRefPtr<CefBrowser> browser,
+		CefRefPtr<CefFrame> frame,
+		CefRefPtr<CefRequest> request,
+		CefRefPtr<CefResponse> response) {
 		CEF_REQUIRE_IO_THREAD();
 
 		return test_runner::GetResourceResponseFilter(browser, frame, request,
@@ -918,9 +922,9 @@ namespace client {
 	}
 
 	void ClientHandler::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
-	CefRefPtr<CefFrame> frame,
-	CefRefPtr<CefRequest> request,
-	bool& allow_os_execution) {
+		CefRefPtr<CefFrame> frame,
+		CefRefPtr<CefRequest> request,
+		bool& allow_os_execution) {
 		CEF_REQUIRE_IO_THREAD();
 
 		std::string urlStr = request->GetURL();
@@ -1239,5 +1243,4 @@ namespace client {
 		browser->GetHost()->ExecuteDevToolsMethod(
 		/*message_id=*/0, "Network.emulateNetworkConditions", params);
 	}
-
 }  // namespace client

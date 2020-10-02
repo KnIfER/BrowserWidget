@@ -9,9 +9,9 @@
 #include <set>
 
 #include "tests/shared/common/client_app.h"
+#include "tests/shared/renderer/client_app_renderer.h"
 
 namespace client {
-
 	// Client app implementation for the browser process.
 	class ClientAppBrowser : public ClientApp, public CefBrowserProcessHandler {
 	public:
@@ -35,7 +35,15 @@ namespace client {
 
 		ClientAppBrowser();
 
+		CefRefPtr<CefRenderProcessHandler> GetRenderProcessHandler() OVERRIDE
+		{
+			if(render_handler)
+				return *render_handler;
+			return nullptr;
+		}
+
 	private:
+		CefRefPtr<ClientAppRenderer>* render_handler;
 		// Creates all of the Delegate objects. Implemented by cefclient in
 		// client_app_delegates_browser.cc
 		static void CreateDelegates(DelegateSet& delegates);

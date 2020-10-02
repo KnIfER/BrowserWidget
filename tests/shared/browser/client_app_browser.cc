@@ -10,9 +10,9 @@
 #include "tests/shared/common/client_switches.h"
 
 namespace client {
-
 	ClientAppBrowser::ClientAppBrowser() {
 		CreateDelegates(delegates_);
+		render_handler = new CefRefPtr<ClientAppRenderer>(new ClientAppRenderer);
 	}
 
 	void ClientAppBrowser::OnBeforeCommandLineProcessing(
@@ -88,5 +88,4 @@ namespace client {
 		if (message_pump)
 		message_pump->OnScheduleMessagePumpWork(delay);
 	}
-
 }  // namespace client

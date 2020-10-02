@@ -21,6 +21,8 @@
 #include "tests/cefclient/browser/dialog_handler_gtk.h"
 #endif
 
+class BWV8Handler;
+
 extern LRESULT WINAPI wWindowProc(
 	__in HWND hWnd,
 	__in UINT msg,
@@ -35,22 +37,21 @@ extern LRESULT WINAPI testWindowProc(
 
 
 namespace client {
-
 	class ClientDownloadImageCallback;
 
 	// Client handler abstract base class. Provides common functionality shared by
 	// all concrete client handler implementations.
 	class ClientHandler : public CefClient,
-	public CefContextMenuHandler,
-	public CefDisplayHandler,
-	public CefDownloadHandler,
-	public CefDragHandler,
-	public CefFocusHandler,
-	public CefKeyboardHandler,
-	public CefLifeSpanHandler,
-	public CefLoadHandler,
-	public CefRequestHandler,
-	public CefResourceRequestHandler {
+		public CefContextMenuHandler,
+		public CefDisplayHandler,
+		public CefDownloadHandler,
+		public CefDragHandler,
+		public CefFocusHandler,
+		public CefKeyboardHandler,
+		public CefLifeSpanHandler,
+		public CefLoadHandler,
+		public CefRequestHandler,
+		public CefResourceRequestHandler {
 	public:
 		// Implement this interface to receive notification of ClientHandler
 		// events. The methods of this class will be called on the main thread unless
@@ -331,6 +332,7 @@ namespace client {
 		}
 		BC_BrowserCallback _bw_callback = nullptr;
 		BC_URLInterceptor _resource_interceptor = nullptr;
+		std::vector<CefRefPtr<BWV8Handler>>* _bwV8HandlerPool = nullptr;
 	private:
 		friend class ClientDownloadImageCallback;
 
@@ -435,7 +437,6 @@ namespace client {
 
 		DISALLOW_COPY_AND_ASSIGN(ClientHandler);
 	};
-
 }  // namespace client
 
 #endif  // CEF_TESTS_CEFCLIENT_BROWSER_CLIENT_HANDLER_H_

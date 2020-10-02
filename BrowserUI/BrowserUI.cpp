@@ -109,10 +109,15 @@ BOOL regWndClass(LPCTSTR lpcsClassName, DWORD dwStyle)
 	return TRUE;
 }
 
+BJSCV* JSHAPPY(LONG_PTR funcName, int argc, LONG_PTR argv, int sizeofBJSCV)
+{
+	return new BJSCV{typeString, 0, "HAPPY"};
+}
 
 void onBrowserPrepared(bwWebView browserPtr)
 {
 	hBrowser = bwGetHWNDForBrowser(browserPtr);
+	bwInstallJsNativeToWidget(browserPtr, "testJs", JSHAPPY);
 }
 
 url_intercept_result* InterceptBaidu(std::string url)
@@ -122,7 +127,6 @@ url_intercept_result* InterceptBaidu(std::string url)
 	}
 	return nullptr;
 }
-
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow) {
 	HWND hwnd=0;
 	if(1)

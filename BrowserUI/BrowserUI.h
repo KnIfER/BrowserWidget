@@ -30,6 +30,23 @@ struct BWCreateOptions{
 	BC_URLInterceptor bwInterceptor=0;
 };
 
+
+enum ValueType{
+	typeInt=0,
+	typeString,
+	typeBool,
+	typeDouble,
+};
+
+struct BJSCV {
+	ValueType value_type;
+	int intVal;
+	const char* charVal;
+	bool boolVal=0;
+	double doubleVal=0;
+	bool delete_internal=false;
+};
+
 typedef void* (__cdecl* BW_WINDOWMODE)(HINSTANCE, bool);
 
 typedef int (__cdecl* BW_CREATEBROWSER)(BWCreateOptions);
@@ -38,6 +55,10 @@ typedef HWND (__cdecl* BW_GETHWNDFORBROWSER)(bwWebView);
 
 typedef void* (__cdecl* BW_LOADSTRDATA)(bwWebView, const CHAR*, const CHAR*, size_t);
 
+typedef BJSCV* (__cdecl* BJSC_EXECUTION)(LONG_PTR, int, LONG_PTR, int);
+
+typedef BJSCV* (__cdecl* BW_INSTALLJSNATIVETOWIDGET)(bwWebView, const char *, BJSC_EXECUTION);
+
 /*__declspec(selectany)*/static BW_WINDOWMODE bwWindowMode = nullptr;
 
 /*__declspec(selectany)*/static BW_CREATEBROWSER bwCreateBrowser = nullptr;
@@ -45,6 +66,8 @@ typedef void* (__cdecl* BW_LOADSTRDATA)(bwWebView, const CHAR*, const CHAR*, siz
 /*__declspec(selectany)*/static BW_GETHWNDFORBROWSER bwGetHWNDForBrowser = nullptr;
 
 /*__declspec(selectany)*/static BW_LOADSTRDATA bwLoadStrData = nullptr;
+
+/*__declspec(selectany)*/static BW_INSTALLJSNATIVETOWIDGET bwInstallJsNativeToWidget = nullptr;
 
 // load module
 static void PRINTMSG(TCHAR* buff, const CHAR* name, int & printed_len)
@@ -84,6 +107,7 @@ static bool bwInit(TCHAR* LibBwgtPath)
 			DEF_FUNC(hLibBwgt, bwCreateBrowser, BW_CREATEBROWSER, "bwCreateBrowser");
 			DEF_FUNC(hLibBwgt, bwGetHWNDForBrowser, BW_GETHWNDFORBROWSER, "bwGetHWNDForBrowser");
 			DEF_FUNC(hLibBwgt, bwLoadStrData, BW_LOADSTRDATA, "bwLoadStrData");
+			DEF_FUNC(hLibBwgt, bwInstallJsNativeToWidget, BW_INSTALLJSNATIVETOWIDGET, "bwInstallJsNativeToWidget");
 			if(PRINTLEN!=PRINTLEN_0)
 			{
 				PRINTBUFF[PRINTLEN]='\0';
@@ -94,5 +118,4 @@ static bool bwInit(TCHAR* LibBwgtPath)
 	}
 	return 0;
 }
-
 #endif

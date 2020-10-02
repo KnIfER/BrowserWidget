@@ -49,6 +49,7 @@ client::MainContextImpl * pMainContextImpl;
 
 client::MainMessageLoopMultithreadedWin* looper;
 
+
 //internal
 LRESULT WINAPI wWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -189,6 +190,21 @@ extern "C" __declspec(dllexport) int bwLoadUrl(CefRefPtr<CefBrowser>* pBrowser, 
 	return 0;
 }
 
+class BJSC_EXECUTION;
+
+extern "C" __declspec(dllexport) void bwInstallJsNativeToWidget(CefRefPtr<CefBrowser>* pBrowser, const char* name, client::BJSC_EXECUTION native_callback)
+{
+	if(pBrowser)
+	{
+		auto *pool =  &((client::ClientHandler*)(*pBrowser)->GetHost()->GetClient().get())->_bwV8HandlerPool;
+		if(!*pool)
+		{
+			*pool = new std::vector<CefRefPtr<client::BWV8Handler>>();
+		}
+		(*pool)->push_back(new client::BWV8Handler(name, native_callback));
+	}
+}
+
 extern "C" __declspec(dllexport) int bwLoadString(LONG_PTR pBrowser, CHAR* URL, const CHAR* Data, size_t length)
 {
 	CefBrowser* browser = (CefBrowser*)pBrowser;
@@ -297,6 +313,11 @@ namespace client {
 			}
 		}
 
+		BJSCV* Test_JSCallback(const CefString* funcName, int argc, const CefV8ValueList* argv, int sizeofBJSCV)
+		{
+			return new BJSCV{typeString, 0, "HAPPY"};
+		}
+
 		struct BWCreateOptions{
 			HWND hParent=0;
 			const CHAR* URL=nullptr;
@@ -370,6 +391,8 @@ namespace client {
 					window_info.SetAsChild(BWOpt.hParent, rc);
 
 					g_handler->_bw_callback = BWOpt.bcCallback;
+					g_handler->_bwV8HandlerPool = new std::vector<CefRefPtr<BWV8Handler>>();
+					g_handler->_bwV8HandlerPool->push_back(new BWV8Handler("testJs", Test_JSCallback));
 					return CefBrowserHost::CreateBrowser(window_info, g_handler, BWOpt.URL, browser_settings, extra_info, request_context);
 				}
 				else
@@ -391,7 +414,7 @@ namespace client {
 
 		url_intercept_result* Test_InterceptBaidu(std::string url){
 			if(url=="https://www.baidu.com/") {
-				return new url_intercept_result{"HAPPY", 5, 200, "OK"};
+				return new url_intercept_result{"HAPPY<script>console.log(window.testJs())</script>", 51, 200, "OK"};
 			}
 			return nullptr;
 		}

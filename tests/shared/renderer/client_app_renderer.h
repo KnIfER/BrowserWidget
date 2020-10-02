@@ -11,6 +11,38 @@
 #include "tests/shared/common/client_app.h"
 
 namespace client {
+	enum ValueType{
+		typeInt=0,
+		typeString,
+		typeBool,
+		typeDouble,
+	};
+	struct BJSCV {
+		ValueType value_type;
+		int intVal;
+		CHAR* charVal;
+		bool boolVal=0;
+		double doubleVal=0;
+		bool delete_internal=false;
+	};
+
+	typedef BJSCV* (__cdecl* BJSC_EXECUTION)(const CefString*, int, const CefV8ValueList*, int);
+
+	class BWV8Handler:public CefV8Handler
+	{
+	public:
+		BWV8Handler(const char* func, BJSC_EXECUTION callback) : CefV8Handler(){
+			name = func;
+			bwJs2Native = callback;
+		}
+		CefString name;
+		BJSC_EXECUTION bwJs2Native;
+		virtual bool Execute(const CefString& name, CefRefPtr<CefV8Value> object, const CefV8ValueList& arguments,
+			CefRefPtr<CefV8Value>& retval, CefString& exception);
+
+	private:
+		IMPLEMENT_REFCOUNTING(BWV8Handler);
+	};
 
 	// Client app implementation for the renderer process.
 	class ClientAppRenderer : public ClientApp, public CefRenderProcessHandler {
