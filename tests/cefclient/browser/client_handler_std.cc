@@ -5,11 +5,12 @@
 #include "tests/cefclient/browser/client_handler_std.h"
 
 namespace client {
+	class BWV8Handler;
 
-
-	ClientHandlerStd::ClientHandlerStd(Delegate* delegate, const std::string& startup_url, BC_URLInterceptor url_interceptor) 
-	: ClientHandler(delegate, false, startup_url) {
+	ClientHandlerStd::ClientHandlerStd(Delegate* delegate, const std::string& startup_url, BC_URLInterceptor url_interceptor, std::vector<CefRefPtr<BWV8Handler>>*  pool)  
+		: ClientHandler(delegate, false, startup_url) {
 		_resource_interceptor = url_interceptor;
+		_bwV8HandlerPool=pool;
 	}
 
 	void ClientHandlerStd::OnAfterCreated(CefRefPtr<CefBrowser> browser) {

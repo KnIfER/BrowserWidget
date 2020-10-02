@@ -34,9 +34,7 @@ namespace client {
 		REQUIRE_MAIN_THREAD();
 	}
 
-	void RootWindowViews::Init(RootWindow::Delegate* delegate,
-	const RootWindowConfig& config,
-	const CefBrowserSettings& settings) {
+	void RootWindowViews::Init(RootWindow::Delegate* delegate, const RootWindowConfig& config, const CefBrowserSettings& settings) {
 		DCHECK(delegate);
 		DCHECK(!config.with_osr);  // Windowless rendering is not supported.
 		DCHECK(!initialized_);
@@ -471,7 +469,7 @@ namespace client {
 	void RootWindowViews::CreateClientHandler(const std::string& url) {
 		DCHECK(!client_handler_);
 
-		client_handler_ = new ClientHandlerStd(this, url, 0);
+		client_handler_ = new ClientHandlerStd(this, url, 0, 0);
 		client_handler_->set_download_favicon_images(true);
 	}
 

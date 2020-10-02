@@ -120,13 +120,11 @@ namespace client {
 		DCHECK(root_windows_.empty());
 	}
 
-	scoped_refptr<RootWindow> RootWindowManager::CreateRootWindow(
-	const RootWindowConfig& config) {
+	scoped_refptr<RootWindow> RootWindowManager::CreateRootWindow(const RootWindowConfig& config) {
 		CefBrowserSettings settings;
 		MainContext::Get()->PopulateBrowserSettings(&settings);
 
-		scoped_refptr<RootWindow> root_window =
-		RootWindow::Create(MainContext::Get()->UseViews());
+		scoped_refptr<RootWindow> root_window = RootWindow::Create(MainContext::Get()->UseViews());
 		root_window->Init(this, config, settings);
 
 		// Store a reference to the root window on the main thread.

@@ -21,8 +21,6 @@
 #include "tests/cefclient/browser/dialog_handler_gtk.h"
 #endif
 
-class BWV8Handler;
-
 extern LRESULT WINAPI wWindowProc(
 	__in HWND hWnd,
 	__in UINT msg,
@@ -37,6 +35,7 @@ extern LRESULT WINAPI testWindowProc(
 
 
 namespace client {
+	class BWV8Handler;
 	class ClientDownloadImageCallback;
 
 	// Client handler abstract base class. Provides common functionality shared by
@@ -332,7 +331,7 @@ namespace client {
 		}
 		BC_BrowserCallback _bw_callback = nullptr;
 		BC_URLInterceptor _resource_interceptor = nullptr;
-		std::vector<CefRefPtr<BWV8Handler>>* _bwV8HandlerPool = nullptr;
+		std::vector<CefRefPtr<BWV8Handler>>* _bwV8HandlerPool = nullptr; // only for single-process JS2Native
 	private:
 		friend class ClientDownloadImageCallback;
 

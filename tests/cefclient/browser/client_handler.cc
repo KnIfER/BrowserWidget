@@ -588,6 +588,7 @@ namespace client {
 
 		tmp_bid_2_client_table[browser->GetIdentifier()]=this;
 
+
 		if (!message_router_) {
 			// Create the browser-side router for query handling.
 			CefMessageRouterConfig config;
@@ -597,12 +598,12 @@ namespace client {
 			test_runner::CreateMessageHandlers(message_handler_set_);
 			MessageHandlerSet::const_iterator it = message_handler_set_.begin();
 			for (; it != message_handler_set_.end(); ++it)
-			message_router_->AddHandler(*(it), false);
+				message_router_->AddHandler(*(it), false);
 		}
 
 		// Disable mouse cursor change if requested via the command-line flag.
 		if (mouse_cursor_change_disabled_)
-		browser->GetHost()->SetMouseCursorChangeDisabled(true);
+			browser->GetHost()->SetMouseCursorChangeDisabled(true);
 
 		// Set offline mode if requested via the command-line flag.
 		if (offline_)
@@ -726,6 +727,7 @@ namespace client {
 			config.with_osr = is_osr();
 			config.url = target_url;
 			config.bcInterceptor = _resource_interceptor;
+			config.bcRenderHandlers = _bwV8HandlerPool;
 			MainContext::Get()->GetRootWindowManager()->CreateRootWindow(config);
 			return true;
 		}

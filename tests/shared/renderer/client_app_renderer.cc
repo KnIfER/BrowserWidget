@@ -81,6 +81,7 @@ namespace client {
 
 	void OnContextCreatedPtr(int id, CefRefPtr<CefV8Value> window) {
 		auto client_it = tmp_bid_2_client_table.find(id);
+
 		if(client_it!=tmp_bid_2_client_table.end())
 		{
 			auto client = client_it->second;

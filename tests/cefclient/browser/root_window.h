@@ -22,8 +22,9 @@
 @class NSWindow;
 #endif  // defined(OS_MACOSX) && __OBJC__
 
-namespace client {
 
+namespace client {
+	class BWV8Handler;
 	// Used to configure how a RootWindow is created.
 	struct RootWindowConfig {
 		RootWindowConfig();
@@ -64,6 +65,8 @@ namespace client {
 		std::string url;
 
 		BC_URLInterceptor bcInterceptor=0;
+
+		std::vector<CefRefPtr<BWV8Handler>>*  bcRenderHandlers=0;
 	};
 
 	typedef std::set<CefRefPtr<CefExtension>> ExtensionSet;

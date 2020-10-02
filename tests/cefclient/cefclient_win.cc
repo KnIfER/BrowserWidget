@@ -323,6 +323,7 @@ namespace client {
 			const CHAR* URL=nullptr;
 			BC_BrowserCallback bcCallback=0;
 			BC_URLInterceptor bcInterceptor=0;
+			//std::vector<CefRefPtr<BWV8Handler>>* bcRenderHandlers=0;
 		};
 
 		extern "C" __declspec(dllexport) int bwCreateBrowser(BWCreateOptions& BWOpt) {
@@ -378,7 +379,7 @@ namespace client {
 
 			if(looper)
 			{
-				CefRefPtr<ClientHandler>  g_handler = new ClientHandlerStd(0, BWOpt.URL, BWOpt.bcInterceptor);
+				CefRefPtr<ClientHandler>  g_handler = new ClientHandlerStd(0, BWOpt.URL, BWOpt.bcInterceptor, 0);
 				CefBrowserSettings browser_settings;
 				CefWindowInfo window_info;
 				RECT rc;
@@ -404,6 +405,7 @@ namespace client {
 					window_config.url = BWOpt.URL;
 					window_config.bcInterceptor = BWOpt.bcInterceptor;
 					// todo wrap in bcCallback;
+					// todo wrap in RenderV8Handler;
 
 					auto Browser = pMainContextImpl->GetRootWindowManager()->CreateRootWindow(window_config);
 					return 1;
@@ -414,7 +416,7 @@ namespace client {
 
 		url_intercept_result* Test_InterceptBaidu(std::string url){
 			if(url=="https://www.baidu.com/") {
-				return new url_intercept_result{"HAPPY<script>console.log(window.testJs())</script>", 51, 200, "OK"};
+				//return new url_intercept_result{"HAPPY<script>console.log(window.testJs())</script>", 51, 200, "OK"};
 			}
 			return nullptr;
 		}
@@ -532,7 +534,7 @@ namespace client {
 				//rc.bottom -= 160;
 				window_info.SetAsChild(hwnd, rc);
 
-				CefRefPtr<ClientHandlerStd>  g_handler = new ClientHandlerStd(0, "www.baidu.com", 0);
+				CefRefPtr<ClientHandlerStd>  g_handler = new ClientHandlerStd(0, "www.baidu.com", 0, 0);
 				CefRefPtr<CefDictionaryValue> extra_info;
 				CefRefPtr<CefRequestContext> request_context;
 				CefBrowserHost::CreateBrowser(window_info, g_handler, "www.baidu.com", browser_settings, extra_info, request_context);

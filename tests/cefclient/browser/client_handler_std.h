@@ -14,7 +14,7 @@ namespace client {
 	// one browser per handler instance.
 	class ClientHandlerStd : public ClientHandler {
 	public:
-		ClientHandlerStd(Delegate* delegate, const std::string& startup_url, BC_URLInterceptor url_interceptor);
+		ClientHandlerStd(Delegate* delegate, const std::string& startup_url, BC_URLInterceptor url_interceptor, std::vector<CefRefPtr<BWV8Handler>>*  pool);
 
 		virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) ;
 
