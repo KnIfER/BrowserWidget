@@ -332,7 +332,7 @@ namespace client {
 			// Add a separator if the menu already has items.
 			if (model->GetCount() > 0)
 			{
-				if(flags&CM_TYPEFLAG_SELECTION==0)
+				if((flags&CM_TYPEFLAG_SELECTION)==0)
 				{
 					model->InsertItemAt(2, CLIENT_ID_REFRESH, "&Refresh");
 				}
