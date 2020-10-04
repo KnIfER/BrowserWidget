@@ -465,7 +465,7 @@ namespace client {
 	}
 
 	bool ClientHandler::OnAutoResize(CefRefPtr<CefBrowser> browser,
-	const CefSize& new_size) {
+		const CefSize& new_size) {
 		CEF_REQUIRE_UI_THREAD();
 
 		NotifyAutoResize(new_size);
@@ -473,10 +473,10 @@ namespace client {
 	}
 
 	void ClientHandler::OnBeforeDownload(
-	CefRefPtr<CefBrowser> browser,
-	CefRefPtr<CefDownloadItem> download_item,
-	const CefString& suggested_name,
-	CefRefPtr<CefBeforeDownloadCallback> callback) {
+		CefRefPtr<CefBrowser> browser,
+		CefRefPtr<CefDownloadItem> download_item,
+		const CefString& suggested_name,
+		CefRefPtr<CefBeforeDownloadCallback> callback) {
 		CEF_REQUIRE_UI_THREAD();
 
 		// Continue the download and show the "Save As" dialog.
@@ -484,9 +484,9 @@ namespace client {
 	}
 
 	void ClientHandler::OnDownloadUpdated(
-	CefRefPtr<CefBrowser> browser,
-	CefRefPtr<CefDownloadItem> download_item,
-	CefRefPtr<CefDownloadItemCallback> callback) {
+		CefRefPtr<CefBrowser> browser,
+		CefRefPtr<CefDownloadItem> download_item,
+		CefRefPtr<CefDownloadItemCallback> callback) {
 		CEF_REQUIRE_UI_THREAD();
 
 		if (download_item->IsComplete()) {
@@ -497,8 +497,8 @@ namespace client {
 	}
 
 	bool ClientHandler::OnDragEnter(CefRefPtr<CefBrowser> browser,
-	CefRefPtr<CefDragData> dragData,
-	CefDragHandler::DragOperationsMask mask) {
+		CefRefPtr<CefDragData> dragData,
+		CefDragHandler::DragOperationsMask mask) {
 		CEF_REQUIRE_UI_THREAD();
 
 		// Forbid dragging of URLs and files.
@@ -510,10 +510,7 @@ namespace client {
 		return false;
 	}
 
-	void ClientHandler::OnDraggableRegionsChanged(
-	CefRefPtr<CefBrowser> browser,
-	CefRefPtr<CefFrame> frame,
-	const std::vector<CefDraggableRegion>& regions) {
+	void ClientHandler::OnDraggableRegionsChanged(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, const std::vector<CefDraggableRegion>& regions) {
 		CEF_REQUIRE_UI_THREAD();
 
 		NotifyDraggableRegions(regions);
@@ -525,20 +522,25 @@ namespace client {
 		NotifyTakeFocus(next);
 	}
 
-	bool ClientHandler::OnSetFocus(CefRefPtr<CefBrowser> browser,
-	FocusSource source) {
+	bool ClientHandler::OnSetFocus(CefRefPtr<CefBrowser> browser, FocusSource source) {
 		CEF_REQUIRE_UI_THREAD();
 
-		if (initial_navigation_) {
-			CefRefPtr<CefCommandLine> command_line =
-			CefCommandLine::GetGlobalCommandLine();
-			if (command_line->HasSwitch(switches::kNoActivate)) {
-				// Don't give focus to the browser on creation.
-				return true;
-			}
+		//if (initial_navigation_) {
+		//	CefRefPtr<CefCommandLine> command_line =
+		//	CefCommandLine::GetGlobalCommandLine();
+		//	if (command_line->HasSwitch(switches::kNoActivate)) {
+		//		// Don't give focus to the browser on creation.
+		//		return true;
+		//	}
+		//}
+		if(source==FOCUS_SOURCE_SYSTEM)
+		{
+
+			return false;
 		}
 
-		return false;
+		return true;
+		//return false;
 	}
 
 	bool ClientHandler::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
@@ -547,33 +549,33 @@ namespace client {
 	bool* is_keyboard_shortcut) {
 		CEF_REQUIRE_UI_THREAD();
 
-		if (!event.focus_on_editable_field && event.windows_key_code == 0x20) {
-			// Special handling for the space character when an input element does not
-			// have focus. Handling the event in OnPreKeyEvent() keeps the event from
-			// being processed in the renderer. If we instead handled the event in the
-			// OnKeyEvent() method the space key would cause the window to scroll in
-			// addition to showing the alert box.
-			if (event.type == KEYEVENT_RAWKEYDOWN)
-			test_runner::Alert(browser, "You pressed the space bar!");
-			return true;
-		}
+		//if (!event.focus_on_editable_field && event.windows_key_code == 0x20) {
+		//	// Special handling for the space character when an input element does not
+		//	// have focus. Handling the event in OnPreKeyEvent() keeps the event from
+		//	// being processed in the renderer. If we instead handled the event in the
+		//	// OnKeyEvent() method the space key would cause the window to scroll in
+		//	// addition to showing the alert box.
+		//	if (event.type == KEYEVENT_RAWKEYDOWN)
+		//	test_runner::Alert(browser, "You pressed the space bar!");
+		//	return true;
+		//}
 
 		return false;
 	}
 
 	bool ClientHandler::OnBeforePopup(
-	CefRefPtr<CefBrowser> browser,
-	CefRefPtr<CefFrame> frame,
-	const CefString& target_url,
-	const CefString& target_frame_name,
-	CefLifeSpanHandler::WindowOpenDisposition target_disposition,
-	bool user_gesture,
-	const CefPopupFeatures& popupFeatures,
-	CefWindowInfo& windowInfo,
-	CefRefPtr<CefClient>& client,
-	CefBrowserSettings& settings,
-	CefRefPtr<CefDictionaryValue>& extra_info,
-	bool* no_javascript_access) {
+		CefRefPtr<CefBrowser> browser,
+		CefRefPtr<CefFrame> frame,
+		const CefString& target_url,
+		const CefString& target_frame_name,
+		CefLifeSpanHandler::WindowOpenDisposition target_disposition,
+		bool user_gesture,
+		const CefPopupFeatures& popupFeatures,
+		CefWindowInfo& windowInfo,
+		CefRefPtr<CefClient>& client,
+		CefBrowserSettings& settings,
+		CefRefPtr<CefDictionaryValue>& extra_info,
+		bool* no_javascript_access) {
 		CEF_REQUIRE_UI_THREAD();
 		frame->LoadURL(target_url);
 		return true;

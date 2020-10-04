@@ -16,6 +16,7 @@ namespace client {
 		typeString,
 		typeBool,
 		typeDouble,
+		typeNull=-1,
 	};
 	struct BJSCV {
 		ValueType value_type;

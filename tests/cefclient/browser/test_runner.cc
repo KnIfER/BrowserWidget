@@ -527,10 +527,12 @@ namespace client {
 								{
 									strcpy(MIME, request->mime_type_resolver().Run(url).data());
 								}
-								CefRefPtr<CefStreamReader> response = CefStreamReader::CreateForData(
-								static_cast<void*>(const_cast<char*>(ret->data)), ret->length);
+								CefRefPtr<CefStreamReader> response 
+									= CefStreamReader::CreateForData(static_cast<void*>(const_cast<char*>(ret->data)), ret->length);
+								auto head=CefResponse::HeaderMap();
+								head.insert(std::make_pair("Access-Control-Allow-Origin", "*"));
 								request->Continue(new CefStreamResourceHandler(
-								ret->status_code, ret->status_text, MIME, CefResponse::HeaderMap(), response));
+								ret->status_code, ret->status_text, MIME, head, response));
 								if(ret->delete_internal)
 								{
 									delete[] ret->data;

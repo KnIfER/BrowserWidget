@@ -111,7 +111,18 @@ BOOL regWndClass(LPCTSTR lpcsClassName, DWORD dwStyle)
 
 BJSCV* JSHAPPY(LONG_PTR funcName, int argc, LONG_PTR argv, int sizeofBJSCV)
 {
-	return new BJSCV{typeString, 0, "HAPPY"};
+	int structSize=0;
+	char* args = bwParseCefV8Args(argv, structSize);
+	if(structSize)
+	{
+		BJSCV* val = (BJSCV*)(args+0*structSize);
+		if(val->value_type==typeString)
+		{
+			::MessageBox(NULL, (TCHAR*)val->charVal, TEXT(""), MB_OK);
+		}
+		// testJs('Hah')
+	}
+	return new BJSCV{typeString, 0, "HAPPY!"};
 }
 
 void onBrowserPrepared(bwWebView browserPtr)

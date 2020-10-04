@@ -41,7 +41,7 @@ enum ValueType{
 struct BJSCV {
 	ValueType value_type;
 	int intVal;
-	const char* charVal;
+	const char* charVal; // when returned from bwParseCefV8Args, it is TCHAR*
 	bool boolVal=0;
 	double doubleVal=0;
 	bool delete_internal=false;
@@ -59,6 +59,12 @@ typedef BJSCV* (__cdecl* BJSC_EXECUTION)(LONG_PTR, int, LONG_PTR, int);
 
 typedef BJSCV* (__cdecl* BW_INSTALLJSNATIVETOWIDGET)(bwWebView, const char *, BJSC_EXECUTION);
 
+typedef char* (__cdecl* BW_PARSECEFV8ARGS)(LONG_PTR, int&);
+
+typedef TCHAR* (__cdecl* BW_GETURL)(bwWebView);
+
+typedef void* (__cdecl* BW_EXECUTEJAVASCRIPT)(bwWebView, CHAR*);
+
 /*__declspec(selectany)*/static BW_WINDOWMODE bwWindowMode = nullptr;
 
 /*__declspec(selectany)*/static BW_CREATEBROWSER bwCreateBrowser = nullptr;
@@ -68,6 +74,12 @@ typedef BJSCV* (__cdecl* BW_INSTALLJSNATIVETOWIDGET)(bwWebView, const char *, BJ
 /*__declspec(selectany)*/static BW_LOADSTRDATA bwLoadStrData = nullptr;
 
 /*__declspec(selectany)*/static BW_INSTALLJSNATIVETOWIDGET bwInstallJsNativeToWidget = nullptr;
+
+/*__declspec(selectany)*/static BW_PARSECEFV8ARGS bwParseCefV8Args = nullptr;
+
+/*__declspec(selectany)*/static BW_GETURL bwGetUrl = nullptr;
+
+/*__declspec(selectany)*/static BW_EXECUTEJAVASCRIPT bwExecuteJavaScript = nullptr;
 
 // load module
 static void PRINTMSG(TCHAR* buff, const CHAR* name, int & printed_len)
@@ -108,6 +120,9 @@ static bool bwInit(TCHAR* LibBwgtPath)
 			DEF_FUNC(hLibBwgt, bwGetHWNDForBrowser, BW_GETHWNDFORBROWSER, "bwGetHWNDForBrowser");
 			DEF_FUNC(hLibBwgt, bwLoadStrData, BW_LOADSTRDATA, "bwLoadStrData");
 			DEF_FUNC(hLibBwgt, bwInstallJsNativeToWidget, BW_INSTALLJSNATIVETOWIDGET, "bwInstallJsNativeToWidget");
+			DEF_FUNC(hLibBwgt, bwParseCefV8Args, BW_PARSECEFV8ARGS, "bwParseCefV8Args");
+			DEF_FUNC(hLibBwgt, bwGetUrl, BW_GETURL, "bwGetUrl");
+			DEF_FUNC(hLibBwgt, bwExecuteJavaScript, BW_EXECUTEJAVASCRIPT, "bwExecuteJavaScript");
 			if(PRINTLEN!=PRINTLEN_0)
 			{
 				PRINTBUFF[PRINTLEN]='\0';

@@ -205,14 +205,64 @@ extern "C" __declspec(dllexport) void bwInstallJsNativeToWidget(CefRefPtr<CefBro
 	}
 }
 
-extern "C" __declspec(dllexport) int bwLoadString(LONG_PTR pBrowser, CHAR* URL, const CHAR* Data, size_t length)
+extern "C" __declspec(dllexport) client::BJSCV* bwParseCefV8Args(std::vector<CefRefPtr<CefV8Value>>* args, int & sizeofBJSCV)
 {
-	CefBrowser* browser = (CefBrowser*)pBrowser;
-	if(browser)
+	CefRefPtr<CefV8Value> argI;
+	int i=0,len=args->size();
+	sizeofBJSCV=sizeof(client::BJSCV);
+	client::BJSCV* ret = (client::BJSCV*)malloc(sizeofBJSCV*len);
+	for(;i<len;i++)
 	{
-		client::test_runner::LoadStrResourcePage(browser, URL, Data, length);
+		argI = args->at(i);
+		ret[i].value_type=client::ValueType::typeNull;
+		if(argI->IsInt())
+		{
+			ret[i].intVal=argI->GetIntValue();
+			ret[i].value_type=client::ValueType::typeInt;
+		}
+		else if(argI->IsString())
+		{
+			ret[i].charVal=(CHAR*)argI->GetStringValue().c_str();
+			ret[i].value_type=client::ValueType::typeString;
+		}
+		else if(argI->IsBool())
+		{
+			ret[i].boolVal=argI->GetBoolValue();
+			ret[i].value_type=client::ValueType::typeBool;
+		}
+		else if(argI->IsDouble())
+		{
+			ret[i].doubleVal=argI->GetDoubleValue();
+			ret[i].value_type=client::ValueType::typeDouble;
+		}
+	}
+	return ret;
+}
+
+extern "C" __declspec(dllexport) int bwLoadString(CefRefPtr<CefBrowser>* pBrowser, CHAR* URL, const CHAR* Data, size_t length)
+{
+	if(pBrowser)
+	{
+		client::test_runner::LoadStrResourcePage(*pBrowser, URL, Data, length);
 	}
 	return 0;
+}
+
+extern "C" __declspec(dllexport) TCHAR* bwGetUrl(CefRefPtr<CefBrowser>* pBrowser)
+{
+	if(pBrowser)
+	{
+		return (TCHAR*)(*pBrowser)->GetMainFrame()->GetURL().c_str();
+	}
+	return 0;
+}
+
+extern "C" __declspec(dllexport) void* bwExecuteJavaScript(CefRefPtr<CefBrowser>* pBrowser, CHAR* JS)
+{
+	if(pBrowser)
+	{
+		(*pBrowser)->GetMainFrame()->ExecuteJavaScript(JS, "", 0);
+	}
 }
 
 namespace client {
