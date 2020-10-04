@@ -49,6 +49,9 @@ namespace client {
 			CLIENT_ID_TESTMENU_RADIOITEM1,
 			CLIENT_ID_TESTMENU_RADIOITEM2,
 			CLIENT_ID_TESTMENU_RADIOITEM3,
+			CLIENT_ID_REFRESH,
+			CLIENT_ID_LINKCOPY,
+			CLIENT_ID_LINKOPEN,
 		};
 
 		// Musr match the value in client_renderer.cc.
@@ -312,43 +315,60 @@ namespace client {
 	}
 
 	void ClientHandler::OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
-	CefRefPtr<CefFrame> frame,
-	CefRefPtr<CefContextMenuParams> params,
-	CefRefPtr<CefMenuModel> model) {
+		CefRefPtr<CefFrame> frame,
+		CefRefPtr<CefContextMenuParams> params,
+		CefRefPtr<CefMenuModel> model) {
 		CEF_REQUIRE_UI_THREAD();
 
-		if ((params->GetTypeFlags() & (CM_TYPEFLAG_PAGE | CM_TYPEFLAG_FRAME)) != 0) {
+		auto flags=params->GetTypeFlags();
+		if ((flags & (CM_TYPEFLAG_PAGE | CM_TYPEFLAG_FRAME)) != 0) {
+			if(flags&CM_TYPEFLAG_LINK)
+			{
+				model->Clear();
+				//model->AddItem(CLIENT_ID_LINKCOPY, "Copy Link Address");
+				//model->AddItem(CLIENT_ID_LINKOPEN, "Open In New Window");
+			}
+
 			// Add a separator if the menu already has items.
 			if (model->GetCount() > 0)
-			model->AddSeparator();
+			{
+				if(flags&CM_TYPEFLAG_SELECTION==0)
+				{
+					model->InsertItemAt(2, CLIENT_ID_REFRESH, "&Refresh");
+				}
+				model->AddSeparator();
+			}
 
 			// Add DevTools items to all context menus.
 			model->AddItem(CLIENT_ID_SHOW_DEVTOOLS, "&Show DevTools");
 			model->AddItem(CLIENT_ID_CLOSE_DEVTOOLS, "Close DevTools");
-			model->AddSeparator();
-			model->AddItem(CLIENT_ID_INSPECT_ELEMENT, "Inspect Element");
 
 			if (HasSSLInformation(browser)) {
 				model->AddSeparator();
 				model->AddItem(CLIENT_ID_SHOW_SSL_INFO, "Show SSL information");
 			}
 
+#if 0
 			model->AddSeparator();
 			model->AddItem(CLIENT_ID_CURSOR_CHANGE_DISABLED, "Cursor change disabled");
 			if (browser->GetHost()->IsMouseCursorChangeDisabled())
 			model->SetChecked(CLIENT_ID_CURSOR_CHANGE_DISABLED, true);
-
+#endif
 			model->AddSeparator();
 			model->AddItem(CLIENT_ID_OFFLINE, "Offline mode");
 			if (offline_)
 			model->SetChecked(CLIENT_ID_OFFLINE, true);
 
 			// Test context menu features.
-			BuildTestMenu(model);
+			//BuildTestMenu(model);
+
+			model->AddSeparator();
+			model->AddItem(CLIENT_ID_INSPECT_ELEMENT, "Inspect Element");
+
 		}
 
 		if (delegate_)
-		delegate_->OnBeforeContextMenu(model);
+			delegate_->OnBeforeContextMenu(model);
 	}
 
 	bool ClientHandler::OnContextMenuCommand(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params, int command_id, EventFlags event_flags) {
@@ -376,6 +396,22 @@ namespace client {
 			offline_ = !offline_;
 			SetOfflineState(browser, offline_);
 			//tg 
+			return true;
+		}
+		case CLIENT_ID_REFRESH:
+		{
+			browser->Reload();
+			return true;
+		}
+		case CLIENT_ID_LINKCOPY:
+		{
+			ShowDevTools(browser, CefPoint(params->GetXCoord(), params->GetYCoord()));
+			browser->Reload();
+			return true;
+		}
+		case CLIENT_ID_LINKOPEN:
+		{
+			browser->Reload();
 			return true;
 		}
 		default:  // Allow default handling, if any.
@@ -943,12 +979,10 @@ namespace client {
 		return browser_count_;
 	}
 
-	void ClientHandler::ShowDevTools(CefRefPtr<CefBrowser> browser,
-	const CefPoint& inspect_element_at) {
+	void ClientHandler::ShowDevTools(CefRefPtr<CefBrowser> browser, const CefPoint& inspect_element_at) {
 		if (!CefCurrentlyOn(TID_UI)) {
 			// Execute this method on the UI thread.
-			CefPostTask(TID_UI, base::Bind(&ClientHandler::ShowDevTools, this, browser,
-			inspect_element_at));
+			CefPostTask(TID_UI, base::Bind(&ClientHandler::ShowDevTools, this, browser, inspect_element_at));
 			return;
 		}
 
@@ -965,8 +999,7 @@ namespace client {
 		if (!has_devtools) {
 			// Create a new RootWindow for the DevTools browser that will be created
 			// by ShowDevTools().
-			has_devtools = CreatePopupWindow(browser, true, CefPopupFeatures(),
-			windowInfo, client, settings);
+			has_devtools = CreatePopupWindow(browser, true, CefPopupFeatures(), windowInfo, client, settings);
 		}
 
 		if (has_devtools) {
