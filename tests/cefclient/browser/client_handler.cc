@@ -319,14 +319,14 @@ namespace client {
 		CefRefPtr<CefContextMenuParams> params,
 		CefRefPtr<CefMenuModel> model) {
 		CEF_REQUIRE_UI_THREAD();
-
+		
 		auto flags=params->GetTypeFlags();
 		if ((flags & (CM_TYPEFLAG_PAGE | CM_TYPEFLAG_FRAME)) != 0) {
 			if(flags&CM_TYPEFLAG_LINK)
 			{
 				model->Clear();
-				//model->AddItem(CLIENT_ID_LINKCOPY, "Copy Link Address");
-				//model->AddItem(CLIENT_ID_LINKOPEN, "Open In New Window");
+				model->AddItem(CLIENT_ID_LINKCOPY, "Copy Link Address");
+				model->AddItem(CLIENT_ID_LINKOPEN, "Open In New Window");
 			}
 
 			// Add a separator if the menu already has items.
@@ -371,7 +371,21 @@ namespace client {
 			delegate_->OnBeforeContextMenu(model);
 	}
 
-	bool ClientHandler::OnContextMenuCommand(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params, int command_id, EventFlags event_flags) {
+	void ToClipboard(HWND hwnd, TCHAR* szText)
+	{
+		if (OpenClipboard(hwnd)) {
+			EmptyClipboard();
+			HANDLE hData = GlobalAlloc(GMEM_MOVEABLE, sizeof(TCHAR)*lstrlen(szText));
+			LPWSTR pData = (LPWSTR)GlobalLock(hData);
+			CopyMemory(pData, szText, sizeof(TCHAR)*lstrlen(szText));
+			GlobalUnlock(hData);
+			SetClipboardData(CF_UNICODETEXT, hData);
+			CloseClipboard();
+		}
+	}
+
+	bool ClientHandler::OnContextMenuCommand(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame
+		, CefRefPtr<CefContextMenuParams> params, int command_id, EventFlags event_flags) {
 		CEF_REQUIRE_UI_THREAD();
 
 		switch (command_id) {
@@ -405,13 +419,12 @@ namespace client {
 		}
 		case CLIENT_ID_LINKCOPY:
 		{
-			ShowDevTools(browser, CefPoint(params->GetXCoord(), params->GetYCoord()));
-			browser->Reload();
+			ToClipboard(browser->GetHost()->GetWindowHandle(), (TCHAR*)params->GetLinkUrl().c_str());
 			return true;
 		}
 		case CLIENT_ID_LINKOPEN:
 		{
-			browser->Reload();
+			OnOpenURLFromTab(browser, browser->GetMainFrame(), params->GetLinkUrl(), WOD_NEW_BACKGROUND_TAB, false);
 			return true;
 		}
 		default:  // Allow default handling, if any.
@@ -1095,8 +1108,7 @@ namespace client {
 
 		// The popup browser will be parented to a new native window.
 		// Don't show URL bar and navigation buttons on DevTools windows.
-		MainContext::Get()->GetRootWindowManager()->CreateRootWindowAsPopup(
-		!is_devtools, is_osr(), popupFeatures, windowInfo, client, settings);
+		MainContext::Get()->GetRootWindowManager()->CreateRootWindowAsPopup(!is_devtools, is_osr(), popupFeatures, windowInfo, client, settings);
 
 		return true;
 	}
