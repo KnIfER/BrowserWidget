@@ -25,5 +25,9 @@ typedef void (__cdecl* BC_BrowserCallback)(CefRefPtr<CefBrowser>*);
 
 typedef url_intercept_result* (__cdecl * BC_URLInterceptor)(std::string);
 
+typedef bool (__cdecl * BC_SETFOCUS)(CefRefPtr<CefBrowser>*);
+
+typedef bool (__cdecl * BC_SHOULDCLOSE)(CefRefPtr<CefBrowser>*);
+
 
 #endif

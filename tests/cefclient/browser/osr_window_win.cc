@@ -761,8 +761,9 @@ namespace client {
 	}
 
 	void OsrWindowWin::OnFocus(bool setFocus) {
-		if (browser_)
-		browser_->GetHost()->SendFocusEvent(setFocus);
+		if (browser_) {
+			browser_->GetHost()->SendFocusEvent(setFocus);
+		}
 	}
 
 	void OsrWindowWin::OnCaptureLost() {

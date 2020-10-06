@@ -23,11 +23,18 @@ typedef void (__cdecl* BC_BrowserCallback)(bwWebView);
 
 typedef url_intercept_result* (__cdecl * BC_URLInterceptor)(std::string);
 
+typedef bool (__cdecl * BC_SETFOCUS)(bwWebView);
+
+typedef bool (__cdecl * BC_SHOULDCLOSE)(bwWebView);
+
 struct BWCreateOptions{
 	HWND hParent=0;
 	const CHAR* URL=nullptr;
 	BC_BrowserCallback bwCallback=0;
 	BC_URLInterceptor bwInterceptor=0;
+	BC_SETFOCUS bcSetFocus=nullptr;
+	BC_SHOULDCLOSE bcShouldClose=nullptr;
+	const CHAR* content=nullptr;
 };
 
 

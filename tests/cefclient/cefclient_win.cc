@@ -373,6 +373,9 @@ namespace client {
 			const CHAR* URL=nullptr;
 			BC_BrowserCallback bcCallback=0;
 			BC_URLInterceptor bcInterceptor=0;
+			BC_SETFOCUS bcSetFocus=nullptr;
+			BC_SHOULDCLOSE bcShouldClose=nullptr;
+			const CHAR* content=nullptr;
 			//std::vector<CefRefPtr<BWV8Handler>>* bcRenderHandlers=0;
 		};
 
@@ -441,9 +444,15 @@ namespace client {
 					GetWindowRect(BWOpt.hParent, &rc);
 					window_info.SetAsChild(BWOpt.hParent, rc);
 
+					g_handler->IsEmbeded = true;
 					g_handler->_bw_callback = BWOpt.bcCallback;
+					g_handler->_bw_setfocus = BWOpt.bcSetFocus;
+					g_handler->_bw_shouldclose = BWOpt.bcShouldClose;
 					g_handler->_bwV8HandlerPool = new std::vector<CefRefPtr<BWV8Handler>>();
 					g_handler->_bwV8HandlerPool->push_back(new BWV8Handler("testJs", Test_JSCallback));
+					if(BWOpt.content) {
+						g_handler->SetStrResource(BWOpt.URL, BWOpt.content, strlen(BWOpt.content));
+					}
 					return CefBrowserHost::CreateBrowser(window_info, g_handler, BWOpt.URL, browser_settings, extra_info, request_context);
 				}
 				else
@@ -456,6 +465,8 @@ namespace client {
 					window_config.bcInterceptor = BWOpt.bcInterceptor;
 					// todo wrap in bcCallback;
 					// todo wrap in RenderV8Handler;
+					// todo wrap in bcSetFocus;
+					// todo wrap in bcShouldClose;
 
 					auto Browser = pMainContextImpl->GetRootWindowManager()->CreateRootWindow(window_config);
 					return 1;

@@ -634,8 +634,9 @@ namespace client {
 		// Selecting "Close window" from the task bar menu may send a focus
 		// notification even though the window is currently disabled (e.g. while a
 		// modal JS dialog is displayed).
-		if (browser_window_ && ::IsWindowEnabled(hwnd_))
-		browser_window_->SetFocus(true);
+		if (browser_window_ && ::IsWindowEnabled(hwnd_)){
+			browser_window_->SetFocus(true);
+		}
 	}
 
 	void RootWindowWin::OnActivate(bool active) {

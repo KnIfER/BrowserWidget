@@ -188,6 +188,7 @@ namespace client {
 		// CefFocusHandler methods
 		void OnTakeFocus(CefRefPtr<CefBrowser> browser, bool next) OVERRIDE;
 		bool OnSetFocus(CefRefPtr<CefBrowser> browser, FocusSource source) OVERRIDE;
+		void OnGotFocus(CefRefPtr<CefBrowser> browser) OVERRIDE;
 
 		// CefKeyboardHandler methods
 		bool OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
@@ -329,8 +330,11 @@ namespace client {
 		void set_download_favicon_images(bool allow) {
 			download_favicon_images_ = allow;
 		}
+		bool IsEmbeded=false;
 		BC_BrowserCallback _bw_callback = nullptr;
 		BC_URLInterceptor _resource_interceptor = nullptr;
+		BC_SETFOCUS _bw_setfocus = nullptr;
+		BC_SHOULDCLOSE _bw_shouldclose = nullptr;
 		std::vector<CefRefPtr<BWV8Handler>>* _bwV8HandlerPool = nullptr; // only for single-process JS2Native
 	private:
 		friend class ClientDownloadImageCallback;

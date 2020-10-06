@@ -567,8 +567,13 @@ namespace client {
 
 	void ClientHandler::OnTakeFocus(CefRefPtr<CefBrowser> browser, bool next) {
 		CEF_REQUIRE_UI_THREAD();
-
 		NotifyTakeFocus(next);
+	}
+
+	void ClientHandler::OnGotFocus(CefRefPtr<CefBrowser> browser) {
+		if(_bw_setfocus) {
+			_bw_setfocus(&browser);
+		}
 	}
 
 	bool ClientHandler::OnSetFocus(CefRefPtr<CefBrowser> browser, FocusSource source) {
@@ -584,7 +589,6 @@ namespace client {
 		//}
 		if(source==FOCUS_SOURCE_SYSTEM)
 		{
-
 			return false;
 		}
 
@@ -593,9 +597,9 @@ namespace client {
 	}
 
 	bool ClientHandler::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
-	const CefKeyEvent& event,
-	CefEventHandle os_event,
-	bool* is_keyboard_shortcut) {
+			const CefKeyEvent& event,
+			CefEventHandle os_event,
+			bool* is_keyboard_shortcut) {
 		CEF_REQUIRE_UI_THREAD();
 
 		//if (!event.focus_on_editable_field && event.windows_key_code == 0x20) {
@@ -608,6 +612,38 @@ namespace client {
 		//	test_runner::Alert(browser, "You pressed the space bar!");
 		//	return true;
 		//}
+
+		if (!event.focus_on_editable_field && event.type == KEYEVENT_RAWKEYDOWN &&
+			(event.windows_key_code == 0x57||event.windows_key_code == VK_F4)) {
+			char ketStates=0;
+			if(GetKeyState(VK_CONTROL)&0x80) {
+				ketStates=1;
+			}
+			if(GetKeyState(VK_SHIFT)&0x80) {
+				ketStates|=2;
+			}
+			if(GetKeyState(VK_MENU)&0x80) {
+				ketStates|=4;
+			}
+			if(event.windows_key_code == 0x57)
+			{
+				if(ketStates==1) {
+					auto client=((ClientHandler*)browser->GetHost()->GetClient().get());
+					if(client->_bw_shouldclose && client->_bw_shouldclose(&browser)) {
+						return true;
+					}
+					if(!client->IsEmbeded) {
+						browser->GetHost()->CloseBrowser(1);
+					}
+					//CloseWindow(browser->GetHost()->GetWindowHandle());
+					return true;
+				}
+			}
+			if(event.windows_key_code == VK_F4 && ketStates!=0b100) // alt_shift_f4 IS NOT alt_f4 !!!
+			{
+				return true;
+			}
+		}
 
 		return false;
 	}

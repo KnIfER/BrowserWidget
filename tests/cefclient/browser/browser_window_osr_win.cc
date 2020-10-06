@@ -79,8 +79,9 @@ namespace client {
 
 	void BrowserWindowOsrWin::SetFocus(bool focus) {
 		REQUIRE_MAIN_THREAD();
-		if (osr_window_ && focus)
-		osr_window_->SetFocus();
+		if (osr_window_ && focus) {
+			osr_window_->SetFocus();
+		}
 	}
 
 	void BrowserWindowOsrWin::SetDeviceScaleFactor(float device_scale_factor) {
