@@ -265,6 +265,39 @@ extern "C" __declspec(dllexport) void* bwExecuteJavaScript(CefRefPtr<CefBrowser>
 	}
 }
 
+extern "C" __declspec(dllexport) bool bwCanGoBack(CefRefPtr<CefBrowser>* pBrowser)
+{
+	if(pBrowser)
+	{
+		return (*pBrowser)->CanGoBack();
+	}
+	return false;
+}
+
+extern "C" __declspec(dllexport) void bwGoBack(CefRefPtr<CefBrowser>* pBrowser)
+{
+	if(pBrowser)
+	{
+		(*pBrowser)->GoBack();
+	}
+}
+extern "C" __declspec(dllexport) bool bwCanGoForward(CefRefPtr<CefBrowser>* pBrowser)
+{
+	if(pBrowser)
+	{
+		return (*pBrowser)->CanGoForward();
+	}
+	return false;
+}
+
+extern "C" __declspec(dllexport) void bwGoForward(CefRefPtr<CefBrowser>* pBrowser)
+{
+	if(pBrowser)
+	{
+		(*pBrowser)->GoForward();
+	}
+}
+
 namespace client {
 	namespace {
 		int RunMain(HINSTANCE hInstance, int nCmdShow) {

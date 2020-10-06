@@ -72,21 +72,37 @@ typedef TCHAR* (__cdecl* BW_GETURL)(bwWebView);
 
 typedef void* (__cdecl* BW_EXECUTEJAVASCRIPT)(bwWebView, CHAR*);
 
-/*__declspec(selectany)*/static BW_WINDOWMODE bwWindowMode = nullptr;
+typedef void* (__cdecl* BW_CANGOBACK)(bwWebView);
 
-/*__declspec(selectany)*/static BW_CREATEBROWSER bwCreateBrowser = nullptr;
+typedef void (__cdecl* BW_GOBACK)(bwWebView);
 
-/*__declspec(selectany)*/static BW_GETHWNDFORBROWSER bwGetHWNDForBrowser = nullptr;
+typedef void* (__cdecl* BW_CANGOFORWARD)(bwWebView);
 
-/*__declspec(selectany)*/static BW_LOADSTRDATA bwLoadStrData = nullptr;
+typedef void (__cdecl* BW_GOFORWARD)(bwWebView);
 
-/*__declspec(selectany)*/static BW_INSTALLJSNATIVETOWIDGET bwInstallJsNativeToWidget = nullptr;
-
-/*__declspec(selectany)*/static BW_PARSECEFV8ARGS bwParseCefV8Args = nullptr;
-
-/*__declspec(selectany)*/static BW_GETURL bwGetUrl = nullptr;
-
-/*__declspec(selectany)*/static BW_EXECUTEJAVASCRIPT bwExecuteJavaScript = nullptr;
+__declspec(selectany) /*static*/ BW_WINDOWMODE bwWindowMode = nullptr;
+				    
+__declspec(selectany) /*static*/ BW_CREATEBROWSER bwCreateBrowser = nullptr;
+				    
+__declspec(selectany) /*static*/ BW_GETHWNDFORBROWSER bwGetHWNDForBrowser = nullptr;
+				    
+__declspec(selectany) /*static*/ BW_LOADSTRDATA bwLoadStrData = nullptr;
+				    
+__declspec(selectany) /*static*/ BW_INSTALLJSNATIVETOWIDGET bwInstallJsNativeToWidget = nullptr;
+				    
+__declspec(selectany) /*static*/ BW_PARSECEFV8ARGS bwParseCefV8Args = nullptr;
+				    
+__declspec(selectany) /*static*/ BW_GETURL bwGetUrl = nullptr;
+				    
+__declspec(selectany) /*static*/ BW_EXECUTEJAVASCRIPT bwExecuteJavaScript = nullptr;
+				    
+__declspec(selectany) /*static*/ BW_CANGOBACK bwCanGoBack = nullptr;
+				    
+__declspec(selectany) /*static*/ BW_GOBACK bwGoBack = nullptr;
+				    
+__declspec(selectany) /*static*/ BW_CANGOFORWARD bwCanGoForward = nullptr;
+				    
+__declspec(selectany) /*static*/ BW_GOFORWARD bwGoForward = nullptr;
 
 // load module
 static void PRINTMSG(TCHAR* buff, const CHAR* name, int & printed_len)
@@ -130,6 +146,10 @@ static bool bwInit(TCHAR* LibBwgtPath)
 			DEF_FUNC(hLibBwgt, bwParseCefV8Args, BW_PARSECEFV8ARGS, "bwParseCefV8Args");
 			DEF_FUNC(hLibBwgt, bwGetUrl, BW_GETURL, "bwGetUrl");
 			DEF_FUNC(hLibBwgt, bwExecuteJavaScript, BW_EXECUTEJAVASCRIPT, "bwExecuteJavaScript");
+			DEF_FUNC(hLibBwgt, bwCanGoBack, BW_CANGOBACK, "bwCanGoBack");
+			DEF_FUNC(hLibBwgt, bwGoBack, BW_GOBACK, "bwGoBack");
+			DEF_FUNC(hLibBwgt, bwCanGoForward, BW_CANGOFORWARD, "bwCanGoForward");
+			DEF_FUNC(hLibBwgt, bwGoForward, BW_GOFORWARD, "bwGoForward");
 			if(PRINTLEN!=PRINTLEN_0)
 			{
 				PRINTBUFF[PRINTLEN]='\0';
