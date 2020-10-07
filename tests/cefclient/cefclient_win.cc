@@ -307,6 +307,41 @@ extern "C" __declspec(dllexport) void bwDestroyWebview(CefRefPtr<CefBrowser>* pB
 	}
 }
 
+extern "C" __declspec(dllexport) double bwGetZoomLevel(CefRefPtr<CefBrowser>* pBrowser)
+{
+	if(pBrowser)
+	{
+		return (*pBrowser)->GetHost()->GetZoomLevel();
+	}
+}
+
+extern "C" __declspec(dllexport) void bwSetZoomLevel(CefRefPtr<CefBrowser>* pBrowser, double val)
+{
+	if (!CefCurrentlyOn(TID_UI)) {
+		CefPostTask(TID_UI, base::Bind(bwSetZoomLevel, pBrowser, val));
+		return;
+	}
+	if(pBrowser)
+	{
+		return (*pBrowser)->GetHost()->SetZoomLevel(val);
+	}
+}
+
+extern "C" __declspec(dllexport) void bwZoomLevelDelta(CefRefPtr<CefBrowser>* pBrowser, double delta)
+{
+	if (!CefCurrentlyOn(TID_UI)) {
+		CefPostTask(TID_UI, base::Bind(bwZoomLevelDelta, pBrowser, delta));
+		return;
+	}
+	if(pBrowser)
+	{
+		auto val=(*pBrowser)->GetHost()->GetZoomLevel()+delta;
+		if(val>8)val=8;
+		if(val<-8)val=-8;
+		return (*pBrowser)->GetHost()->SetZoomLevel(val);
+	}
+}
+
 namespace client {
 	namespace {
 		int RunMain(HINSTANCE hInstance, int nCmdShow) {

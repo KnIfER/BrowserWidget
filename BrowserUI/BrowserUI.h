@@ -82,6 +82,12 @@ typedef void (__cdecl* BW_GOFORWARD)(bwWebView);
 
 typedef void (__cdecl* BW_DESTROYWEBVIEW)(bwWebView);
 
+typedef double (__cdecl* BW_GETZOOMLEVEL)(bwWebView);
+
+typedef void (__cdecl* BW_SETZOOMLEVEL)(bwWebView, double);
+
+typedef void (__cdecl* BW_ZOOMLEVELDELTA)(bwWebView, double);
+
 __declspec(selectany) /*static*/ BW_WINDOWMODE bwWindowMode = nullptr;
 				    
 __declspec(selectany) /*static*/ BW_CREATEBROWSER bwCreateBrowser = nullptr;
@@ -107,6 +113,12 @@ __declspec(selectany) /*static*/ BW_CANGOFORWARD bwCanGoForward = nullptr;
 __declspec(selectany) /*static*/ BW_GOFORWARD bwGoForward = nullptr;
 
 __declspec(selectany) /*static*/ BW_DESTROYWEBVIEW bwDestroyWebview = nullptr;
+
+__declspec(selectany) /*static*/ BW_GETZOOMLEVEL bwGetZoomLevel = nullptr;
+
+__declspec(selectany) /*static*/ BW_SETZOOMLEVEL bwSetZoomLevel = nullptr;
+
+__declspec(selectany) /*static*/ BW_ZOOMLEVELDELTA bwZoomLevelDelta = nullptr;
 
 // load module
 static void PRINTMSG(TCHAR* buff, const CHAR* name, int & printed_len)
@@ -155,6 +167,9 @@ static bool bwInit(TCHAR* LibBwgtPath)
 			DEF_FUNC(hLibBwgt, bwCanGoForward, BW_CANGOFORWARD, "bwCanGoForward");
 			DEF_FUNC(hLibBwgt, bwGoForward, BW_GOFORWARD, "bwGoForward");
 			DEF_FUNC(hLibBwgt, bwDestroyWebview, BW_DESTROYWEBVIEW, "bwDestroyWebview");
+			DEF_FUNC(hLibBwgt, bwGetZoomLevel, BW_GETZOOMLEVEL, "bwGetZoomLevel");
+			DEF_FUNC(hLibBwgt, bwSetZoomLevel, BW_SETZOOMLEVEL, "bwSetZoomLevel");
+			DEF_FUNC(hLibBwgt, bwZoomLevelDelta, BW_ZOOMLEVELDELTA, "bwZoomLevelDelta");
 			if(PRINTLEN!=PRINTLEN_0)
 			{
 				PRINTBUFF[PRINTLEN]='\0';
