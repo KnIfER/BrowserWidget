@@ -80,6 +80,8 @@ typedef void* (__cdecl* BW_CANGOFORWARD)(bwWebView);
 
 typedef void (__cdecl* BW_GOFORWARD)(bwWebView);
 
+typedef void (__cdecl* BW_DESTROYWEBVIEW)(bwWebView);
+
 __declspec(selectany) /*static*/ BW_WINDOWMODE bwWindowMode = nullptr;
 				    
 __declspec(selectany) /*static*/ BW_CREATEBROWSER bwCreateBrowser = nullptr;
@@ -103,6 +105,8 @@ __declspec(selectany) /*static*/ BW_GOBACK bwGoBack = nullptr;
 __declspec(selectany) /*static*/ BW_CANGOFORWARD bwCanGoForward = nullptr;
 				    
 __declspec(selectany) /*static*/ BW_GOFORWARD bwGoForward = nullptr;
+
+__declspec(selectany) /*static*/ BW_DESTROYWEBVIEW bwDestroyWebview = nullptr;
 
 // load module
 static void PRINTMSG(TCHAR* buff, const CHAR* name, int & printed_len)
@@ -150,6 +154,7 @@ static bool bwInit(TCHAR* LibBwgtPath)
 			DEF_FUNC(hLibBwgt, bwGoBack, BW_GOBACK, "bwGoBack");
 			DEF_FUNC(hLibBwgt, bwCanGoForward, BW_CANGOFORWARD, "bwCanGoForward");
 			DEF_FUNC(hLibBwgt, bwGoForward, BW_GOFORWARD, "bwGoForward");
+			DEF_FUNC(hLibBwgt, bwDestroyWebview, BW_DESTROYWEBVIEW, "bwDestroyWebview");
 			if(PRINTLEN!=PRINTLEN_0)
 			{
 				PRINTBUFF[PRINTLEN]='\0';

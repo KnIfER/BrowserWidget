@@ -298,6 +298,15 @@ extern "C" __declspec(dllexport) void bwGoForward(CefRefPtr<CefBrowser>* pBrowse
 	}
 }
 
+extern "C" __declspec(dllexport) void bwDestroyWebview(CefRefPtr<CefBrowser>* pBrowser)
+{
+	if(pBrowser)
+	{
+		((client::ClientHandler*)(*pBrowser)->GetHost()->GetClient().get())->DoClose(*pBrowser);
+		(*pBrowser)->Release();
+	}
+}
+
 namespace client {
 	namespace {
 		int RunMain(HINSTANCE hInstance, int nCmdShow) {
