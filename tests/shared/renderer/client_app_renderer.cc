@@ -38,7 +38,7 @@ namespace client {
 				{
 					delete[] native_ret->charVal;
 				}
-				delete native_ret;
+				bwJs2Native((const CefString*)&native_ret, -1, 0, 0);
 				return true;
 			}
 		}

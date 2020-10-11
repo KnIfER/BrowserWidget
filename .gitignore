@@ -1,5 +1,6 @@
 Resources
 Debug
+Debug_
 Release
 Release_
 GPUCache
@@ -57,3 +58,4 @@ Thumbs.db
 /include/cef_config.h
 /include/cef_version.h
 .ccls-cache/
+DEDLL

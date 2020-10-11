@@ -257,7 +257,7 @@ extern "C" __declspec(dllexport) TCHAR* bwGetUrl(CefRefPtr<CefBrowser>* pBrowser
 	return 0;
 }
 
-extern "C" __declspec(dllexport) void* bwExecuteJavaScript(CefRefPtr<CefBrowser>* pBrowser, CHAR* JS)
+extern "C" __declspec(dllexport) void bwExecuteJavaScript(CefRefPtr<CefBrowser>* pBrowser, CHAR* JS)
 {
 	if(pBrowser)
 	{
@@ -300,9 +300,14 @@ extern "C" __declspec(dllexport) void bwGoForward(CefRefPtr<CefBrowser>* pBrowse
 
 extern "C" __declspec(dllexport) void bwDestroyWebview(CefRefPtr<CefBrowser>* pBrowser)
 {
+	if (!CefCurrentlyOn(TID_UI)) {
+		CefPostTask(TID_UI, base::Bind(bwDestroyWebview, pBrowser));
+		return;
+	}
 	if(pBrowser)
 	{
 		((client::ClientHandler*)(*pBrowser)->GetHost()->GetClient().get())->DoClose(*pBrowser);
+		DestroyWindow((*pBrowser)->GetHost()->GetWindowHandle());
 		(*pBrowser)->Release();
 	}
 }
@@ -552,8 +557,8 @@ namespace client {
 			return 0;
 		}
 
-		url_intercept_result* Test_InterceptBaidu(std::string url){
-			if(url=="https://www.baidu.com/") {
+		url_intercept_result* Test_InterceptBaidu(const char* url, const url_intercept_result*){
+			if(url==std::string("https://www.baidu.com/")) {
 				//return new url_intercept_result{"HAPPY<script>console.log(window.testJs())</script>", 51, 200, "OK"};
 			}
 			return nullptr;

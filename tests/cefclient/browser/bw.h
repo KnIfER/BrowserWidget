@@ -23,7 +23,7 @@ struct url_intercept_result{
 
 typedef void (__cdecl* BC_BrowserCallback)(CefRefPtr<CefBrowser>*);
 
-typedef url_intercept_result* (__cdecl * BC_URLInterceptor)(std::string);
+typedef url_intercept_result* (__cdecl * BC_URLInterceptor)(const char*, const url_intercept_result*);
 
 typedef bool (__cdecl * BC_SETFOCUS)(CefRefPtr<CefBrowser>*);
 

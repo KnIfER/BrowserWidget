@@ -111,6 +111,11 @@ BOOL regWndClass(LPCTSTR lpcsClassName, DWORD dwStyle)
 
 BJSCV* JSHAPPY(LONG_PTR funcName, int argc, LONG_PTR argv, int sizeofBJSCV)
 {
+	if(argc<0 && argv==sizeofBJSCV==0)
+	{
+		delete (BJSCV*)funcName;
+		return 0;
+	}
 	int structSize=0;
 	char* args = bwParseCefV8Args(argv, structSize);
 	if(structSize)
@@ -131,9 +136,14 @@ void onBrowserPrepared(bwWebView browserPtr)
 	bwInstallJsNativeToWidget(browserPtr, "testJs", JSHAPPY);
 }
 
-url_intercept_result* InterceptBaidu(std::string url)
+url_intercept_result* InterceptBaidu(const char* url, const url_intercept_result* ret)
 {
-	if(url=="https://www.bing.com/") {
+	if(!url&&ret)
+	{
+		delete ret;
+		return 0;
+	}
+	if(url==std::string("https://www.bing.com/")) {
 		return new url_intercept_result{(CHAR*)"HAPPY", 5, 200, (CHAR*)"OK"};
 	}
 	return nullptr;

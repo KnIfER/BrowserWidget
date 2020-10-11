@@ -519,7 +519,7 @@ namespace client {
 						//::MessageBox(NULL, buffer, TEXT(""), MB_OK);
 						if(((ClientHandler*)request->browser()->GetHost()->GetClient().get())->_resource_interceptor)
 						{
-							const url_intercept_result* ret = ((ClientHandler*)request->browser()->GetHost()->GetClient().get())->_resource_interceptor(url);
+							const url_intercept_result* ret = ((ClientHandler*)request->browser()->GetHost()->GetClient().get())->_resource_interceptor(url.data(), 0);
 							if(ret && ret->data)
 							{
 								CHAR* MIME = (CHAR*)ret->mime;
@@ -537,7 +537,7 @@ namespace client {
 								{
 									delete[] ret->data;
 								}
-								delete ret;
+								((ClientHandler*)request->browser()->GetHost()->GetClient().get())->_resource_interceptor(0, ret);
 								return true;
 							}
 						}
