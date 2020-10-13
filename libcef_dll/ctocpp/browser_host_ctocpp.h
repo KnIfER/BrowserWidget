@@ -73,7 +73,7 @@ class CefBrowserHostCToCpp : public CefCToCppRefCounted<CefBrowserHostCToCpp,
   void ShowDevTools(const CefWindowInfo& windowInfo,
                     CefRefPtr<CefClient> client,
                     const CefBrowserSettings& settings,
-                    const CefPoint& inspect_element_at) OVERRIDE;
+                    const CefPoint* inspect_element_at) OVERRIDE;
   void CloseDevTools() OVERRIDE;
   bool HasDevTools() OVERRIDE;
   bool SendDevToolsMessage(const void* message, size_t message_size) OVERRIDE;

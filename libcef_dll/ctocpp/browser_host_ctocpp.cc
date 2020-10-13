@@ -425,7 +425,7 @@ NO_SANITIZE("cfi-icall")
 void CefBrowserHostCToCpp::ShowDevTools(const CefWindowInfo& windowInfo,
                                         CefRefPtr<CefClient> client,
                                         const CefBrowserSettings& settings,
-                                        const CefPoint& inspect_element_at) {
+                                        const CefPoint* inspect_element_at) {
   shutdown_checker::AssertNotShutdown();
 
   cef_browser_host_t* _struct = GetStruct();
@@ -438,7 +438,7 @@ void CefBrowserHostCToCpp::ShowDevTools(const CefWindowInfo& windowInfo,
 
   // Execute
   _struct->show_dev_tools(_struct, &windowInfo, CefClientCppToC::Wrap(client),
-                          &settings, &inspect_element_at);
+                          &settings, inspect_element_at);
 }
 
 NO_SANITIZE("cfi-icall") void CefBrowserHostCToCpp::CloseDevTools() {

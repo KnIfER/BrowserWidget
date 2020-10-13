@@ -298,8 +298,7 @@ namespace client {
 		int GetBrowserCount() const;
 
 		// Show a new DevTools popup window.
-		void ShowDevTools(CefRefPtr<CefBrowser> browser,
-		const CefPoint& inspect_element_at);
+		void ShowDevTools(CefRefPtr<CefBrowser> browser, const CefPoint* inspect_element_at);
 
 		// Close the existing DevTools popup window, if any.
 		void CloseDevTools(CefRefPtr<CefBrowser> browser);

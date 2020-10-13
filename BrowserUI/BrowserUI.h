@@ -88,6 +88,8 @@ typedef void (__cdecl* BW_SETZOOMLEVEL)(bwWebView, double);
 
 typedef void (__cdecl* BW_ZOOMLEVELDELTA)(bwWebView, double);
 
+typedef void (__cdecl* BW_SHOWDEVTOOLS)(bwWebView);
+
 __declspec(selectany) /*static*/ BW_WINDOWMODE bwWindowMode = nullptr;
 				    
 __declspec(selectany) /*static*/ BW_CREATEBROWSER bwCreateBrowser = nullptr;
@@ -119,6 +121,8 @@ __declspec(selectany) /*static*/ BW_GETZOOMLEVEL bwGetZoomLevel = nullptr;
 __declspec(selectany) /*static*/ BW_SETZOOMLEVEL bwSetZoomLevel = nullptr;
 
 __declspec(selectany) /*static*/ BW_ZOOMLEVELDELTA bwZoomLevelDelta = nullptr;
+
+__declspec(selectany) /*static*/ BW_SHOWDEVTOOLS bwShowDevTools = nullptr;
 
 // load module
 static void PRINTMSG(TCHAR* buff, const CHAR* name, int & printed_len)
@@ -170,6 +174,7 @@ static bool bwInit(TCHAR* LibBwgtPath)
 			DEF_FUNC(hLibBwgt, bwGetZoomLevel, BW_GETZOOMLEVEL, "bwGetZoomLevel");
 			DEF_FUNC(hLibBwgt, bwSetZoomLevel, BW_SETZOOMLEVEL, "bwSetZoomLevel");
 			DEF_FUNC(hLibBwgt, bwZoomLevelDelta, BW_ZOOMLEVELDELTA, "bwZoomLevelDelta");
+			DEF_FUNC(hLibBwgt, bwShowDevTools, BW_SHOWDEVTOOLS, "bwShowDevTools");
 			if(PRINTLEN!=PRINTLEN_0)
 			{
 				PRINTBUFF[PRINTLEN]='\0';

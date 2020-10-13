@@ -390,14 +390,17 @@ namespace client {
 
 		switch (command_id) {
 		case CLIENT_ID_SHOW_DEVTOOLS:
-			ShowDevTools(browser, CefPoint());
+			ShowDevTools(browser, 0);
 			return true;
 		case CLIENT_ID_CLOSE_DEVTOOLS:
 			CloseDevTools(browser);
 			return true;
 		case CLIENT_ID_INSPECT_ELEMENT:
-			ShowDevTools(browser, CefPoint(params->GetXCoord(), params->GetYCoord()));
+		{
+			CefPoint pt{params->GetXCoord(), params->GetYCoord()};
+			ShowDevTools(browser, &pt);
 			return true;
+		}
 		case CLIENT_ID_SHOW_SSL_INFO:
 			ShowSSLInformation(browser);
 			return true;
@@ -1028,7 +1031,7 @@ namespace client {
 		return browser_count_;
 	}
 
-	void ClientHandler::ShowDevTools(CefRefPtr<CefBrowser> browser, const CefPoint& inspect_element_at) {
+	void ClientHandler::ShowDevTools(CefRefPtr<CefBrowser> browser, const CefPoint* inspect_element_at) {
 		if (!CefCurrentlyOn(TID_UI)) {
 			// Execute this method on the UI thread.
 			CefPostTask(TID_UI, base::Bind(&ClientHandler::ShowDevTools, this, browser, inspect_element_at));

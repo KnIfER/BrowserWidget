@@ -504,7 +504,7 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   virtual void ShowDevTools(const CefWindowInfo& windowInfo,
                             CefRefPtr<CefClient> client,
                             const CefBrowserSettings& settings,
-                            const CefPoint& inspect_element_at) = 0;
+                            const CefPoint* inspect_element_at) = 0;
 
   ///
   // Explicitly close the associated DevTools browser, if any.

@@ -347,6 +347,14 @@ extern "C" __declspec(dllexport) void bwZoomLevelDelta(CefRefPtr<CefBrowser>* pB
 	}
 }
 
+extern "C" __declspec(dllexport) void bwShowDevTools(CefRefPtr<CefBrowser>* pBrowser)
+{
+	if(pBrowser)
+	{
+		((client::ClientHandler*)(*pBrowser)->GetHost()->GetClient().get())->ShowDevTools((*pBrowser), 0);
+	}
+}
+
 namespace client {
 	namespace {
 		int RunMain(HINSTANCE hInstance, int nCmdShow) {
