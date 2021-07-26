@@ -52,6 +52,7 @@ struct BJSCV {
 	bool boolVal=0;
 	double doubleVal=0;
 	bool delete_internal=false;
+	LONG_PTR charValPtr=0;
 };
 
 typedef void* (__cdecl* BW_WINDOWMODE)(HINSTANCE, bool);
@@ -60,13 +61,19 @@ typedef int (__cdecl* BW_CREATEBROWSER)(BWCreateOptions);
 
 typedef HWND (__cdecl* BW_GETHWNDFORBROWSER)(bwWebView);
 
+typedef char* (__cdecl* BW_GETSTRING)(LONG_PTR);
+
+typedef void* (__cdecl* BW_RELEASESTRING)(LONG_PTR);
+
 typedef void* (__cdecl* BW_LOADSTRDATA)(bwWebView, const CHAR*, const CHAR*, size_t);
+
+typedef void* (__cdecl* BW_LOADURL)(bwWebView, const CHAR*);
 
 typedef BJSCV* (__cdecl* BJSC_EXECUTION)(LONG_PTR, int, LONG_PTR, int);
 
 typedef BJSCV* (__cdecl* BW_INSTALLJSNATIVETOWIDGET)(bwWebView, const char *, BJSC_EXECUTION);
 
-typedef char* (__cdecl* BW_PARSECEFV8ARGS)(LONG_PTR, int&);
+typedef char* (__cdecl* BW_PARSECEFV8ARGS)(LONG_PTR, int&, bool);
 
 typedef TCHAR* (__cdecl* BW_GETURL)(bwWebView);
 
@@ -80,7 +87,7 @@ typedef void* (__cdecl* BW_CANGOFORWARD)(bwWebView);
 
 typedef void (__cdecl* BW_GOFORWARD)(bwWebView);
 
-typedef void (__cdecl* BW_DESTROYWEBVIEW)(bwWebView);
+typedef void (__cdecl* BW_DESTROYWEBVIEW)(bwWebView, bool);
 
 typedef double (__cdecl* BW_GETZOOMLEVEL)(bwWebView);
 
@@ -97,6 +104,12 @@ __declspec(selectany) /*static*/ BW_CREATEBROWSER bwCreateBrowser = nullptr;
 __declspec(selectany) /*static*/ BW_GETHWNDFORBROWSER bwGetHWNDForBrowser = nullptr;
 				    
 __declspec(selectany) /*static*/ BW_LOADSTRDATA bwLoadStrData = nullptr;
+
+__declspec(selectany) /*static*/ BW_LOADURL bwLoadUrl = nullptr;
+
+__declspec(selectany) /*static*/ BW_GETSTRING bwGetString = nullptr;
+
+__declspec(selectany) /*static*/ BW_RELEASESTRING bwReleaseString = nullptr;
 				    
 __declspec(selectany) /*static*/ BW_INSTALLJSNATIVETOWIDGET bwInstallJsNativeToWidget = nullptr;
 				    
@@ -108,6 +121,8 @@ __declspec(selectany) /*static*/ BW_EXECUTEJAVASCRIPT bwExecuteJavaScript = null
 				    
 __declspec(selectany) /*static*/ BW_CANGOBACK bwCanGoBack = nullptr;
 				    
+__declspec(selectany) /*static*/ BW_GOBACK bwRefresh = nullptr;
+
 __declspec(selectany) /*static*/ BW_GOBACK bwGoBack = nullptr;
 				    
 __declspec(selectany) /*static*/ BW_CANGOFORWARD bwCanGoForward = nullptr;
@@ -127,7 +142,7 @@ __declspec(selectany) /*static*/ BW_SHOWDEVTOOLS bwShowDevTools = nullptr;
 // load module
 static void PRINTMSG(TCHAR* buff, const CHAR* name, int & printed_len)
 {
-	int i=0, len=strlen(name);
+	int i=0, len=(int)strlen(name);
 	if(printed_len+len+6<74)
 	{
 		for(;i<len;i++) 
@@ -162,11 +177,15 @@ static bool bwInit(TCHAR* LibBwgtPath)
 			DEF_FUNC(hLibBwgt, bwCreateBrowser, BW_CREATEBROWSER, "bwCreateBrowser");
 			DEF_FUNC(hLibBwgt, bwGetHWNDForBrowser, BW_GETHWNDFORBROWSER, "bwGetHWNDForBrowser");
 			DEF_FUNC(hLibBwgt, bwLoadStrData, BW_LOADSTRDATA, "bwLoadStrData");
+			DEF_FUNC(hLibBwgt, bwLoadUrl, BW_LOADURL, "bwLoadUrl");
+			DEF_FUNC(hLibBwgt, bwGetString, BW_GETSTRING, "bwGetString");
+			DEF_FUNC(hLibBwgt, bwReleaseString, BW_RELEASESTRING, "bwReleaseString");
 			DEF_FUNC(hLibBwgt, bwInstallJsNativeToWidget, BW_INSTALLJSNATIVETOWIDGET, "bwInstallJsNativeToWidget");
 			DEF_FUNC(hLibBwgt, bwParseCefV8Args, BW_PARSECEFV8ARGS, "bwParseCefV8Args");
 			DEF_FUNC(hLibBwgt, bwGetUrl, BW_GETURL, "bwGetUrl");
 			DEF_FUNC(hLibBwgt, bwExecuteJavaScript, BW_EXECUTEJAVASCRIPT, "bwExecuteJavaScript");
 			DEF_FUNC(hLibBwgt, bwCanGoBack, BW_CANGOBACK, "bwCanGoBack");
+			DEF_FUNC(hLibBwgt, bwRefresh, BW_GOBACK, "bwRefresh");
 			DEF_FUNC(hLibBwgt, bwGoBack, BW_GOBACK, "bwGoBack");
 			DEF_FUNC(hLibBwgt, bwCanGoForward, BW_CANGOFORWARD, "bwCanGoForward");
 			DEF_FUNC(hLibBwgt, bwGoForward, BW_GOFORWARD, "bwGoForward");

@@ -25,6 +25,7 @@ namespace client {
 		bool boolVal=0;
 		double doubleVal=0;
 		bool delete_internal=false;
+		LONG_PTR charValPtr=0;
 	};
 
 	typedef BJSCV* (__cdecl* BJSC_EXECUTION)(const CefString*, int, const CefV8ValueList*, int);

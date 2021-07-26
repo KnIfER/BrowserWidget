@@ -2959,7 +2959,7 @@ namespace {
 #endif
 
 					browser->GetHost()->ShowDevTools(windowInfo, this, settings,
-					CefPoint());
+					&CefPoint());
 				}
 				return;
 			}

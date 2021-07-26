@@ -720,12 +720,12 @@ namespace client {
 			//browser->_resource_interceptor=_resource_interceptor;
 		}
 
+		NotifyBrowserCreated(browser);
+
 		if(_bw_callback)
 		{
 			_bw_callback(new CefRefPtr<CefBrowser>(browser));
 		}
-
-		NotifyBrowserCreated(browser);
 	}
 
 	bool ClientHandler::DoClose(CefRefPtr<CefBrowser> browser) {
@@ -987,6 +987,24 @@ namespace client {
 	CefRefPtr<CefRequestCallback> callback) {
 		CEF_REQUIRE_IO_THREAD();
 
+		//CefRequest::HeaderMap headers;
+		//request->GetHeaderMap(headers);
+		//
+		//// .... do something
+		//
+		//// add new headers
+		//headers.erase("Referer");
+		//headers.erase("referer");
+		//headers.emplace("Referer", "");
+		//
+		//// reset headers
+		//request->SetHeaderMap(headers);
+		
+		if (wcsncmp(request->GetURL().c_str(), L"https://upload-images.jianshu.io", 32)==0
+			||wcsncmp(request->GetURL().c_str(), L"https://hbimg.huabanimg.com", 27)==0)
+		{
+			request->SetReferrer("", REFERRER_POLICY_NO_REFERRER);
+		}
 
 
 

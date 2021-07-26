@@ -16,7 +16,7 @@ namespace client {
 		//::MessageBox(NULL, TEXT("Execute V8Handler"), TEXT(""), MB_OK);
 		if(bwJs2Native)
 		{
-			auto native_ret = bwJs2Native(&name, arguments.size(), &arguments, sizeof(BJSCV));
+			BJSCV* native_ret = bwJs2Native(&name, arguments.size(), &arguments, sizeof(BJSCV));
 			if(native_ret)
 			{
 				switch(native_ret->value_type)
@@ -34,11 +34,13 @@ namespace client {
 						retval = CefV8Value::CreateDouble(native_ret->doubleVal);
 					break;
 				}
-				if(native_ret->delete_internal&&native_ret->charVal)
-				{
-					delete[] native_ret->charVal;
-				}
-				bwJs2Native((const CefString*)&native_ret, -1, 0, 0);
+				bwJs2Native((const CefString*)native_ret, -1, 0, 0);
+				//if(native_ret->delete_internal&&native_ret->charVal)
+				//{
+				//	delete[] native_ret->charVal;
+				//	//HeapFree(GetProcessHeap(), 0, native_ret->charVal);
+				//	native_ret->charVal = nullptr;
+				//}
 				return true;
 			}
 		}

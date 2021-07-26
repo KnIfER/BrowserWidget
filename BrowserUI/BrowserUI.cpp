@@ -117,7 +117,7 @@ BJSCV* JSHAPPY(LONG_PTR funcName, int argc, LONG_PTR argv, int sizeofBJSCV)
 		return 0;
 	}
 	int structSize=0;
-	char* args = bwParseCefV8Args(argv, structSize);
+	char* args = bwParseCefV8Args(argv, structSize, false);
 	if(structSize)
 	{
 		BJSCV* val = (BJSCV*)(args+0*structSize);
@@ -143,8 +143,8 @@ url_intercept_result* InterceptBaidu(const char* url, const url_intercept_result
 		delete ret;
 		return 0;
 	}
-	if(url==std::string("https://www.bing.com/")) {
-		return new url_intercept_result{(CHAR*)"HAPPY", 5, 200, (CHAR*)"OK"};
+	if(url==std::string("https://www.baidu.com/")) {
+		return new url_intercept_result{(CHAR*)"哈哈", 6, 200, (CHAR*)"OK"};
 	}
 	return nullptr;
 }
@@ -167,7 +167,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmd
 	PathCanonicalize(LibBwgtPath, buffer);
 	if(bwInit(LibBwgtPath))
 	{
-		bwCreateBrowser({hwnd, "www.bing.com", onBrowserPrepared, InterceptBaidu});
+		bwCreateBrowser({hwnd, "www.baidu.com", onBrowserPrepared, InterceptBaidu});
 	}
 
 	//if(pWIdGETINVOKER)

@@ -513,7 +513,10 @@ namespace client {
 					CEF_REQUIRE_IO_THREAD();
 
 					const std::string& url = request->url();
-					if (url.compare(0, 13, kTestOrigin)) { //try_intercept
+					// intercept all urls
+					//if (url.compare(0, 13, kTestOrigin)) 
+					// try to intercept all pages ! 
+					{ //try_intercept
 						//TCHAR buffer[100]={0};
 						//wsprintf(buffer,TEXT("OnAfterCreated=%d=%d=%d"), request->browser()->_resource_interceptor, request->browser().get(), request->browser()->GetHost().get());
 						//::MessageBox(NULL, buffer, TEXT(""), MB_OK);
@@ -529,10 +532,23 @@ namespace client {
 								}
 								CefRefPtr<CefStreamReader> response 
 									= CefStreamReader::CreateForData(static_cast<void*>(const_cast<char*>(ret->data)), ret->length);
+									//= CefStreamReader::CreateForData(" 哈哈(SAY HAHA)  哈哈(SAY HAHA)  ", 135); // <meta charset=utf8>
 								auto head=CefResponse::HeaderMap();
 								head.insert(std::make_pair("Access-Control-Allow-Origin", "*"));
+
+								//response->SetMimeType("text/html");
+
+								head.insert(std::make_pair(L"Content-Type", L"text/html; charset=utf-8"));
+								//head.insert(std::make_pair(L"Content-Type", L"text/html;charset=windows-1251"));
+								//head.insert(std::make_pair(L"charset", L"utf-8"));
+								//strcpy(MIME, "text/html; charset=utf-8");
+								//::MessageBoxA(NULL, ("MIME"), MIME, MB_OK);
+
 								request->Continue(new CefStreamResourceHandler(
-								ret->status_code, ret->status_text, MIME, head, response));
+									ret->status_code, ret->status_text, MIME, head, response));
+
+								//request->Continue(new CefStreamResourceHandler(200, "OK", "text/html", head, response));
+								
 								if(ret->delete_internal)
 								{
 									delete[] ret->data;
@@ -541,30 +557,35 @@ namespace client {
 								return true;
 							}
 						}
-						return false;
+						//return false;
 					}
 
-					const std::string& page = url.substr(strlen(kTestOrigin));
+					// todo remove the kTestOrigin ?
+					if (url.length()>14 && url.compare(0, 13, kTestOrigin)==0) {
+						const std::string& page = url.substr(strlen(kTestOrigin));
 
-					auto it = string_resource_map_->find(page);
-					if (it != string_resource_map_->end()) {
-						auto value = it->second;
-						CefRefPtr<CefStreamReader> response = CefStreamReader::CreateForData(
-						static_cast<void*>(const_cast<char*>(value.c_str())), value.size());
-						request->Continue(new CefStreamResourceHandler(
-						200, "OK", "text/html", CefResponse::HeaderMap(), response));
-						return true;
+						auto it = string_resource_map_->find(page);
+						if (it != string_resource_map_->end()) {
+							auto value = it->second;
+							CefRefPtr<CefStreamReader> response = CefStreamReader::CreateForData(
+								static_cast<void*>(const_cast<char*>(value.c_str())), value.size());
+							request->Continue(new CefStreamResourceHandler(
+								200, "OK", "text/html", CefResponse::HeaderMap(), response));
+							return true;
+						}
+
+						// intercept method 2
+						auto it_str = str_resource_map_->find(page);
+						if (it_str != str_resource_map_->end()) {
+							auto value = it_str->second;
+							CefRefPtr<CefStreamReader> response = CefStreamReader::CreateForData(
+								static_cast<void*>(const_cast<char*>(value.data)), value.length);
+							request->Continue(new CefStreamResourceHandler(
+								200, "OK", "text/html", CefResponse::HeaderMap(), response));
+							return true;
+						}
 					}
 
-					auto it_str = str_resource_map_->find(page);
-					if (it_str != str_resource_map_->end()) {
-						auto value = it_str->second;
-						CefRefPtr<CefStreamReader> response = CefStreamReader::CreateForData(
-						static_cast<void*>(const_cast<char*>(value.data)), value.length);
-						request->Continue(new CefStreamResourceHandler(
-						200, "OK", "text/html", CefResponse::HeaderMap(), response));
-						return true;
-					}
 
 					return false;
 				}
@@ -582,6 +603,7 @@ namespace client {
 
 			// Add a file extension to |url| if none is currently specified.
 			std::string RequestUrlFilter(const std::string& url) {
+				if(1) return url;
 				if (url.find(kTestOrigin) != 0U) {
 					// Don't filter anything outside of the test origin.
 					return url;
@@ -762,12 +784,10 @@ namespace client {
 					(origin.find("http://" + std::string(kTestHost)) == 0 ||
 						origin.find("http://" + std::string(kLocalHost)) == 0)) {
 				// Allow cross-origin XMLHttpRequests from test origins.
-				response_headers.insert(
-				std::make_pair("Access-Control-Allow-Origin", origin));
+				response_headers.insert(std::make_pair("Access-Control-Allow-Origin", origin));
 
 				// Allow the custom header from the xmlhttprequest.html example.
-				response_headers.insert(
-				std::make_pair("Access-Control-Allow-Headers", "My-Custom-Header"));
+				response_headers.insert(std::make_pair("Access-Control-Allow-Headers", "My-Custom-Header"));
 			}
 
 			const std::string& dump = DumpRequestContents(request);

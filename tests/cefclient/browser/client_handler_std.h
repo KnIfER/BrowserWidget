@@ -18,7 +18,7 @@ namespace client {
 
 		virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) ;
 
-		CefBrowser* _browser=nullptr;
+		//CefBrowser* _browser=nullptr;
 	private:
 		// Include the default reference counting implementation.
 		IMPLEMENT_REFCOUNTING(ClientHandlerStd);

@@ -31,7 +31,7 @@
 // Uncomment this line to manually enable sandbox support.
 // #define CEF_USE_SANDBOX 1
 
-extern  HINSTANCE g_hInstance;
+//extern  HINSTANCE g_hInstance;
 
 //#undef CEF_USE_SANDBOX 
 
@@ -49,25 +49,25 @@ client::MainContextImpl * pMainContextImpl;
 
 client::MainMessageLoopMultithreadedWin* looper;
 
-
 //internal
 LRESULT WINAPI wWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	return ::DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-void decorateCommandLine(TCHAR* backUp, bool restore)
+void decorateCommandLine(TCHAR** backUp)
 {
 	auto cmd = GetCommandLine();
-	if(restore)
 	{
+		//if(false)
 		if(backUp)
-		lstrcpy(cmd, backUp);
-	}
-	else
-	{
-		if(backUp)
-		lstrcpy(backUp, cmd);
+		{
+			if (!*backUp)
+			{
+				*backUp = new TCHAR[lstrlen(cmd)+8];
+			}
+			lstrcpy(*backUp, cmd);
+		}
 		auto idx=wcsstr(cmd, L"\" --");
 		if(idx)
 		{
@@ -79,8 +79,8 @@ void decorateCommandLine(TCHAR* backUp, bool restore)
 			idx = cmd+lstrlen(cmd);
 		}
 		if(idx)
-		{
-			lstrcpy(idx, TEXT(" -single-process -no-proxy-server -disable-logging"));
+		{//
+			lstrcpy(idx, TEXT(" -single-process -no-proxy-server -disable-logging --default-encoding=UTF8 "));
 		}
 	}
 }
@@ -205,15 +205,14 @@ extern "C" __declspec(dllexport) void bwInstallJsNativeToWidget(CefRefPtr<CefBro
 	}
 }
 
-extern "C" __declspec(dllexport) client::BJSCV* bwParseCefV8Args(std::vector<CefRefPtr<CefV8Value>>* args, int & sizeofBJSCV)
+extern "C" __declspec(dllexport) client::BJSCV* bwParseCefV8Args(std::vector<CefRefPtr<CefV8Value>>* args, int & sizeofBJSCV, bool strToChar)
 {
-	CefRefPtr<CefV8Value> argI;
 	int i=0,len=args->size();
 	sizeofBJSCV=sizeof(client::BJSCV);
 	client::BJSCV* ret = (client::BJSCV*)malloc(sizeofBJSCV*len);
 	for(;i<len;i++)
 	{
-		argI = args->at(i);
+		CefRefPtr<CefV8Value> & argI = args->at(i);
 		ret[i].value_type=client::ValueType::typeNull;
 		if(argI->IsInt())
 		{
@@ -222,7 +221,26 @@ extern "C" __declspec(dllexport) client::BJSCV* bwParseCefV8Args(std::vector<Cef
 		}
 		else if(argI->IsString())
 		{
-			ret[i].charVal=(CHAR*)argI->GetStringValue().c_str();
+			//ret[i].charValPtr=(LONG_PTR)new CefRefPtr<CefV8Value>(argI);
+			//::MessageBox(0, argI->GetStringValue().c_str(), TEXT(""), MB_OK);
+			CefString & sv = argI->GetStringValue();
+			TCHAR* str=(TCHAR*)sv.c_str();
+			if (strToChar)
+			{
+				int len = WideCharToMultiByte(CP_ACP, 0, str, sv.length(), 0, 0, 0, 0);
+				if (len>=0)
+				{
+					char* data = new char[len+1]{0};
+					WideCharToMultiByte(CP_ACP, 0, str, sv.length(), data, len, 0, 0);
+					data[len]='\0';
+					ret[i].charVal = data;
+					//::MessageBoxA(0, ret[i].charVal, (""), MB_OK);
+				}
+			}
+			else
+			{
+				ret[i].charVal = (CHAR*)str;
+			}
 			ret[i].value_type=client::ValueType::typeString;
 		}
 		else if(argI->IsBool())
@@ -237,6 +255,16 @@ extern "C" __declspec(dllexport) client::BJSCV* bwParseCefV8Args(std::vector<Cef
 		}
 	}
 	return ret;
+}
+
+extern "C" __declspec(dllexport) char* bwGetString(CefRefPtr<CefString>* string)
+{
+	return (char*)string->get()->c_str();
+}
+
+extern "C" __declspec(dllexport) void bwReleaseString(CHAR* data)
+{
+	delete[] data;
 }
 
 extern "C" __declspec(dllexport) int bwLoadString(CefRefPtr<CefBrowser>* pBrowser, CHAR* URL, const CHAR* Data, size_t length)
@@ -274,6 +302,14 @@ extern "C" __declspec(dllexport) bool bwCanGoBack(CefRefPtr<CefBrowser>* pBrowse
 	return false;
 }
 
+extern "C" __declspec(dllexport) void bwRefresh(CefRefPtr<CefBrowser>* pBrowser)
+{
+	if(pBrowser)
+	{
+		(*pBrowser)->Reload();
+	}
+}
+
 extern "C" __declspec(dllexport) void bwGoBack(CefRefPtr<CefBrowser>* pBrowser)
 {
 	if(pBrowser)
@@ -281,6 +317,7 @@ extern "C" __declspec(dllexport) void bwGoBack(CefRefPtr<CefBrowser>* pBrowser)
 		(*pBrowser)->GoBack();
 	}
 }
+
 extern "C" __declspec(dllexport) bool bwCanGoForward(CefRefPtr<CefBrowser>* pBrowser)
 {
 	if(pBrowser)
@@ -298,18 +335,49 @@ extern "C" __declspec(dllexport) void bwGoForward(CefRefPtr<CefBrowser>* pBrowse
 	}
 }
 
-extern "C" __declspec(dllexport) void bwDestroyWebview(CefRefPtr<CefBrowser>* pBrowser)
+extern "C" __declspec(dllexport) void bwDestroyWebview(CefRefPtr<CefBrowser>* pBrowser, bool exit)
 {
-	if (!CefCurrentlyOn(TID_UI)) {
-		CefPostTask(TID_UI, base::Bind(bwDestroyWebview, pBrowser));
+	// what a mess ……
+	if(exit&&1) 
+	{
+		(*pBrowser)->GetHost()->CloseBrowser(true);
+		(*pBrowser)->Release();
 		return;
 	}
+
+	if(exit&&0) 
+	{
+		(*pBrowser)->Release();
+		return;
+	}
+
+	if (!CefCurrentlyOn(TID_UI)) {
+		CefPostTask(TID_UI, base::Bind(bwDestroyWebview, pBrowser, exit));
+		return;
+	}
+
 	if(pBrowser)
 	{
-		((client::ClientHandler*)(*pBrowser)->GetHost()->GetClient().get())->DoClose(*pBrowser);
-		DestroyWindow((*pBrowser)->GetHost()->GetWindowHandle());
-		(*pBrowser)->Release();
+		CefRefPtr<CefBrowser> ptr(*pBrowser);
+		if(ptr->HasAtLeastOneRef()) 
+		{
+			(*pBrowser)->Release();
+			((client::ClientHandler*)ptr->GetHost()->GetClient().get())->DoClose(ptr);
+			DestroyWindow(ptr->GetHost()->GetWindowHandle());
+
+			ptr->GetHost()->CloseBrowser(true);
+			//ptr->Release(); // don't do it
+		}
 	}
+
+	if(exit && looper) 
+	{
+		looper->Quit();
+		pMainContextImpl->Shutdown();
+		delete looper;
+		looper = 0;
+	}
+	//CefShutdown();
 }
 
 extern "C" __declspec(dllexport) double bwGetZoomLevel(CefRefPtr<CefBrowser>* pBrowser)
@@ -371,12 +439,14 @@ namespace client {
 			// Create a ClientApp of the correct type.
 			CefRefPtr<ClientApp> app = new ClientAppBrowser();
 
-			decorateCommandLine(nullptr, false);
-
 			// Execute the secondary process, if any.
 			int exit_code = CefExecuteProcess(main_args, app, sandbox_info);
 			if (exit_code >= 0)
 			return exit_code;
+
+
+			decorateCommandLine(nullptr);
+
 
 			// Create the main context object.
 			scoped_ptr<MainContextImpl> context(new MainContextImpl(command_line, true));
@@ -469,7 +539,7 @@ namespace client {
 			//std::vector<CefRefPtr<BWV8Handler>>* bcRenderHandlers=0;
 		};
 
-		extern "C" __declspec(dllexport) int bwCreateBrowser(BWCreateOptions& BWOpt) {
+		extern "C" __declspec(dllexport) int bwCreateBrowser(BWCreateOptions BWOpt) {
 			if(!looper)
 			{
 				// Enable High-DPI support on Windows 7 or newer.
@@ -490,14 +560,16 @@ namespace client {
 
 				CefRefPtr<CefApp> app = new ClientAppBrowser();
 
-				TCHAR cmd_extra[MAX_PATH];
-				decorateCommandLine(cmd_extra, 0);
+				//int cmd_len = lstrlen(::GetCommandLine());
+				TCHAR* cmd_extra = NULL;
+				decorateCommandLine(&cmd_extra);
 
 				// Execute the secondary process, if any.
 				int exit_code = CefExecuteProcess(main_args, app, sandbox_info);
+
 				if (exit_code >= 0)
 				return 0;
-				
+
 				pMainContextImpl = new MainContextImpl(command_line, true); // Create the main context object.
 
 				CefSettings settings;
@@ -508,6 +580,11 @@ namespace client {
 				settings.no_sandbox = false;
 				settings.log_severity=LOGSEVERITY_DISABLE;
 				settings.multi_threaded_message_loop=1;
+				//settings.background_color = 0xff000000;
+
+				//const char* loc = "zh-CN";
+				//CefString(&settings.locale).FromASCII(loc);
+
 
 				// Initialize CEF.
 				bool succ = pMainContextImpl->Initialize(main_args, settings, app, sandbox_info);
@@ -516,7 +593,15 @@ namespace client {
 				if(succ)
 				{
 					looper = new MainMessageLoopMultithreadedWin();
+					looper->agent=false;
 					looper->Run();
+				}
+
+				if (cmd_extra)
+				{
+					lstrcpy(::GetCommandLine(), cmd_extra);
+					//::GetCommandLine()[cmd_len]='\0';
+					//delete[] cmd_extra;
 				}
 			}
 
@@ -526,13 +611,13 @@ namespace client {
 				CefBrowserSettings browser_settings;
 				CefWindowInfo window_info;
 				RECT rc;
-				CefRefPtr<CefDictionaryValue> extra_info;
-				CefRefPtr<CefRequestContext> request_context;
-
 				if(IsWindow(BWOpt.hParent))
 				{
 					GetWindowRect(BWOpt.hParent, &rc);
 					window_info.SetAsChild(BWOpt.hParent, rc);
+
+				CefRefPtr<CefDictionaryValue> extra_info;
+				CefRefPtr<CefRequestContext> request_context;
 
 					g_handler->IsEmbeded = true;
 					g_handler->_bw_callback = BWOpt.bcCallback;
@@ -576,35 +661,126 @@ namespace client {
 		CefRefPtr<CefApp> app = new ClientAppBrowser();
 
 
-		int MainRun1(HINSTANCE hInstance, int nCmdShow) {
-			{
-				regWndClass(L"ASDASD", CS_HREDRAW | CS_VREDRAW);
-				hwnd = ::CreateWindowEx(0 , L"ASDASD" , NULL
-				, WS_OVERLAPPEDWINDOW , 0 , 0 , 840 , 680 , NULL , NULL , g_hInstance, NULL);
-				ShowWindow(hwnd, true);
-			}
-
-			BWCreateOptions args = {hwnd, "www.baidu.com", Test_browser_prepared, Test_InterceptBaidu};
-			bwCreateBrowser(args);
-			//args = {hwnd, "www.bing.com", (BrowserCallback)Test_browsercallback1, (URLInterceptor)Test_InterceptBaidu};
+		int MainRun1(HINSTANCE hInstance, int nCmdShow) 
+		{
+			//{
+			//	regWndClass(L"ASDASD", CS_HREDRAW | CS_VREDRAW);
+			//	hwnd = ::CreateWindowEx(0 , L"ASDASD" , NULL
+			//	, WS_OVERLAPPEDWINDOW , 0 , 0 , 840 , 680 , NULL , NULL , g_hInstance, NULL);
+			//	ShowWindow(hwnd, true);
+			//}
+			//
+			//BWCreateOptions args = {hwnd, "www.baidu.com", Test_browser_prepared, Test_InterceptBaidu};
 			//bwCreateBrowser(args);
+			////args = {hwnd, "www.bing.com", (BrowserCallback)Test_browsercallback1, (URLInterceptor)Test_InterceptBaidu};
+			////bwCreateBrowser(args);
+			//
+			//HACCEL hAccelTable = LoadAccelerators(g_hInstance, MAKEINTRESOURCE(IDC_CEFCLIENT));
+			//
+			//MSG msg;
+			//{
+			//	while (GetMessage(&msg, NULL, 0, 0)) {
+			//		if ((looper && looper->dialog_hwnd_ && IsDialogMessage(looper->dialog_hwnd_ , &msg)))
+			//		continue;
+			//		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+			//		{
+			//			TranslateMessage(&msg);
+			//			DispatchMessage(&msg);
+			//		}
+			//	}
+			//}
+			//
+			//return 1;
 
-			HACCEL hAccelTable = LoadAccelerators(g_hInstance, MAKEINTRESOURCE(IDC_CEFCLIENT));
+			// Enable High-DPI support on Windows 7 or newer.
+			//CefEnableHighDPISupport();
 
-			MSG msg;
+
+			CefMainArgs main_args(hInstance);
+
+			void* sandbox_info = nullptr;
+
+			CefScopedSandboxInfo scoped_sandbox;
+			sandbox_info = scoped_sandbox.sandbox_info();
+			// Parse command-line arguments.
+			CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
+
+			// Execute the secondary process, if any.
+			int exit_code = CefExecuteProcess(main_args, app, sandbox_info);
+			if (exit_code >= 0)
+				return exit_code;
+
+			TCHAR* cmd_extra = NULL;
+			decorateCommandLine(&cmd_extra);
+
+			if (cmd_extra)
 			{
-				while (GetMessage(&msg, NULL, 0, 0)) {
-					if ((looper && looper->dialog_hwnd_ && IsDialogMessage(looper->dialog_hwnd_ , &msg)))
-					continue;
-					if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-					{
-						TranslateMessage(&msg);
-						DispatchMessage(&msg);
-					}
-				}
+				delete[] cmd_extra;
 			}
 
-			return 1;
+			// Create the main context object.
+			pMainContextImpl = new MainContextImpl(command_line, true);
+
+			CefSettings settings;
+
+			settings.no_sandbox = true;
+			// Applications should specify a unique GUID here to enable trusted downloads.
+			CefString(&settings.application_client_id_for_file_scanning).FromString("9A8DE24D-B822-4C6C-8259-5A848FEA1E68");
+
+			// Populate the settings based on command line arguments.
+			pMainContextImpl->PopulateSettings(&settings);
+
+			settings.multi_threaded_message_loop=1; 
+
+			looper = new MainMessageLoopMultithreadedWin();
+			looper->agent = true;
+
+			// Initialize CEF.
+			// Initialize CEF.
+			// Initialize CEF.
+			pMainContextImpl->Initialize(main_args, settings, app, sandbox_info);
+			// Initialize CEF.
+			// Initialize CEF.
+			// Initialize CEF.
+
+
+			RootWindowConfig window_config;
+			window_config.always_on_top = 0;
+			window_config.with_controls = 1;
+			window_config.url = "https://www.baidu.com";
+			window_config.with_osr = /*windowless_rendering_enabled*/0 ? true : false;
+
+			// Create the first window.
+			pMainContextImpl->GetRootWindowManager()->CreateRootWindow(window_config);
+
+			// Run the message loop. This will block until Quit() is called by the
+			// RootWindowManager after all windows have been destroyed.
+
+			if(1) {
+				regWndClass(L"ASDASD", CS_BYTEALIGNWINDOW | CS_DBLCLKS);
+				hwnd = ::CreateWindowEx(0 , L"ASDASD" , TEXT("TEST")
+					, (WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN) , 0 , 0 , 840 , 680 , NULL , NULL , g_hInstance, NULL);
+				ShowWindow(hwnd, true);
+
+				CefBrowserSettings browser_settings;
+				CefWindowInfo window_info;
+				RECT rc;
+				GetWindowRect(hwnd, &rc);
+				//rc.bottom -= 160;
+				window_info.SetAsChild(hwnd, rc);
+
+				CefRefPtr<ClientHandlerStd>  g_handler = new ClientHandlerStd(0, "www.baidu.com", 0, 0);
+				CefRefPtr<CefDictionaryValue> extra_info;
+				CefRefPtr<CefRequestContext> request_context;
+				CefBrowserHost::CreateBrowser(window_info, g_handler, "www.baidu.com", browser_settings, extra_info, request_context);
+			}
+
+			//g_handler->_browser->GetMainFrame()->LoadURL("www.bing.com");
+
+			looper->Run();
+
+			return 0;
+
 		}
 
 
@@ -634,9 +810,14 @@ namespace client {
 
 				// Parse command-line arguments.
 				CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
+				
+				TCHAR* cmd_extra = NULL;
+				decorateCommandLine(&cmd_extra);
 
-				TCHAR cmd_extra[MAX_PATH];
-				decorateCommandLine(cmd_extra, 0);
+				if (cmd_extra)
+				{
+					delete[] cmd_extra;
+				}
 
 				// Execute the secondary process, if any.
 				int exit_code = CefExecuteProcess(main_args, app, sandbox_info);

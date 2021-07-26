@@ -66,7 +66,7 @@ namespace client {
 			HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CEFCLIENT));
 			MSG msg;
 			// Run the application message loop.
-			while (GetMessage(&msg, NULL, 0, 0)) {
+			while (agent && GetMessage(&msg, NULL, 0, 0)) {
 				// Allow processing of dialog messages.
 				//if (dialog_hwnd_ && IsDialogMessage(dialog_hwnd_, &msg))
 				//  continue;
@@ -105,8 +105,7 @@ namespace client {
 		return (thread_id_ == base::PlatformThread::CurrentId());
 	}
 
-	void MainMessageLoopMultithreadedWin::SetCurrentModelessDialog(
-	HWND hWndDialog) {
+	void MainMessageLoopMultithreadedWin::SetCurrentModelessDialog(HWND hWndDialog) {
 		DCHECK(RunsTasksOnCurrentThread());
 
 #if DCHECK_IS_ON()
@@ -133,10 +132,7 @@ namespace client {
 
 	// static
 	LRESULT CALLBACK
-	MainMessageLoopMultithreadedWin::MessageWndProc(HWND hWnd,
-	UINT message,
-	WPARAM wParam,
-	LPARAM lParam) {
+	MainMessageLoopMultithreadedWin::MessageWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 		MainMessageLoopMultithreadedWin* self =
 		GetUserDataPtr<MainMessageLoopMultithreadedWin*>(hWnd);
 
@@ -160,8 +156,7 @@ namespace client {
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 
-	void MainMessageLoopMultithreadedWin::PostTaskInternal(
-	CefRefPtr<CefTask> task) {
+	void MainMessageLoopMultithreadedWin::PostTaskInternal(CefRefPtr<CefTask> task) {
 		lock_.AssertAcquired();
 
 		if (!message_hwnd_) {

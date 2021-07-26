@@ -15,10 +15,13 @@ namespace client {
 
 	void ClientHandlerStd::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 		ClientHandler::OnAfterCreated(browser);
+
 		//TCHAR buffer[100]={0};
 		//wsprintf(buffer,TEXT("OnAfterCreated=%d"), this);
 		//::MessageBox(NULL, buffer, TEXT(""), MB_OK);
-		_browser = browser.get();
+
+		//_browser = browser.get();
+		// 
 		//if(!isRoot && !agent)
 		{
 			//::MessageBox(NULL, TEXT("OnAfterCreated1"), TEXT(""), MB_OK);

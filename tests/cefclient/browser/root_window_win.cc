@@ -376,7 +376,15 @@ namespace client {
 		auto hwnd = CreateWindowEx(dwExStyle, window_class.c_str(), window_title.c_str(), dwStyle,
 		x, y, width, height, NULL, NULL, hInstance, this);
 
-		CHECK(hwnd_);
+		auto wtwd = hwnd_;
+		if(!wtwd) {
+			wtwd = FindWindow(L"Intermediate D3D Window",NULL);
+			if(!wtwd) {
+				wtwd = FindWindow(L"Textrument",NULL);
+			}
+		}
+
+		CHECK(wtwd); // todo Null pointer here when invoking |Inspect Element|, why? see |ShowDevTools|
 
 		if (!called_enable_non_client_dpi_scaling_ && IsProcessPerMonitorDpiAware()) {
 			// This call gets Windows to scale the non-client area when WM_DPICHANGED
@@ -387,7 +395,7 @@ namespace client {
 			reinterpret_cast<EnableChildWindowDpiMessagePtr>(GetProcAddress(
 			GetModuleHandle(L"user32.dll"), "EnableChildWindowDpiMessage"));
 			if (func_ptr)
-			func_ptr(hwnd_, TRUE);
+			func_ptr(wtwd, TRUE);
 		}
 
 		if (!initially_hidden) {
