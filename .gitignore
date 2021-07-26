@@ -2,6 +2,8 @@ Resources
 Debug
 Debug_
 Release
+RelZLL
+Release_x32
 Release_
 GPUCache
 *.log
